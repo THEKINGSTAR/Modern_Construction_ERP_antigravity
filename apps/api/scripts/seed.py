@@ -49,6 +49,9 @@ def seed_data():
     permissions_list = [
         "projects.read", "projects.create", "projects.update", "projects.approve", "projects.delete",
         "clients.read", "clients.create", "clients.update", "clients.delete",
+        "contracts.read", "contracts.create", "contracts.update", "contracts.delete",
+        "wbs.read", "wbs.create", "wbs.update", "wbs.delete",
+        "cost_codes.read", "cost_codes.create", "cost_codes.update", "cost_codes.delete",
         "finance.journal.post", "inventory.issue.create", "procurement.po.approve"
     ]
     perm_repo = BaseRepository(Permission, db)
@@ -67,7 +70,7 @@ def seed_data():
     rp_repo = BaseRepository(RolePermission, db)
     for p_name, perm in created_perms.items():
         rp_repo.create({"role_id": admin_role.id, "permission_id": perm.id})
-        if p_name.startswith("projects.") or p_name.startswith("clients."):
+        if p_name.startswith("projects.") or p_name.startswith("clients.") or p_name.startswith("contracts.") or p_name.startswith("wbs.") or p_name.startswith("cost_codes."):
             rp_repo.create({"role_id": pm_role.id, "permission_id": perm.id})
         
     # Create Admin User
@@ -114,6 +117,14 @@ def seed_data():
         "end_date": datetime.date(2026, 12, 31),
         "is_closed": False
     })
+    
+    # Create Contract Types
+    from app.models.contracts import ContractType
+    ct_repo = BaseRepository(ContractType, db)
+    ct_repo.create({"name": "Lump Sum", "description": "Fixed price contract", "is_active": True})
+    ct_repo.create({"name": "Unit Price", "description": "Bill of quantities based contract", "is_active": True})
+    ct_repo.create({"name": "Cost Plus", "description": "Cost plus fee contract", "is_active": True})
+    ct_repo.create({"name": "Time and Materials", "description": "Time and materials contract", "is_active": True})
     
     print(f"Seeding complete! Default Tenant ID: {tenant_id}")
     print(f"Admin User created: admin@example.com / admin")

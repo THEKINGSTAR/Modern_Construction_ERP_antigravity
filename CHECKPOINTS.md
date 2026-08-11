@@ -8,9 +8,9 @@ This file records verified recovery points.
 | 01 | COMPLETED | ede3dc5 | stage-1 | Mocked | pending |
 | 02 | COMPLETED | ce8df41 | stage-2 | YES | pending |
 | 03 | COMPLETED | 057342a | stage-3 | YES | pending |
-| 04 | NOT STARTED | | | | |
-| 05 | NOT STARTED | | | | |
-| 06 | NOT STARTED | | | | |
+| 04 | COMPLETED | | stage-04 | YES | pending |
+| 05 | COMPLETED | 2573a72 | stage-05 | YES | pending |
+| 06 | COMPLETED | | stage-06 | YES | pending |
 | 07 | NOT STARTED | | | | |
 | 08 | NOT STARTED | | | | |
 | 09 | NOT STARTED | | | | |
