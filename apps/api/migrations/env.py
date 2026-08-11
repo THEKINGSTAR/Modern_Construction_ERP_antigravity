@@ -28,6 +28,13 @@ from app.models.requisitions import PurchaseRequisition, PurchaseRequisitionLine
 from app.models.rfqs import RFQ, RFQLine
 from app.models.quotations import SupplierQuotation, SupplierQuotationLine
 from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine
+from app.models.materials import Material
+from app.models.warehouses import Warehouse
+from app.models.inventory import InventoryTransaction, InventoryBalance
+from app.models.goods_receipts import GoodsReceipt, GoodsReceiptLine
+from app.models.material_issues import MaterialIssue, MaterialIssueLine
+from app.models.inventory_transfers import InventoryTransfer, InventoryTransferLine
+from app.models.inventory_adjustments import InventoryAdjustment, InventoryAdjustmentLine
 
 config = context.config
 if config.config_file_name is not None:

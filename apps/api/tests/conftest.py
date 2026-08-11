@@ -12,6 +12,13 @@ import app.models.legal_entity
 import app.models.branch
 import app.models.user
 import app.models.auth
+import app.models.materials
+import app.models.warehouses
+import app.models.inventory
+import app.models.goods_receipts
+import app.models.material_issues
+import app.models.inventory_transfers
+import app.models.inventory_adjustments
 
 # Use SQLite in-memory for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
