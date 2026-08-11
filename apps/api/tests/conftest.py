@@ -55,7 +55,7 @@ def test_tenant(db_session):
     import uuid
     from app.models.tenant import Tenant
     tenant_id = uuid.uuid4()
-    tenant = Tenant(id=tenant_id, name="Test Tenant Settings")
+    tenant = Tenant(id=tenant_id, name=f"Test Tenant {tenant_id}")
     db_session.add(tenant)
     db_session.commit()
     return tenant
@@ -65,7 +65,8 @@ def auth_headers(client, db_session, test_tenant):
     import uuid
     from app.models.user import User
     from app.core.security import get_password_hash, create_access_token
-    email = "admin_settings@example.com"
+    # Use a unique email per test to avoid reusing the same user across different test tenants
+    email = f"admin_{uuid.uuid4()}@example.com"
     user = db_session.query(User).filter_by(email=email).first()
     if not user:
         user = User(

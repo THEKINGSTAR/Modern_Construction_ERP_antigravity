@@ -1,10 +1,10 @@
 # Build Status
 
-- **Current Stage:** Stage 06 (Contracts, WBS, Cost Codes) (COMPLETED)
-- **Next Stage:** Stage 07 (Procurement & Materials)
+- **Current Stage:** Stage 08 (Procurement Lifecycle) (COMPLETED)
+- **Next Stage:** Stage 09
 - **Status:** Awaiting Human Review
 
-Contracts, Work Breakdown Structure (WBS), and Cost Codes have been implemented with arbitrary hierarchy depth (using self-referential Adjacency List pattern) for both WBS and Cost Codes. Alembic migrations, database models, schemas, and API endpoints are complete. The frontend dashboard shells have also been scaffolded. API endpoints and tenant isolation have been fully tested via pytest.
+The Procurement Lifecycle has been built including Suppliers, Purchase Requisitions, RFQs, Supplier Quotations, and Purchase Orders with complete state machines, validations, schemas, endpoints, and frontend placeholders. Tenant isolation has been heavily enforced and validated via the `pytest` suite ensuring ZERO data leakage between tenants.
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -16,4 +16,5 @@ Contracts, Work Breakdown Structure (WBS), and Cost Codes have been implemented 
 | 04 | Organization & Localization | `stage-04` | Complete |
 | 05 | Project Management Core | `stage-05` | Complete |
 | 06 | Contracts, WBS, Cost Codes | `stage-06` | Complete |
-| 07 | Procurement & Materials | `stage-07` | Complete |
+| 07 | BOQ, Estimates & Budgets | `stage-07` | Complete |
+| 08 | Procurement Lifecycle | `stage-08` | Complete |

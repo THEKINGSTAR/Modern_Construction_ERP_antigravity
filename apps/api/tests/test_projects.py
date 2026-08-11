@@ -3,6 +3,8 @@ from fastapi.testclient import TestClient
 
 def test_get_projects_empty(client: TestClient, auth_headers: dict):
     response = client.get("/api/v1/projects/", headers=auth_headers)
+    print("X-Tenant-ID sent:", auth_headers["X-Tenant-ID"])
+    print("Response JSON:", response.json())
     assert response.status_code == 200
     assert response.json() == []
 

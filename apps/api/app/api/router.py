@@ -1,5 +1,21 @@
 from fastapi import APIRouter
-from app.api.endpoints import auth, settings, clients, projects, contracts, wbs, cost_codes, boq, estimates, budgets
+from app.api.endpoints import (
+    auth,
+    settings,
+    projects,
+    clients,
+    contracts,
+    wbs,
+    cost_codes,
+    boq,
+    estimates,
+    budgets,
+    suppliers,
+    requisitions,
+    rfqs,
+    quotations,
+    purchase_orders
+)
 
 api_router = APIRouter()
 
@@ -10,6 +26,11 @@ api_router.include_router(projects.router, prefix="/projects", tags=["projects"]
 api_router.include_router(contracts.router, prefix="/contracts", tags=["contracts"])
 api_router.include_router(wbs.router, prefix="/wbs", tags=["wbs"])
 api_router.include_router(cost_codes.router, prefix="/cost-codes", tags=["cost-codes"])
-api_router.include_router(boq.router, prefix="/boqs", tags=["BOQ"])
-api_router.include_router(estimates.router, prefix="/estimates", tags=["Estimates"])
-api_router.include_router(budgets.router, prefix="/budgets", tags=["Budgets"])
+api_router.include_router(boq.router, prefix="/boqs", tags=["boqs"])
+api_router.include_router(estimates.router, prefix="/estimates", tags=["estimates"])
+api_router.include_router(budgets.router, prefix="/budgets", tags=["budgets"])
+api_router.include_router(suppliers.router, prefix="/suppliers", tags=["suppliers"])
+api_router.include_router(requisitions.router, prefix="/requisitions", tags=["requisitions"])
+api_router.include_router(rfqs.router, prefix="/rfqs", tags=["rfqs"])
+api_router.include_router(quotations.router, prefix="/quotations", tags=["quotations"])
+api_router.include_router(purchase_orders.router, prefix="/purchase-orders", tags=["purchase-orders"])

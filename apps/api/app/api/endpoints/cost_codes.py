@@ -26,8 +26,9 @@ def get_cost_codes_tree(
     db: Session = Depends(get_db),
     _=Depends(require_permissions(["cost_codes.read"]))
 ):
-    repo = BaseRepository(CostCode, db)
-    root_nodes = db.query(CostCode).filter(CostCode.parent_id == None).all()
+    from app.core.context import get_current_tenant_id
+    tenant_id = get_current_tenant_id()
+    root_nodes = db.query(CostCode).filter(CostCode.parent_id == None, CostCode.tenant_id == tenant_id).all()
     return root_nodes
 
 @router.get("/{code_id}", response_model=CostCodeResponse)

@@ -23,6 +23,11 @@ from app.models.cost_codes import CostCode
 from app.models.boq import BOQ, BOQRevision, BOQItem
 from app.models.estimates import Estimate, EstimateRevision, EstimateItem
 from app.models.budgets import Budget, BudgetLine
+from app.models.suppliers import Supplier, SupplierContact
+from app.models.requisitions import PurchaseRequisition, PurchaseRequisitionLine
+from app.models.rfqs import RFQ, RFQLine
+from app.models.quotations import SupplierQuotation, SupplierQuotationLine
+from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine
 
 config = context.config
 if config.config_file_name is not None:
