@@ -18,6 +18,8 @@ app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 
 app.add_exception_handler(BaseAPIException, api_exception_handler)
 
+from app.api.router import api_router
+app.include_router(api_router, prefix="/api/v1")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
