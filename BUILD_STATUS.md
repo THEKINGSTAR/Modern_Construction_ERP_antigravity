@@ -1,7 +1,7 @@
 # Build Status
 
-- **Current Stage:** Stage 01 (COMPLETED)
-- **Next Stage:** Stage 02 (Core Models)
+- **Current Stage:** Stage 02 (COMPLETED)
+- **Next Stage:** Stage 03 (Users, Auth, Identity)
 - **Status:** Awaiting Human Review
 
-The technical foundations (monorepo, Docker, Next.js, FastAPI) have been implemented and checked into git tag `stage-1`. No business logic has been created yet.
+The multi-tenant data foundation has been implemented and verified via automated tests. Checked into git tag `stage-2`.

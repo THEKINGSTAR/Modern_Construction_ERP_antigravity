@@ -6,7 +6,7 @@ This file records verified recovery points.
 |---|---|---|---|---|---|
 | 00 | COMPLETED | 5ced37b | | N/A | YES |
 | 01 | COMPLETED | ede3dc5 | stage-1 | Mocked | pending |
-| 02 | NOT STARTED | | | | |
+| 02 | COMPLETED | ce8df41 | stage-2 | YES | pending |
 | 03 | NOT STARTED | | | | |
 | 04 | NOT STARTED | | | | |
 | 05 | NOT STARTED | | | | |
