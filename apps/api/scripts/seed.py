@@ -52,6 +52,9 @@ def seed_data():
         "contracts.read", "contracts.create", "contracts.update", "contracts.delete",
         "wbs.read", "wbs.create", "wbs.update", "wbs.delete",
         "cost_codes.read", "cost_codes.create", "cost_codes.update", "cost_codes.delete",
+        "boqs.read", "boqs.create", "boqs.update", "boqs.delete",
+        "estimates.read", "estimates.create", "estimates.update", "estimates.delete",
+        "budgets.read", "budgets.create", "budgets.update", "budgets.delete",
         "finance.journal.post", "inventory.issue.create", "procurement.po.approve"
     ]
     perm_repo = BaseRepository(Permission, db)
@@ -70,7 +73,7 @@ def seed_data():
     rp_repo = BaseRepository(RolePermission, db)
     for p_name, perm in created_perms.items():
         rp_repo.create({"role_id": admin_role.id, "permission_id": perm.id})
-        if p_name.startswith("projects.") or p_name.startswith("clients.") or p_name.startswith("contracts.") or p_name.startswith("wbs.") or p_name.startswith("cost_codes."):
+        if p_name.startswith("projects.") or p_name.startswith("clients.") or p_name.startswith("contracts.") or p_name.startswith("wbs.") or p_name.startswith("cost_codes.") or p_name.startswith("boqs.") or p_name.startswith("estimates.") or p_name.startswith("budgets."):
             rp_repo.create({"role_id": pm_role.id, "permission_id": perm.id})
         
     # Create Admin User

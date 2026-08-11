@@ -16,4 +16,4 @@ Contracts, Work Breakdown Structure (WBS), and Cost Codes have been implemented 
 | 04 | Organization & Localization | `stage-04` | Complete |
 | 05 | Project Management Core | `stage-05` | Complete |
 | 06 | Contracts, WBS, Cost Codes | `stage-06` | Complete |
-| 07 | Procurement & Materials | `stage-07` | Pending |
+| 07 | Procurement & Materials | `stage-07` | Complete |

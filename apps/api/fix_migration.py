@@ -1,6 +1,6 @@
 import re
 
-with open('migrations/versions/452f2f357a9e_contracts_wbs_costcodes.py', 'r') as f:
+with open('migrations/versions/c34280f7c043_procurement_auto.py', 'r') as f:
     lines = f.readlines()
 
 new_lines = []
@@ -24,5 +24,5 @@ for line in lines:
         
     new_lines.append(line)
 
-with open('migrations/versions/452f2f357a9e_contracts_wbs_costcodes.py', 'w') as f:
+with open('migrations/versions/c34280f7c043_procurement_auto.py', 'w') as f:
     f.writelines(new_lines)

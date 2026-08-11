@@ -20,6 +20,9 @@ from app.models.projects import Project
 from app.models.contracts import Contract, ContractType
 from app.models.wbs import WBSNode
 from app.models.cost_codes import CostCode
+from app.models.boq import BOQ, BOQRevision, BOQItem
+from app.models.estimates import Estimate, EstimateRevision, EstimateItem
+from app.models.budgets import Budget, BudgetLine
 
 config = context.config
 if config.config_file_name is not None:

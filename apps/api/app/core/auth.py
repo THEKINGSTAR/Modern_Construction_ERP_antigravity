@@ -55,6 +55,9 @@ def get_current_user(
     
     return user
 
+def get_current_tenant(current_user: User = Depends(get_current_user)) -> UUID:
+    return current_user.tenant_id
+
 def require_permissions(required_permissions: list[str]):
     def permission_checker(
         current_user: User = Depends(get_current_user), 
