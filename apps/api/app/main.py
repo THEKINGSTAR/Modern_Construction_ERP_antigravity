@@ -10,6 +10,7 @@ from app.config import settings
 from app.core.logging import setup_logging
 from app.core.exceptions import BaseAPIException, api_exception_handler
 from app.core.database import SessionLocal
+from app.core.context import set_current_tenant_id
 
 setup_logging(settings.ENVIRONMENT)
 
@@ -24,6 +25,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def tenant_context_middleware(request: Request, call_next):
+    tenant_id = request.headers.get("X-Tenant-ID")
+    if tenant_id:
+        set_current_tenant_id(tenant_id)
+    else:
+        set_current_tenant_id(None)
+    response = await call_next(request)
+    return response
 
 @app.middleware("http")
 async def add_request_id_and_timing(request: Request, call_next):
