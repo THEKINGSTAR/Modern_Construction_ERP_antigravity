@@ -15,7 +15,8 @@ from app.models.branch import Branch
 from app.models.user import User
 from app.models.auth import Role, Permission, UserRole, RolePermission
 from app.models.org_settings import Currency, ExchangeRate, FiscalYear, AccountingPeriod, TenantSettings
-
+from app.models.clients import Client, ClientContact
+from app.models.projects import Project
 config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

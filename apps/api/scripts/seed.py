@@ -47,22 +47,28 @@ def seed_data():
     
     # Create Permissions
     permissions_list = [
-        "projects.read", "projects.create", "projects.update", "projects.approve",
+        "projects.read", "projects.create", "projects.update", "projects.approve", "projects.delete",
+        "clients.read", "clients.create", "clients.update", "clients.delete",
         "finance.journal.post", "inventory.issue.create", "procurement.po.approve"
     ]
     perm_repo = BaseRepository(Permission, db)
-    created_perms = []
+    created_perms = {}
     for p_name in permissions_list:
-        created_perms.append(perm_repo.create({"name": p_name, "description": f"Can {p_name}"}))
+        created_perms[p_name] = perm_repo.create({"name": p_name, "description": f"Can {p_name}"})
         
     # Create Admin Role
     role_repo = BaseRepository(Role, db)
     admin_role = role_repo.create({"name": "System Administrator", "description": "Full access"})
     
-    # Associate Permissions to Role
+    # Create Project Manager Role
+    pm_role = role_repo.create({"name": "Project Manager", "description": "Project Management access"})
+    
+    # Associate Permissions to Roles
     rp_repo = BaseRepository(RolePermission, db)
-    for perm in created_perms:
+    for p_name, perm in created_perms.items():
         rp_repo.create({"role_id": admin_role.id, "permission_id": perm.id})
+        if p_name.startswith("projects.") or p_name.startswith("clients."):
+            rp_repo.create({"role_id": pm_role.id, "permission_id": perm.id})
         
     # Create Admin User
     user_repo = BaseRepository(User, db)

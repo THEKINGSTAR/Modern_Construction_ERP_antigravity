@@ -2,5 +2,13 @@
   "Index": {
     "title": "Modern Construction ERP",
     "description": "Welcome to the Modern Construction ERP"
+  },
+  "Clients": {
+    "title": "Clients",
+    "description": "Manage client organizations and contacts."
+  },
+  "Projects": {
+    "title": "Projects",
+    "description": "Manage construction projects and their lifecycle."
   }
 }
