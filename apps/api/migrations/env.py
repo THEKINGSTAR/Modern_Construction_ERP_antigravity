@@ -9,6 +9,12 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from app.config import settings
 from app.core.database import Base
+from app.models.tenant import Tenant
+from app.models.legal_entity import LegalEntity
+from app.models.branch import Branch
+from app.models.user import User
+from app.models.auth import Role, Permission, UserRole, RolePermission
+from app.models.org_settings import Currency, ExchangeRate, FiscalYear, AccountingPeriod, TenantSettings
 
 config = context.config
 if config.config_file_name is not None:

@@ -49,3 +49,41 @@ def client(db_session):
     
     with TestClient(fastapi_app) as test_client:
         yield test_client
+
+@pytest.fixture
+def test_tenant(db_session):
+    import uuid
+    from app.models.tenant import Tenant
+    tenant_id = uuid.uuid4()
+    tenant = Tenant(id=tenant_id, name="Test Tenant Settings")
+    db_session.add(tenant)
+    db_session.commit()
+    return tenant
+
+@pytest.fixture
+def auth_headers(client, db_session, test_tenant):
+    import uuid
+    from app.models.user import User
+    from app.core.security import get_password_hash, create_access_token
+    email = "admin_settings@example.com"
+    user = db_session.query(User).filter_by(email=email).first()
+    if not user:
+        user = User(
+            id=uuid.uuid4(),
+            email=email,
+            hashed_password=get_password_hash("pw"),
+            tenant_id=test_tenant.id,
+            is_superuser=True
+        )
+        db_session.add(user)
+        db_session.commit()
+    token = create_access_token({"sub": str(user.id)})
+    return {
+        "Authorization": f"Bearer {token}",
+        "X-Tenant-ID": str(test_tenant.id)
+    }
+
+@pytest.fixture
+def admin_user(db_session, auth_headers):
+    pass
+

@@ -77,6 +77,38 @@ def seed_data():
     ur_repo = BaseRepository(UserRole, db)
     ur_repo.create({"user_id": admin_user.id, "role_id": admin_role.id})
     
+    # Create Currencies (Global)
+    from app.models.org_settings import Currency, TenantSettings, FiscalYear
+    import datetime
+    
+    currencies = [
+        Currency(code="USD", name="US Dollar", symbol="$"),
+        Currency(code="EGP", name="Egyptian Pound", symbol="E£"),
+        Currency(code="EUR", name="Euro", symbol="€"),
+        Currency(code="AED", name="UAE Dirham", symbol="د.إ")
+    ]
+    db.add_all(currencies)
+    db.commit()
+    
+    # Create Tenant Settings
+    ts_repo = BaseRepository(TenantSettings, db)
+    ts_repo.create({
+        "base_currency_code": "USD",
+        "default_locale": "en-US",
+        "default_timezone": "UTC",
+        "default_date_format": "YYYY-MM-DD",
+        "default_number_format": "#,##0.00"
+    })
+    
+    # Create Fiscal Year
+    fy_repo = BaseRepository(FiscalYear, db)
+    fy_repo.create({
+        "name": "FY-2026",
+        "start_date": datetime.date(2026, 1, 1),
+        "end_date": datetime.date(2026, 12, 31),
+        "is_closed": False
+    })
+    
     print(f"Seeding complete! Default Tenant ID: {tenant_id}")
     print(f"Admin User created: admin@example.com / admin")
     db.close()
