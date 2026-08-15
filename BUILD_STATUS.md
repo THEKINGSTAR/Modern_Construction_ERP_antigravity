@@ -1,10 +1,10 @@
 # Build Status
 
-- **Current Stage:** Stage 13 (Construction Commercial Management) (COMPLETED)
+- **Current Stage:** Stage 14 (Workforce Management) (COMPLETED)
 - **Next Stage:** TBD
 - **Status:** Awaiting Human Review
 
-The Commercial Management stage (Change Orders, Subcontracts, Subcontract Payment Applications, Client Payment Applications) has been built and verified against the Double-Entry Accounting engine.
+The Workforce Management stage (Employee, Department, Position, ProjectAssignment, Timesheet, TimesheetLine, LeaveRequest) has been built and verified against the ProjectCost engine.
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -23,3 +23,4 @@ The Commercial Management stage (Change Orders, Subcontracts, Subcontract Paymen
 | 11 | Double-Entry Accounting | `stage-11` | Complete |
 | 12 | Accounts Payable & Receivable | `stage-12` | Complete |
 | 13 | Commercial Management | `stage-13` | Complete |
+| 14 | Workforce Management | `stage14` | Complete |

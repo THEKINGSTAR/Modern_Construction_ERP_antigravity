@@ -22,7 +22,8 @@ from app.api.endpoints import (
     ar,
     bank,
     commercial,
-    hr
+    hr,
+    equipment
 )
 
 api_router = APIRouter()
@@ -50,3 +51,4 @@ api_router.include_router(ar.router, prefix="/ar", tags=["ar"])
 api_router.include_router(bank.router, prefix="/bank", tags=["bank"])
 api_router.include_router(commercial.router, prefix="/commercial", tags=["commercial"])
 api_router.include_router(hr.router, prefix="/hr", tags=["hr"])
+api_router.include_router(equipment.router, prefix="/equipment", tags=["equipment"])

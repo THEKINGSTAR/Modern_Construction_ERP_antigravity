@@ -12,6 +12,10 @@ from app.models.material_issues import MaterialIssue, MaterialIssueLine, Materia
 from app.models.budgets import Budget, BudgetLine
 from app.models.forecasts import ProjectForecast, ProjectForecastLine, ForecastStatus
 from app.models.hr import Timesheet, TimesheetLine, TimesheetStatus
+from app.models.equipment import (
+    EquipmentUsageLog, EquipmentUsageLine, UsageLogStatus,
+    FuelTransaction, MaintenanceRecord
+)
 
 class CostTransaction(BaseModel):
     project_id: UUID
@@ -141,6 +145,101 @@ class ProjectCostEngine:
                         amount=row.amount,
                         currency="BASE",
                         source_type="TIMESHEET",
+                        source_id=row.source_id,
+                        cost_type="ACTUAL"
+                    )
+                )
+
+        # 4. ACTUAL COSTS from Equipment Usage
+        eq_query = (
+            select(
+                EquipmentUsageLine.project_id,
+                EquipmentUsageLine.cost_code_id,
+                EquipmentUsageLine.date,
+                EquipmentUsageLine.total_cost.label("amount"),
+                EquipmentUsageLog.id.label("source_id")
+            )
+            .select_from(EquipmentUsageLog)
+            .join(EquipmentUsageLine, EquipmentUsageLog.id == EquipmentUsageLine.usage_log_id)
+            .where(
+                EquipmentUsageLog.tenant_id == self.tenant_id,
+                EquipmentUsageLine.project_id == project_id,
+                EquipmentUsageLog.status == UsageLogStatus.APPROVED
+            )
+        )
+
+        for row in self.db.execute(eq_query):
+            if row.amount:
+                transactions.append(
+                    CostTransaction(
+                        project_id=row.project_id,
+                        cost_code_id=row.cost_code_id,
+                        date=row.date,
+                        amount=row.amount,
+                        currency="BASE",
+                        source_type="EQUIPMENT_USAGE",
+                        source_id=row.source_id,
+                        cost_type="ACTUAL"
+                    )
+                )
+
+        # 5. ACTUAL COSTS from Equipment Fuel
+        fuel_query = (
+            select(
+                FuelTransaction.project_id,
+                FuelTransaction.cost_code_id,
+                FuelTransaction.date,
+                FuelTransaction.total_cost.label("amount"),
+                FuelTransaction.id.label("source_id")
+            )
+            .select_from(FuelTransaction)
+            .where(
+                FuelTransaction.tenant_id == self.tenant_id,
+                FuelTransaction.project_id == project_id
+            )
+        )
+
+        for row in self.db.execute(fuel_query):
+            if row.amount:
+                transactions.append(
+                    CostTransaction(
+                        project_id=row.project_id,
+                        cost_code_id=row.cost_code_id,
+                        date=row.date,
+                        amount=row.amount,
+                        currency="BASE",
+                        source_type="EQUIPMENT_FUEL",
+                        source_id=row.source_id,
+                        cost_type="ACTUAL"
+                    )
+                )
+
+        # 6. ACTUAL COSTS from Equipment Maintenance
+        maint_query = (
+            select(
+                MaintenanceRecord.project_id,
+                MaintenanceRecord.cost_code_id,
+                MaintenanceRecord.date,
+                MaintenanceRecord.cost.label("amount"),
+                MaintenanceRecord.id.label("source_id")
+            )
+            .select_from(MaintenanceRecord)
+            .where(
+                MaintenanceRecord.tenant_id == self.tenant_id,
+                MaintenanceRecord.project_id == project_id
+            )
+        )
+
+        for row in self.db.execute(maint_query):
+            if row.amount:
+                transactions.append(
+                    CostTransaction(
+                        project_id=row.project_id,
+                        cost_code_id=row.cost_code_id,
+                        date=row.date,
+                        amount=row.amount,
+                        currency="BASE",
+                        source_type="EQUIPMENT_MAINTENANCE",
                         source_id=row.source_id,
                         cost_type="ACTUAL"
                     )
