@@ -95,7 +95,9 @@ def create_contract(
     _=Depends(require_permissions(["contracts.create"]))
 ):
     repo = BaseRepository(Contract, db)
-    return repo.create(contract_in.model_dump())
+    data = contract_in.model_dump()
+    data["current_value"] = data.get("original_value", 0.0)
+    return repo.create(data)
 
 @router.put("/{contract_id}", response_model=ContractResponse)
 def update_contract(

@@ -1,0 +1,38 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\k_h50\git\Modern_Construction_ERP\apps\api
+configfile: pyproject.toml
+plugins: anyio-4.14.2
+collected 2 items
+
+tests\test_commercial.py EE                                              [100%]
+
+=================================== ERRORS ====================================
+________ ERROR at setup of test_subcontract_lifecycle_and_payment_app _________
+file C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\test_commercial.py, line 6
+  def test_subcontract_lifecycle_and_payment_app(client, auth_headers, test_db, tenant):
+E       fixture 'test_db' not found
+>       available fixtures: admin_user, anyio_backend, anyio_backend_name, anyio_backend_options, auth_headers, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, create_test_database, db_session, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, test_tenant, test_user, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\test_commercial.py:6
+---------------------------- Captured stderr setup ----------------------------
+Using proactor: IocpProactor
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:629 Using proactor: IocpProactor
+____________ ERROR at setup of test_client_change_order_lifecycle _____________
+file C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\test_commercial.py, line 116
+  def test_client_change_order_lifecycle(client, auth_headers, test_db, tenant):
+E       fixture 'test_db' not found
+>       available fixtures: admin_user, anyio_backend, anyio_backend_name, anyio_backend_options, auth_headers, cache, capfd, capfdbinary, caplog, capsys, capsysbinary, capteesys, client, create_test_database, db_session, doctest_namespace, free_tcp_port, free_tcp_port_factory, free_udp_port, free_udp_port_factory, monkeypatch, pytestconfig, record_property, record_testsuite_property, record_xml_attribute, recwarn, subtests, test_tenant, test_user, tmp_path, tmp_path_factory, tmpdir, tmpdir_factory
+>       use 'pytest --fixtures [testpath]' for help on them.
+
+C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\test_commercial.py:116
+---------------------------- Captured stderr setup ----------------------------
+Using proactor: IocpProactor
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:629 Using proactor: IocpProactor
+=========================== short test summary info ===========================
+ERROR tests/test_commercial.py::test_subcontract_lifecycle_and_payment_app
+ERROR tests/test_commercial.py::test_client_change_order_lifecycle
+============================== 2 errors in 0.64s ==============================

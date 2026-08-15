@@ -1,10 +1,10 @@
 # Build Status
 
-- **Current Stage:** Stage 12 (Accounts Payable & Receivable) (COMPLETED)
-- **Next Stage:** Stage 13 (Optional)
+- **Current Stage:** Stage 13 (Construction Commercial Management) (COMPLETED)
+- **Next Stage:** TBD
 - **Status:** Awaiting Human Review
 
-The AP, AR, and Bank Reconciliation stage has been built and verified against the Double-Entry Accounting engine with robust API and tests.
+The Commercial Management stage (Change Orders, Subcontracts, Subcontract Payment Applications, Client Payment Applications) has been built and verified against the Double-Entry Accounting engine.
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -22,3 +22,4 @@ The AP, AR, and Bank Reconciliation stage has been built and verified against th
 | 10 | Project Cost & Forecasting | `stage-10` | Complete |
 | 11 | Double-Entry Accounting | `stage-11` | Complete |
 | 12 | Accounts Payable & Receivable | `stage-12` | Complete |
+| 13 | Commercial Management | `stage-13` | Complete |

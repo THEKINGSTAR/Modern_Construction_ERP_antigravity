@@ -17,7 +17,7 @@ This file records verified recovery points.
 | 10 | COMPLETED | 8eea8d0 | stage-10 | YES | pending |
 | 11 | COMPLETED | | stage-11 | YES | pending |
 | 12 | COMPLETED | | stage-12 | YES | pending |
-| 13 | NOT STARTED | | | | |
+| 13 | COMPLETED | | stage-13 | YES | pending |
 | 14 | NOT STARTED | | | | |
 | 15 | NOT STARTED | | | | |
 | 16 | NOT STARTED | | | | |

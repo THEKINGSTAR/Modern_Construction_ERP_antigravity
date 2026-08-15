@@ -20,7 +20,8 @@ from app.api.endpoints import (
     accounting,
     ap,
     ar,
-    bank
+    bank,
+    commercial
 )
 
 api_router = APIRouter()
@@ -46,4 +47,4 @@ api_router.include_router(accounting.router, prefix="/accounting", tags=["accoun
 api_router.include_router(ap.router, prefix="/ap", tags=["ap"])
 api_router.include_router(ar.router, prefix="/ar", tags=["ar"])
 api_router.include_router(bank.router, prefix="/bank", tags=["bank"])
-
+api_router.include_router(commercial.router, prefix="/commercial", tags=["commercial"])

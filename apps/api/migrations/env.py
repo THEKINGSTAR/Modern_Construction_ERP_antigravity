@@ -38,6 +38,7 @@ from app.models.accounting import ChartOfAccounts, Account, Journal, JournalLine
 from app.models.dimensions import Department, BusinessUnit
 from app.models.bank import BankAccount, BankTransaction, BankStatement, BankStatementLine
 from app.models.ap_ar import APInvoice, APInvoiceLine, ARInvoice, ARInvoiceLine, Payment, PaymentAllocation
+from app.models.commercial import Subcontract, ClientChangeOrder, SubcontractChangeOrder, ClientPaymentApplication, SubcontractPaymentApplication
 
 config = context.config
 if config.config_file_name is not None:
