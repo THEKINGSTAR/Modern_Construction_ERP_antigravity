@@ -1,0 +1,847 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\k_h50\git\Modern_Construction_ERP\apps\api
+configfile: pyproject.toml
+plugins: anyio-4.14.2
+collected 1 item
+
+apps\api\tests\test_reporting.py F                                       [100%]
+
+================================== FAILURES ===================================
+____________________ test_project_dashboard_and_reporting _____________________
+  + Exception Group Traceback (most recent call last):
+  |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_utils.py", line 85, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |                ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py", line 815, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\runner.py", line 361, in from_call
+    |     result: TResult | None = func()
+    |                              ~~~~^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\runner.py", line 250, in <lambda>
+    |     lambda: runtest_hook(item=item, **kwds),
+    |             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\logging.py", line 865, in pytest_runtest_call
+    |     yield
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\capture.py", line 900, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 139, in _multicall
+    |     teardown.throw(exception)
+    |     ~~~~~~~~~~~~~~^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\skipping.py", line 268, in pytest_runtest_call
+    |     return (yield)
+    |             ^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\runner.py", line 184, in pytest_runtest_call
+    |     item.runtest()
+    |     ~~~~~~~~~~~~^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\python.py", line 1707, in runtest
+    |     self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+    |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    |     return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    |     return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+    |            ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 167, in _multicall
+    |     raise exception
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    |     res = hook_impl.function(*args)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\_pytest\python.py", line 167, in pytest_pyfunc_call
+    |     result = testfunction(**testargs)
+    |   File "C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\test_reporting.py", line 133, in test_project_dashboard_and_reporting
+    |     res_dash = client.get(f"/api/v1/reports/projects/{project.id}/dashboard", headers=auth_headers)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 483, in get
+    |     return super().get(
+    |            ~~~~~~~~~~~^
+    |         url,
+    |         ^^^^
+    |     ...<6 lines>...
+    |         extensions=extensions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 1053, in get
+    |     return self.request(
+    |            ~~~~~~~~~~~~^
+    |         "GET",
+    |         ^^^^^^
+    |     ...<7 lines>...
+    |         extensions=extensions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 455, in request
+    |     return super().request(
+    |            ~~~~~~~~~~~~~~~^
+    |         method,
+    |         ^^^^^^^
+    |     ...<11 lines>...
+    |         extensions=extensions,
+    |         ^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 825, in request
+    |     return self.send(request, auth=auth, follow_redirects=follow_redirects)
+    |            ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 914, in send
+    |     response = self._send_handling_auth(
+    |         request,
+    |     ...<2 lines>...
+    |         history=[],
+    |     )
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    |     response = self._send_handling_redirects(
+    |         request,
+    |         follow_redirects=follow_redirects,
+    |         history=history,
+    |     )
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    |     response = self._send_single_request(request)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    |     response = transport.handle_request(request)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 354, in handle_request
+    |     raise exc
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 351, in handle_request
+    |     portal.call(self.app, scope, receive, send)
+    |     ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\from_thread.py", line 338, in call
+    |     return cast(T_Retval, self.start_task_soon(func, *args).result())
+    |                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 454, in result
+    |     return self.__get_result()
+    |            ~~~~~~~~~~~~~~~~~^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 396, in __get_result
+    |     raise self._exception
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\from_thread.py", line 263, in _call_func
+    |     retval = await retval_or_awaitable
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\applications.py", line 1163, in __call__
+    |     await super().__call__(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\applications.py", line 96, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    |     raise exc
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\main.py", line 47, in add_request_id_and_timing
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\main.py", line 38, in tenant_context_middleware
+    |     response = await call_next(request)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\routing.py", line 670, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 2734, in app
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    |     await self.original_router.handle(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    |     await included_router._handle_selected(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1791, in _handle_selected
+    |     await route.handle(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    |     await self.original_router.handle(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    |     await included_router._handle_selected(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1800, in _handle_selected
+    |     await original_route.handle(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1279, in handle
+    |     await app(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 158, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 144, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 706, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     ...<3 lines>...
+    |     )
+    |     ^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 354, in run_endpoint_function
+    |     return await run_in_threadpool(dependant.call, **values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    |     return await anyio.to_thread.run_sync(func)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    |     return await get_async_backend().run_sync_in_worker_thread(
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |         func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |     )
+    |     ^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py", line 2641, in run_sync_in_worker_thread
+    |     return await future
+    |            ^^^^^^^^^^^^
+    |   File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py", line 1033, in run
+    |     result = context.run(func, *args)
+    |   File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\api\endpoints\reports.py", line 25, in get_project_dashboard
+    |     return service.get_project_dashboard(project_id)
+    |            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+    |   File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\services\reporting_service.py", line 61, in get_project_dashboard
+    |     select(app.models.ap_ar.ARInvoiceLine.invoice_id)
+    |            ^^^
+    | NameError: name 'app' is not defined
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\test_reporting.py", line 133, in test_project_dashboard_and_reporting
+    res_dash = client.get(f"/api/v1/reports/projects/{project.id}/dashboard", headers=auth_headers)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 483, in get
+    return super().get(
+           ~~~~~~~~~~~^
+        url,
+        ^^^^
+    ...<6 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 1053, in get
+    return self.request(
+           ~~~~~~~~~~~~^
+        "GET",
+        ^^^^^^
+    ...<7 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 455, in request
+    return super().request(
+           ~~~~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<11 lines>...
+        extensions=extensions,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 354, in handle_request
+    raise exc
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py", line 351, in handle_request
+    portal.call(self.app, scope, receive, send)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\from_thread.py", line 338, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 454, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py", line 396, in __get_result
+    raise self._exception
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\from_thread.py", line 263, in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\errors.py", line 186, in __call__
+    raise exc
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\main.py", line 47, in add_request_id_and_timing
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\main.py", line 38, in tenant_context_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\routing.py", line 670, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 2734, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1791, in _handle_selected
+    await route.handle(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1780, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 2789, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1800, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 1279, in handle
+    await app(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 158, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 144, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 706, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py", line 354, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\concurrency.py", line 34, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\to_thread.py", line 65, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        func, args, abandon_on_cancel=abandon_on_cancel, limiter=limiter
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py", line 2641, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py", line 1033, in run
+    result = context.run(func, *args)
+  File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\api\endpoints\reports.py", line 25, in get_project_dashboard
+    return service.get_project_dashboard(project_id)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\services\reporting_service.py", line 61, in get_project_dashboard
+    select(app.models.ap_ar.ARInvoiceLine.invoice_id)
+           ^^^
+NameError: name 'app' is not defined
+
+The above exception was the direct cause of the following exception:
+
+client = <starlette.testclient.TestClient object at 0x000001DC25BA1E80>
+db_session = <sqlalchemy.orm.session.Session object at 0x000001DC25BA1D30>
+auth_headers = {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMWQ5OWQxMy1kNmE0LTQ5MzUtYTc5ZS00ODYzZTZmNjU...AiOjE3ODY4MjQyMzR9.4_ZgfBROr6PgoyxuhP-yGmX5QWaJL0a80Wmru2BX8zs', 'X-Tenant-ID': '12afa0d5-36a9-4925-b1f5-a0939f12af35'}
+test_tenant = <app.models.tenant.Tenant object at 0x000001DC26BD06E0>
+
+    def test_project_dashboard_and_reporting(client: TestClient, db_session: Session, auth_headers, test_tenant):
+        tenant_id = test_tenant.id
+    
+        # 1. Setup Base Entities
+        project = Project(name="Report Project", project_number="REP-01", status=ProjectStatus.ACTIVE, tenant_id=tenant_id)
+        client_ent = Client(name="Report Client", tenant_id=tenant_id)
+        supplier_ent = Supplier(name="Report Supplier", tenant_id=tenant_id)
+        db_session.add_all([project, client_ent, supplier_ent])
+        db_session.flush()
+    
+        # 2. Contract
+        ctype = ContractType(name="Standard", tenant_id=tenant_id)
+        db_session.add(ctype)
+        db_session.flush()
+        contract = Contract(
+            project_id=project.id,
+            client_id=client_ent.id,
+            contract_number="CTR-REP-01",
+            contract_type_id=ctype.id,
+            original_value=Decimal("100000.00"),
+            current_value=Decimal("100000.00"),
+            currency_code="USD",
+            status=ContractStatus.ACTIVE,
+            tenant_id=tenant_id
+        )
+        db_session.add(contract)
+        db_session.flush()
+    
+        # 3. AP Invoice & Payment
+        ap_inv = APInvoice(
+            number="AP-REP-01",
+            supplier_id=supplier_ent.id,
+            date=date.today(),
+            due_date=date.today(),
+            status=InvoiceStatus.POSTED,
+            total_amount=Decimal("1500.00"),
+            tenant_id=tenant_id
+        )
+        db_session.add(ap_inv)
+        db_session.flush()
+        ap_line = APInvoiceLine(
+            invoice_id=ap_inv.id,
+            project_id=project.id,
+            description="Subcontractor work",
+            unit_price=Decimal("1500.00"),
+            line_total=Decimal("1500.00"),
+            tenant_id=tenant_id
+        )
+        db_session.add(ap_line)
+        db_session.flush()
+    
+        # 4. AR Invoice & Payment
+        ar_inv = ARInvoice(
+            number="AR-REP-01",
+            client_id=client_ent.id,
+            date=date.today(),
+            due_date=date.today(),
+            status=InvoiceStatus.POSTED,
+            total_amount=Decimal("10000.00"),
+            tenant_id=tenant_id
+        )
+        db_session.add(ar_inv)
+        db_session.flush()
+        ar_line = ARInvoiceLine(
+            invoice_id=ar_inv.id,
+            project_id=project.id,
+            description="Billing Milestone 1",
+            unit_price=Decimal("10000.00"),
+            line_total=Decimal("10000.00"),
+            tenant_id=tenant_id
+        )
+        db_session.add(ar_line)
+        db_session.flush()
+    
+        coa = ChartOfAccounts(name="Main COA", tenant_id=tenant_id)
+        db_session.add(coa)
+        db_session.flush()
+        cash_acc = Account(chart_of_accounts_id=coa.id, account_code="1000", name="Cash", account_type=AccountType.ASSET, tenant_id=tenant_id)
+        rev_acc = Account(chart_of_accounts_id=coa.id, account_code="4000", name="Revenue", account_type=AccountType.REVENUE, tenant_id=tenant_id)
+        db_session.add_all([cash_acc, rev_acc])
+        db_session.flush()
+    
+        from app.models.bank import BankAccount
+        bank = BankAccount(name="Main", account_number="123", bank_name="Test Bank", currency="USD", gl_account_id=cash_acc.id, tenant_id=tenant_id)
+        db_session.add(bank)
+        db_session.flush()
+    
+        ar_pay = Payment(
+            reference="PAY-01",
+            payment_type=PaymentType.AR_RECEIPT,
+            date=date.today(),
+            amount=Decimal("4000.00"),
+            status=PaymentStatus.POSTED,
+            client_id=client_ent.id,
+            bank_account_id=bank.id,
+            tenant_id=tenant_id
+        )
+        db_session.add(ar_pay)
+        db_session.flush()
+        ar_alloc = PaymentAllocation(
+            payment_id=ar_pay.id,
+            ar_invoice_id=ar_inv.id,
+            amount=Decimal("4000.00"),
+            tenant_id=tenant_id
+        )
+        db_session.add(ar_alloc)
+    
+        journal = Journal(date=date.today(), description="Test entry", status=JournalStatus.POSTED, tenant_id=tenant_id)
+        db_session.add(journal)
+        db_session.flush()
+        jl1 = JournalLine(journal_id=journal.id, account_id=cash_acc.id, debit=Decimal("100.00"), credit=Decimal(0), tenant_id=tenant_id)
+        jl2 = JournalLine(journal_id=journal.id, account_id=rev_acc.id, debit=Decimal(0), credit=Decimal("100.00"), tenant_id=tenant_id)
+        db_session.add_all([jl1, jl2])
+    
+        db_session.commit()
+    
+        # Test Dashboard API
+>       res_dash = client.get(f"/api/v1/reports/projects/{project.id}/dashboard", headers=auth_headers)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+apps\api\tests\test_reporting.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py:483: in get
+    return super().get(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py:1053: in get
+    return self.request(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py:455: in request
+    return super().request(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py:825: in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py:914: in send
+    response = self._send_handling_auth(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py:942: in _send_handling_auth
+    response = self._send_handling_redirects(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py:979: in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\httpx\_client.py:1014: in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py:354: in handle_request
+    raise exc
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\testclient.py:351: in handle_request
+    portal.call(self.app, scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\from_thread.py:338: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py:454: in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\concurrent\futures\_base.py:396: in __get_result
+    raise self._exception
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\from_thread.py:263: in _call_func
+    retval = await retval_or_awaitable
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\applications.py:1163: in __call__
+    await super().__call__(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\applications.py:96: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\errors.py:186: in __call__
+    raise exc
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\errors.py:164: in __call__
+    await self.app(scope, receive, _send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps\api\app\main.py:47: in add_request_id_and_timing
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py:193: in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+apps\api\app\main.py:38: in tenant_context_middleware
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py:168: in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\base.py:144: in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\cors.py:88: in __call__
+    await self.app(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\middleware\exceptions.py:63: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\middleware\asyncexitstack.py:18: in __call__
+    await self.app(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\routing.py:670: in __call__
+    await self.middleware_stack(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:2734: in app
+    await route.handle(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:1780: in handle
+    await self.original_router.handle(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:2789: in handle
+    await included_router._handle_selected(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:1791: in _handle_selected
+    await route.handle(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:1780: in handle
+    await self.original_router.handle(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:2789: in handle
+    await included_router._handle_selected(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:1800: in _handle_selected
+    await original_route.handle(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:1279: in handle
+    await app(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:158: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py:53: in wrapped_app
+    raise exc
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:144: in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:706: in app
+    raw_response = await run_endpoint_function(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\routing.py:354: in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\starlette\concurrency.py:34: in run_in_threadpool
+    return await anyio.to_thread.run_sync(func)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\to_thread.py:65: in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py:2641: in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\anyio\_backends\_asyncio.py:1033: in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+apps\api\app\api\endpoints\reports.py:25: in get_project_dashboard
+    return service.get_project_dashboard(project_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <app.services.reporting_service.ReportingService object at 0x000001DC27545550>
+project_id = UUID('f269cad8-3e3e-4647-ba98-abd150372fb9')
+
+    def get_project_dashboard(self, project_id: UUID) -> ProjectDashboardMetrics:
+        # 1. Base cost metrics via ProjectCostEngine
+        cost_engine = ProjectCostEngine(self.db, self.tenant_id)
+        cost_summaries = cost_engine.get_project_cost_summary(project_id)
+    
+        metrics = ProjectDashboardMetrics(project_id=project_id)
+        for cs in cost_summaries:
+            metrics.original_budget += cs.original_budget
+            metrics.current_budget += cs.current_budget
+            metrics.committed_cost += cs.committed_cost
+            metrics.actual_cost += cs.actual_cost
+            metrics.forecast_cost += cs.estimate_to_complete
+            metrics.estimate_at_completion += cs.estimate_at_completion
+            metrics.variance += cs.variance
+    
+        # 2. Contract Value
+        contracts_query = select(Contract).where(Contract.tenant_id == self.tenant_id, Contract.project_id == project_id)
+        contracts = self.db.execute(contracts_query).scalars().all()
+        for c in contracts:
+            metrics.contract_value += c.original_value
+            metrics.current_contract_value += c.current_value
+    
+        # 3. Billed (AR Invoices & Client Payment Applications)
+        # Assuming Client Payment Apps directly update Contract or are the source of billing,
+        # but AR Invoices are the universal standard for "Billed".
+        ar_inv_query = select(func.coalesce(func.sum(ARInvoice.total_amount), Decimal(0))).join(
+            ClientPaymentApplication, ClientPaymentApplication.id == ARInvoice.id, isouter=True # Or direct link if any, but AR Invoice lines have project_id
+        ).select_from(ARInvoice).where(
+            ARInvoice.tenant_id == self.tenant_id,
+            ARInvoice.status != InvoiceStatus.DRAFT,
+            ARInvoice.status != InvoiceStatus.VOID,
+            # To strictly filter by project, we might need ARInvoiceLine
+            ARInvoice.id.in_(
+>               select(app.models.ap_ar.ARInvoiceLine.invoice_id)
+                       ^^^
+                .where(app.models.ap_ar.ARInvoiceLine.project_id == project_id)
+            )
+        )
+E       NameError: name 'app' is not defined
+
+apps\api\app\services\reporting_service.py:61: NameError
+---------------------------- Captured stderr setup ----------------------------
+Using proactor: IocpProactor
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:629 Using proactor: IocpProactor
+============================== warnings summary ===============================
+apps\api\app\schemas\contracts.py:22
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\contracts.py:22: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ContractTypeResponse(ContractTypeBase):
+
+apps\api\app\schemas\contracts.py:64
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\contracts.py:64: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ContractResponse(ContractBase):
+
+apps\api\app\schemas\wbs.py:24
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\wbs.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WBSNodeResponse(WBSNodeBase):
+
+apps\api\app\schemas\wbs.py:33
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\wbs.py:33: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WBSNodeTreeResponse(WBSNodeResponse):
+
+apps\api\app\schemas\cost_codes.py:24
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\cost_codes.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CostCodeResponse(CostCodeBase):
+
+apps\api\app\schemas\cost_codes.py:33
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\cost_codes.py:33: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CostCodeTreeResponse(CostCodeResponse):
+
+apps\api\app\schemas\inventory.py:7
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:7: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryBalanceResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:35
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:35: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class GoodsReceiptResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:58
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:58: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class MaterialIssueResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:79
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:79: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryTransferResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:103
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:103: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryAdjustmentResponse(BaseModel):
+
+apps\api\app\schemas\project_cost.py:19
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\project_cost.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ProjectForecastResponse(BaseModel):
+
+apps\api\app\schemas\accounting.py:19
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class AccountResponse(AccountBase):
+
+apps\api\app\schemas\accounting.py:38
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:38: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class JournalLineResponse(JournalLineBase):
+
+apps\api\app\schemas\accounting.py:61
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:61: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class JournalResponse(JournalBase):
+
+apps\api\app\schemas\ap_ar.py:19
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APInvoiceLineResponse(APInvoiceLineBase):
+
+apps\api\app\schemas\ap_ar.py:39
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:39: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APInvoiceResponse(APInvoiceBase):
+
+apps\api\app\schemas\ap_ar.py:60
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:60: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ARInvoiceLineResponse(ARInvoiceLineBase):
+
+apps\api\app\schemas\ap_ar.py:80
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:80: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ARInvoiceResponse(ARInvoiceBase):
+
+apps\api\app\schemas\ap_ar.py:107
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:107: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class PaymentAllocationResponse(PaymentAllocationBase):
+
+apps\api\app\schemas\ap_ar.py:127
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:127: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class PaymentResponse(PaymentBase):
+
+apps\api\app\schemas\bank.py:20
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankAccountResponse(BankAccountBase):
+
+apps\api\app\schemas\bank.py:37
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:37: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankTransactionResponse(BankTransactionBase):
+
+apps\api\app\schemas\bank.py:55
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:55: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankStatementLineResponse(BankStatementLineBase):
+
+apps\api\app\schemas\bank.py:74
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:74: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankStatementResponse(BankStatementBase):
+
+apps\api\app\schemas\documents.py:18
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\documents.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class DocumentVersionResponse(BaseModel):
+
+apps\api\app\schemas\documents.py:28
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\documents.py:28: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class DocumentPermissionResponse(BaseModel):
+
+apps\api\app\schemas\documents.py:37
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\documents.py:37: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class DocumentResponse(DocumentBase):
+
+apps\api\app\schemas\approvals.py:18
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalRuleResponse(ApprovalRuleBase):
+
+apps\api\app\schemas\approvals.py:24
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalStepResponse(BaseModel):
+
+apps\api\app\schemas\approvals.py:36
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:36: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalWorkflowResponse(BaseModel):
+
+apps\api\app\schemas\approvals.py:60
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:60: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalDelegationResponse(ApprovalDelegationBase):
+
+apps\api\app\schemas\notifications.py:16
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\notifications.py:16: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class NotificationResponse(NotificationBase):
+
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_reporting.py::test_project_dashboard_and_reporting
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\conftest.py:41: SAWarning: Can't sort tables for DROP; an unresolvable foreign key dependency exists between tables: employees, hr_departments; and backend does not support ALTER.  To restore at least a partial sort, apply use_alter=True to ForeignKey and ForeignKeyConstraint objects involved in the cycle to mark these as known cycles that will be ignored.
+    Base.metadata.drop_all(bind=engine)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED apps\api\tests\test_reporting.py::test_project_dashboard_and_reporting
+======================= 1 failed, 35 warnings in 1.45s ========================

@@ -1,10 +1,10 @@
 # Build Status
 
-- **Current Stage:** Stage 14 (Workforce Management) (COMPLETED)
+- **Current Stage:** Stage 16 (Enterprise Services) (COMPLETED)
 - **Next Stage:** TBD
 - **Status:** Awaiting Human Review
 
-The Workforce Management stage (Employee, Department, Position, ProjectAssignment, Timesheet, TimesheetLine, LeaveRequest) has been built and verified against the ProjectCost engine.
+The Enterprise Services (Documents, Approvals, Notifications, Events) stage has been built and verified against the system engine.
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -23,5 +23,7 @@ The Workforce Management stage (Employee, Department, Position, ProjectAssignmen
 | 11 | Double-Entry Accounting | `stage-11` | Complete |
 | 12 | Accounts Payable & Receivable | `stage-12` | Complete |
 | 13 | Commercial Management | `stage-13` | Complete |
-| 14 | Workforce Management | `stage14` | Complete |
-Stage 15 (Equipment Management) completed. Tests passing.
+| 14 | Workforce Management | `stage-14` | Complete |
+| 15 | Equipment Management | `stage-15` | Complete |
+| 16 | Enterprise Services | `stage-16` | Complete |
+| 17 | Management Reporting | `stage-17` | Complete |
