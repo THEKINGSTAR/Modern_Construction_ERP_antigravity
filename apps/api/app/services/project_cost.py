@@ -11,6 +11,7 @@ from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine, POStatu
 from app.models.material_issues import MaterialIssue, MaterialIssueLine, MaterialIssueStatus
 from app.models.budgets import Budget, BudgetLine
 from app.models.forecasts import ProjectForecast, ProjectForecastLine, ForecastStatus
+from app.models.hr import Timesheet, TimesheetLine, TimesheetStatus
 
 class CostTransaction(BaseModel):
     project_id: UUID
@@ -110,6 +111,40 @@ class ProjectCostEngine:
                     cost_type="ACTUAL"
                 )
             )
+
+        # 3. ACTUAL COSTS from Labor (Timesheets)
+        # Timesheets are actual costs when APPROVED
+        ts_query = (
+            select(
+                TimesheetLine.project_id,
+                TimesheetLine.cost_code_id,
+                TimesheetLine.date,
+                TimesheetLine.total_cost.label("amount"),
+                Timesheet.id.label("source_id")
+            )
+            .select_from(Timesheet)
+            .join(TimesheetLine, Timesheet.id == TimesheetLine.timesheet_id)
+            .where(
+                Timesheet.tenant_id == self.tenant_id,
+                TimesheetLine.project_id == project_id,
+                Timesheet.status == TimesheetStatus.APPROVED
+            )
+        )
+
+        for row in self.db.execute(ts_query):
+            if row.amount:
+                transactions.append(
+                    CostTransaction(
+                        project_id=row.project_id,
+                        cost_code_id=row.cost_code_id,
+                        date=row.date,
+                        amount=row.amount,
+                        currency="BASE",
+                        source_type="TIMESHEET",
+                        source_id=row.source_id,
+                        cost_type="ACTUAL"
+                    )
+                )
 
         return sorted(transactions, key=lambda x: x.date)
 
