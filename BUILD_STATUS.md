@@ -1,10 +1,10 @@
 # Build Status
 
-- **Current Stage:** Stage 08 (Procurement Lifecycle) (COMPLETED)
-- **Next Stage:** Stage 09
+- **Current Stage:** Stage 09 (Inventory & Material Management) (COMPLETED)
+- **Next Stage:** Stage 10
 - **Status:** Awaiting Human Review
 
-The Procurement Lifecycle has been built including Suppliers, Purchase Requisitions, RFQs, Supplier Quotations, and Purchase Orders with complete state machines, validations, schemas, endpoints, and frontend placeholders. Tenant isolation has been heavily enforced and validated via the `pytest` suite ensuring ZERO data leakage between tenants.
+The Inventory and Material Management stage has been built including Materials, Warehouses, Inventory Transactions, Balances, Goods Receipts, Material Issues, Inventory Transfers, and Inventory Adjustments. Inventory is strictly ledger-based, calculating Weighted Average Cost (WAC) dynamically, and concurrency tests have been implemented and verified to prevent negative stock conditions.
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -18,3 +18,4 @@ The Procurement Lifecycle has been built including Suppliers, Purchase Requisiti
 | 06 | Contracts, WBS, Cost Codes | `stage-06` | Complete |
 | 07 | BOQ, Estimates & Budgets | `stage-07` | Complete |
 | 08 | Procurement Lifecycle | `stage-08` | Complete |
+| 09 | Inventory & Materials | `stage-09` | Complete |

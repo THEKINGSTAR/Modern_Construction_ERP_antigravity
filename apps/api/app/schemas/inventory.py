@@ -62,3 +62,48 @@ class MaterialIssueResponse(BaseModel):
     
     class Config:
         from_attributes = True
+
+class InventoryTransferLineCreate(BaseModel):
+    material_id: UUID4
+    quantity: Decimal
+    notes: Optional[str] = None
+
+class InventoryTransferCreate(BaseModel):
+    transfer_number: str
+    source_warehouse_id: UUID4
+    destination_warehouse_id: UUID4
+    date: date
+    notes: Optional[str] = None
+    lines: List[InventoryTransferLineCreate]
+
+class InventoryTransferResponse(BaseModel):
+    id: UUID4
+    transfer_number: str
+    status: str
+
+    class Config:
+        from_attributes = True
+
+from app.models.inventory_adjustments import AdjustmentType
+
+class InventoryAdjustmentLineCreate(BaseModel):
+    material_id: UUID4
+    adjustment_type: AdjustmentType
+    quantity: Decimal
+    unit_cost: Decimal
+    notes: Optional[str] = None
+
+class InventoryAdjustmentCreate(BaseModel):
+    adjustment_number: str
+    warehouse_id: UUID4
+    date: date
+    reason: Optional[str] = None
+    lines: List[InventoryAdjustmentLineCreate]
+
+class InventoryAdjustmentResponse(BaseModel):
+    id: UUID4
+    adjustment_number: str
+    status: str
+
+    class Config:
+        from_attributes = True
