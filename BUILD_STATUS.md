@@ -1,10 +1,10 @@
 # Build Status
 
-- **Current Stage:** Stage 11 (Double-Entry Accounting) (COMPLETED)
-- **Next Stage:** Stage 12
+- **Current Stage:** Stage 12 (Accounts Payable & Receivable) (COMPLETED)
+- **Next Stage:** Stage 13 (Optional)
 - **Status:** Awaiting Human Review
 
-The Double-Entry Accounting stage has been built with an authoritative ledger system including Chart of Accounts, Accounting Periods, balancing Journals, Accounting Dimensions and an audit trail.
+The AP, AR, and Bank Reconciliation stage has been built and verified against the Double-Entry Accounting engine with robust API and tests.
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -21,3 +21,4 @@ The Double-Entry Accounting stage has been built with an authoritative ledger sy
 | 09 | Inventory & Materials | `stage-09` | Complete |
 | 10 | Project Cost & Forecasting | `stage-10` | Complete |
 | 11 | Double-Entry Accounting | `stage-11` | Complete |
+| 12 | Accounts Payable & Receivable | `stage-12` | Complete |

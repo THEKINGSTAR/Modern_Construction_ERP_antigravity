@@ -21,6 +21,8 @@ import app.models.inventory_transfers
 import app.models.inventory_adjustments
 import app.models.dimensions
 import app.models.accounting
+import app.models.bank
+import app.models.ap_ar
 
 # Use SQLite in-memory for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"

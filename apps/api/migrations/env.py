@@ -36,6 +36,8 @@ from app.models.material_issues import MaterialIssue, MaterialIssueLine
 from app.models.inventory_transfers import InventoryTransfer, InventoryTransferLine
 from app.models.accounting import ChartOfAccounts, Account, Journal, JournalLine
 from app.models.dimensions import Department, BusinessUnit
+from app.models.bank import BankAccount, BankTransaction, BankStatement, BankStatementLine
+from app.models.ap_ar import APInvoice, APInvoiceLine, ARInvoice, ARInvoiceLine, Payment, PaymentAllocation
 
 config = context.config
 if config.config_file_name is not None:

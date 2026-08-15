@@ -1,0 +1,240 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\k_h50\git\Modern_Construction_ERP\apps\api
+configfile: pyproject.toml
+plugins: anyio-4.14.2
+collected 2 items
+
+tests\test_ap_ar.py F                                                    [ 50%]
+tests\test_bank.py F                                                     [100%]
+
+================================== FAILURES ===================================
+______________________________ test_ap_lifecycle ______________________________
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2127: in _exec_insertmany_context
+    dialect.do_execute(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: NOT NULL constraint failed: accounts.account_code
+
+The above exception was the direct cause of the following exception:
+tests\test_ap_ar.py:26: in test_ap_lifecycle
+    db_session.flush()
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4353: in flush
+    self._flush(objects)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4488: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\util\langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4449: in _flush
+    flush_context.execute()
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\unitofwork.py:465: in execute
+    rec.execute(self)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\unitofwork.py:641: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\persistence.py:94: in save_obj
+    _emit_insert_statements(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\persistence.py:1144: in _emit_insert_statements
+    result = connection.execute(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1846: in _execute_context
+    return self._exec_insertmany_context(dialect, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2135: in _exec_insertmany_context
+    self._handle_dbapi_exception(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2127: in _exec_insertmany_context
+    dialect.do_execute(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: accounts.account_code
+E   [SQL: INSERT INTO accounts (id, chart_of_accounts_id, parent_id, account_code, name, account_type, is_control_account, tenant_id, created_at, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('e0052b8e086848bd8b2f6b97c412ec21', '29f0e88fe9064e8aaff530e520dfd19d', None, None, 'Accounts Payable', 'LIABILITY', 'False', '1c800ce058a1456d93b62e1fef6415fc', '2026-08-15 19:00:15.602176', '2026-08-15 19:00:15.602177', None, None, 'db8073fbbb07446993250a8ed4b2dd45', '29f0e88fe9064e8aaff530e520dfd19d', None, None, 'General Expense', 'EXPENSE', 'False', '1c800ce058a1456d93b62e1fef6415fc', '2026-08-15 19:00:15.602181', '2026-08-15 19:00:15.602182', None, None, '958591e7c66d46ce98569a968e514c68', '29f0e88fe9064e8aaff530e520dfd19d', None, None, 'Cash', 'ASSET', 'False', '1c800ce058a1456d93b62e1fef6415fc', '2026-08-15 19:00:15.602183', '2026-08-15 19:00:15.602184', None, None)]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stderr setup ----------------------------
+Using proactor: IocpProactor
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:629 Using proactor: IocpProactor
+__________________________ test_bank_reconciliation ___________________________
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.IntegrityError: NOT NULL constraint failed: accounts.account_code
+
+The above exception was the direct cause of the following exception:
+tests\test_bank.py:16: in test_bank_reconciliation
+    db_session.commit()
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:2035: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:1316: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:1290: in _prepare_impl
+    self.session.flush()
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4353: in flush
+    self._flush(objects)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4488: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\util\langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4449: in _flush
+    flush_context.execute()
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\unitofwork.py:465: in execute
+    rec.execute(self)
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\unitofwork.py:641: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\persistence.py:94: in save_obj
+    _emit_insert_statements(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\persistence.py:1234: in _emit_insert_statements
+    result = connection.execute(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1848: in _execute_context
+    return self._exec_single_context(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.IntegrityError: (sqlite3.IntegrityError) NOT NULL constraint failed: accounts.account_code
+E   [SQL: INSERT INTO accounts (id, chart_of_accounts_id, parent_id, account_code, name, account_type, is_control_account, tenant_id, created_at, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: ('b16c1801f7ba46ccb55945375240301e', '9a4b2f63fbdf44688e78eb96832eaad5', None, None, 'Cash', 'ASSET', 'False', 'b4047f6036cd47ef81e32639ac38e4a6', '2026-08-15 19:00:16.241622', '2026-08-15 19:00:16.241623', None, None)]
+E   (Background on this error at: https://sqlalche.me/e/20/gkpj)
+---------------------------- Captured stderr setup ----------------------------
+Using proactor: IocpProactor
+----------------------------- Captured log setup ------------------------------
+DEBUG    asyncio:proactor_events.py:629 Using proactor: IocpProactor
+============================== warnings summary ===============================
+app\schemas\contracts.py:22
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\contracts.py:22: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ContractTypeResponse(ContractTypeBase):
+
+app\schemas\contracts.py:64
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\contracts.py:64: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ContractResponse(ContractBase):
+
+app\schemas\wbs.py:24
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\wbs.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WBSNodeResponse(WBSNodeBase):
+
+app\schemas\wbs.py:33
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\wbs.py:33: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WBSNodeTreeResponse(WBSNodeResponse):
+
+app\schemas\cost_codes.py:24
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\cost_codes.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CostCodeResponse(CostCodeBase):
+
+app\schemas\cost_codes.py:33
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\cost_codes.py:33: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CostCodeTreeResponse(CostCodeResponse):
+
+app\schemas\inventory.py:7
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:7: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryBalanceResponse(BaseModel):
+
+app\schemas\inventory.py:35
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:35: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class GoodsReceiptResponse(BaseModel):
+
+app\schemas\inventory.py:58
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:58: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class MaterialIssueResponse(BaseModel):
+
+app\schemas\inventory.py:79
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:79: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryTransferResponse(BaseModel):
+
+app\schemas\inventory.py:103
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:103: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryAdjustmentResponse(BaseModel):
+
+app\schemas\project_cost.py:19
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\project_cost.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ProjectForecastResponse(BaseModel):
+
+app\schemas\accounting.py:19
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class AccountResponse(AccountBase):
+
+app\schemas\accounting.py:38
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:38: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class JournalLineResponse(JournalLineBase):
+
+app\schemas\accounting.py:61
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:61: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class JournalResponse(JournalBase):
+
+app\schemas\ap_ar.py:19
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APInvoiceLineResponse(APInvoiceLineBase):
+
+app\schemas\ap_ar.py:39
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:39: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APInvoiceResponse(APInvoiceBase):
+
+app\schemas\ap_ar.py:60
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:60: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ARInvoiceLineResponse(ARInvoiceLineBase):
+
+app\schemas\ap_ar.py:80
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:80: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ARInvoiceResponse(ARInvoiceBase):
+
+app\schemas\ap_ar.py:107
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:107: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class PaymentAllocationResponse(PaymentAllocationBase):
+
+app\schemas\ap_ar.py:127
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:127: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class PaymentResponse(PaymentBase):
+
+app\schemas\bank.py:20
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankAccountResponse(BankAccountBase):
+
+app\schemas\bank.py:37
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:37: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankTransactionResponse(BankTransactionBase):
+
+app\schemas\bank.py:55
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:55: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankStatementLineResponse(BankStatementLineBase):
+
+app\schemas\bank.py:74
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:74: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankStatementResponse(BankStatementBase):
+
+..\..\..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_ap_ar.py::test_ap_lifecycle - sqlalchemy.exc.IntegrityError...
+FAILED tests/test_bank.py::test_bank_reconciliation - sqlalchemy.exc.Integrit...
+======================= 2 failed, 26 warnings in 1.47s ========================
