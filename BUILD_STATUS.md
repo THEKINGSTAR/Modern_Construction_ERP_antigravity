@@ -24,3 +24,4 @@ The Workforce Management stage (Employee, Department, Position, ProjectAssignmen
 | 12 | Accounts Payable & Receivable | `stage-12` | Complete |
 | 13 | Commercial Management | `stage-13` | Complete |
 | 14 | Workforce Management | `stage14` | Complete |
+Stage 15 (Equipment Management) completed. Tests passing.

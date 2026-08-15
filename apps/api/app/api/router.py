@@ -23,7 +23,10 @@ from app.api.endpoints import (
     bank,
     commercial,
     hr,
-    equipment
+    equipment,
+    documents,
+    approvals,
+    notifications
 )
 
 api_router = APIRouter()
@@ -52,3 +55,6 @@ api_router.include_router(bank.router, prefix="/bank", tags=["bank"])
 api_router.include_router(commercial.router, prefix="/commercial", tags=["commercial"])
 api_router.include_router(hr.router, prefix="/hr", tags=["hr"])
 api_router.include_router(equipment.router, prefix="/equipment", tags=["equipment"])
+api_router.include_router(documents.router, prefix="/documents", tags=["documents"])
+api_router.include_router(approvals.router, prefix="/approvals", tags=["approvals"])
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])

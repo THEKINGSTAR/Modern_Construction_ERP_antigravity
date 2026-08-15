@@ -26,4 +26,4 @@ This file records verified recovery points.
 
 ## Recovery Rule
 
-The latest stage marked COMPLETE and verified by human review is the preferred rollback point.
+The latest stage marked COMPLETE and verified by human review is the preferred rollback point.- [x] **Stage 15: Equipment Management** (Completed)
