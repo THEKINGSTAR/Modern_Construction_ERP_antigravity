@@ -19,6 +19,8 @@ import app.models.goods_receipts
 import app.models.material_issues
 import app.models.inventory_transfers
 import app.models.inventory_adjustments
+import app.models.dimensions
+import app.models.accounting
 
 # Use SQLite in-memory for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -90,6 +92,23 @@ def auth_headers(client, db_session, test_tenant):
         "Authorization": f"Bearer {token}",
         "X-Tenant-ID": str(test_tenant.id)
     }
+
+@pytest.fixture
+def test_user(db_session, test_tenant):
+    import uuid
+    from app.models.user import User
+    from app.core.security import get_password_hash
+    email = f"test_{uuid.uuid4()}@example.com"
+    user = User(
+        id=uuid.uuid4(),
+        email=email,
+        hashed_password=get_password_hash("pw"),
+        tenant_id=test_tenant.id,
+        is_superuser=True
+    )
+    db_session.add(user)
+    db_session.commit()
+    return user
 
 @pytest.fixture
 def admin_user(db_session, auth_headers):

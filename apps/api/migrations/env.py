@@ -34,7 +34,8 @@ from app.models.inventory import InventoryTransaction, InventoryBalance
 from app.models.goods_receipts import GoodsReceipt, GoodsReceiptLine
 from app.models.material_issues import MaterialIssue, MaterialIssueLine
 from app.models.inventory_transfers import InventoryTransfer, InventoryTransferLine
-from app.models.inventory_adjustments import InventoryAdjustment, InventoryAdjustmentLine
+from app.models.accounting import ChartOfAccounts, Account, Journal, JournalLine
+from app.models.dimensions import Department, BusinessUnit
 
 config = context.config
 if config.config_file_name is not None:
