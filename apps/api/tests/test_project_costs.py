@@ -41,7 +41,7 @@ def test_project_cost_engine_full_lifecycle(client: TestClient, db_session: Sess
     # 2. Budget (1000)
     budget = Budget(
         project_id=project.id,
-        budget_number="BUD-01",
+        name="BUD-01",
         status="APPROVED",
         tenant_id=tenant_id
     )
@@ -58,7 +58,7 @@ def test_project_cost_engine_full_lifecycle(client: TestClient, db_session: Sess
     db_session.flush()
 
     # 3. Purchase Order -> Committed Cost (200)
-    supplier = Supplier(name="Test Supplier", code="SUPP-01", tenant_id=tenant_id)
+    supplier = Supplier(name="Test Supplier", tenant_id=tenant_id)
     db_session.add(supplier)
     db_session.flush()
     po = PurchaseOrder(
@@ -88,7 +88,7 @@ def test_project_cost_engine_full_lifecycle(client: TestClient, db_session: Sess
     # 4. Material Issue -> Actual Cost (100)
     warehouse = Warehouse(name="Cost WH", code="WH-COST", tenant_id=tenant_id)
     db_session.add(warehouse)
-    material = Material(name="Cost Mat", item_code="MAT-COST", base_unit="EA", tenant_id=tenant_id)
+    material = Material(name="Cost Mat", material_code="MAT-COST", base_unit="EA", tenant_id=tenant_id)
     db_session.add(material)
     db_session.flush()
     
@@ -122,11 +122,11 @@ def test_project_cost_engine_full_lifecycle(client: TestClient, db_session: Sess
     
     # Find COMMITTED
     committed_txn = next(t for t in txns if t["cost_type"] == "COMMITTED")
-    assert committed_txn["amount"] == "200.00"
+    assert Decimal(committed_txn["amount"]) == Decimal("200.00")
     
     # Find ACTUAL
     actual_txn = next(t for t in txns if t["cost_type"] == "ACTUAL")
-    assert actual_txn["amount"] == "100.00"
+    assert Decimal(actual_txn["amount"]) == Decimal("100.00")
 
     # 6. Add ETC via Forecast (ETC = 750)
     res_fc = client.post(
@@ -152,14 +152,14 @@ def test_project_cost_engine_full_lifecycle(client: TestClient, db_session: Sess
     assert len(summaries) == 1
     
     summary = summaries[0]
-    assert summary["original_budget"] == "1000.00"
-    assert summary["current_budget"] == "1000.00"
-    assert summary["committed_cost"] == "200.00"
-    assert summary["actual_cost"] == "100.00"
-    assert summary["estimate_to_complete"] == "750.00"
+    assert Decimal(summary["original_budget"]) == Decimal("1000.00")
+    assert Decimal(summary["current_budget"]) == Decimal("1000.00")
+    assert Decimal(summary["committed_cost"]) == Decimal("200.00")
+    assert Decimal(summary["actual_cost"]) == Decimal("100.00")
+    assert Decimal(summary["estimate_to_complete"]) == Decimal("750.00")
     
     # EAC = Actual + ETC = 100 + 750 = 850
-    assert summary["estimate_at_completion"] == "850.00"
+    assert Decimal(summary["estimate_at_completion"]) == Decimal("850.00")
     
     # Variance = Current Budget - EAC = 1000 - 850 = 150
-    assert summary["variance"] == "150.00"
+    assert Decimal(summary["variance"]) == Decimal("150.00")

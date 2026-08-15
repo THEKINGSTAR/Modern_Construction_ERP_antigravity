@@ -31,7 +31,7 @@ def create_project_forecast(
         date=forecast.date,
         notes=forecast.notes,
         status=ForecastStatus.APPROVED, # MVP: auto-approve
-        created_by_id=current_user.id
+        created_by=current_user.id
     )
     db.add(db_forecast)
     db.flush()
@@ -44,7 +44,7 @@ def create_project_forecast(
             cost_code_id=line.cost_code_id,
             etc_amount=line.etc_amount,
             notes=line.notes,
-            created_by_id=current_user.id
+            created_by=current_user.id
         )
         db.add(db_line)
 

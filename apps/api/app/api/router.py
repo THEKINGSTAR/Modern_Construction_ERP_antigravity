@@ -15,7 +15,8 @@ from app.api.endpoints import (
     rfqs,
     quotations,
     purchase_orders,
-    inventory
+    inventory,
+    project_cost
 )
 
 api_router = APIRouter()
@@ -36,3 +37,5 @@ api_router.include_router(rfqs.router, prefix="/rfqs", tags=["rfqs"])
 api_router.include_router(quotations.router, prefix="/quotations", tags=["quotations"])
 api_router.include_router(purchase_orders.router, prefix="/purchase-orders", tags=["purchase-orders"])
 api_router.include_router(inventory.router, prefix="/inventory", tags=["inventory"])
+api_router.include_router(project_cost.router, prefix="/project-cost", tags=["project-cost"])
+
