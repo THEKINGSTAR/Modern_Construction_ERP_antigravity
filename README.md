@@ -94,7 +94,31 @@ pytest tests/ -v
 
 ## 🔒 Production Readiness
 The application is fully configured for production deployment (Stage 18 Completed).
-- Use `docker-compose.prod.yml` to spin up production services.
+
+### Installation and Running on Linux
+We provide convenient scripts to install dependencies and run the production environment on Linux:
+
+1. **Install Requirements:**
+   Make the installation script executable and run it (requires root/sudo privileges):
+   ```bash
+   chmod +x install.sh
+   sudo ./install.sh
+   ```
+   *This script installs Docker and Docker Compose, and sets up your `.env` file from `.env.example`.*
+
+2. **Configure Environment:**
+   Edit the `.env` file with your production secrets (e.g., database passwords, API keys).
+
+3. **Run Services:**
+   Make the run script executable and start the project:
+   ```bash
+   chmod +x run.sh
+   ./run.sh
+   ```
+   *This script validates requirements and spins up production services using `docker-compose.prod.yml`.*
+
+**Note on Windows:** After fully verifying the project on Linux, Windows requirements and running environment will be documented.
+
 - Database backup and restore scripts are located in `infrastructure/scripts/`.
 - CI/CD workflows enforce tests, type checking, and security scans on every PR.
 
