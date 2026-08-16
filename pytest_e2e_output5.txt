@@ -1,0 +1,225 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0
+rootdir: C:\Users\k_h50\git\Modern_Construction_ERP\apps\api
+configfile: pyproject.toml
+plugins: anyio-4.14.2
+collected 4 items
+
+apps\api\tests\test_e2e_production.py ..wh.id type: <class 'uuid.UUID'>, value: 9aed4bce-295a-4799-b85f-c21f3a06dbc6
+mat.id type: <class 'uuid.UUID'>, value: 07ffc544-02d1-4230-9447-e486b005326f
+Using proactor: IocpProactor
+HTTP Request: GET http://testserver/api/v1/reports/projects/2a8ada48-05d5-485d-84c2-79db71b905e6/dashboard "HTTP/1.1 200 OK"
+F.
+
+================================== FAILURES ===================================
+_________________________ test_inventory_golden_rule __________________________
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1817: in _execute_context
+    context = constructor(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:1496: in _init_compiled
+    flattened_processors[key](compiled_params[key])
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\sqltypes.py:3734: in process
+    value = value.hex
+            ^^^^^^^^^
+E   AttributeError: 'str' object has no attribute 'hex'
+
+The above exception was the direct cause of the following exception:
+apps\api\tests\test_e2e_production.py:121: in test_inventory_golden_rule
+    db_session.commit()
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:2035: in commit
+    trans.commit(_to_root=True)
+<string>:2: in commit
+    ???
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:1316: in commit
+    self._prepare_impl()
+<string>:2: in _prepare_impl
+    ???
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\state_changes.py:137: in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:1290: in _prepare_impl
+    self.session.flush()
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4353: in flush
+    self._flush(objects)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4488: in _flush
+    with util.safe_reraise():
+         ^^^^^^^^^^^^^^^^^^^
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\util\langhelpers.py:122: in __exit__
+    raise exc_value.with_traceback(exc_tb)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\session.py:4449: in _flush
+    flush_context.execute()
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\unitofwork.py:465: in execute
+    rec.execute(self)
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\unitofwork.py:641: in execute
+    util.preloaded.orm_persistence.save_obj(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\persistence.py:94: in save_obj
+    _emit_insert_statements(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\orm\persistence.py:1234: in _emit_insert_statements
+    result = connection.execute(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1421: in execute
+    return meth(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1823: in _execute_context
+    self._handle_dbapi_exception(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\base.py:1817: in _execute_context
+    context = constructor(
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\engine\default.py:1496: in _init_compiled
+    flattened_processors[key](compiled_params[key])
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\sqlalchemy\sql\sqltypes.py:3734: in process
+    value = value.hex
+            ^^^^^^^^^
+E   sqlalchemy.exc.StatementError: (builtins.AttributeError) 'str' object has no attribute 'hex'
+E   [SQL: INSERT INTO inventory_transactions (id, warehouse_id, material_id, project_id, transaction_type, quantity, unit_cost, total_cost, reference_type, reference_id, transaction_date, tenant_id, created_at, updated_at, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)]
+E   [parameters: [{'quantity': Decimal('100.00'), 'reference_type': 'PO', 'warehouse_id': UUID('9aed4bce-295a-4799-b85f-c21f3a06dbc6'), 'total_cost': Decimal('250.00'), ... (222 characters truncated) ... 842-443c-b0e4-e472e08e9121'), 'material_id': UUID('07ffc544-02d1-4230-9447-e486b005326f'), 'created_by': None, 'updated_by': None, 'project_id': None}]]
+============================== warnings summary ===============================
+apps\api\app\schemas\contracts.py:22
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\contracts.py:22: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ContractTypeResponse(ContractTypeBase):
+
+apps\api\app\schemas\contracts.py:64
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\contracts.py:64: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ContractResponse(ContractBase):
+
+apps\api\app\schemas\wbs.py:24
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\wbs.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WBSNodeResponse(WBSNodeBase):
+
+apps\api\app\schemas\wbs.py:33
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\wbs.py:33: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WBSNodeTreeResponse(WBSNodeResponse):
+
+apps\api\app\schemas\cost_codes.py:24
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\cost_codes.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CostCodeResponse(CostCodeBase):
+
+apps\api\app\schemas\cost_codes.py:33
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\cost_codes.py:33: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CostCodeTreeResponse(CostCodeResponse):
+
+apps\api\app\schemas\inventory.py:7
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:7: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryBalanceResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:35
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:35: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class GoodsReceiptResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:58
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:58: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class MaterialIssueResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:79
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:79: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryTransferResponse(BaseModel):
+
+apps\api\app\schemas\inventory.py:103
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\inventory.py:103: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InventoryAdjustmentResponse(BaseModel):
+
+apps\api\app\schemas\project_cost.py:19
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\project_cost.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ProjectForecastResponse(BaseModel):
+
+apps\api\app\schemas\accounting.py:19
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class AccountResponse(AccountBase):
+
+apps\api\app\schemas\accounting.py:38
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:38: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class JournalLineResponse(JournalLineBase):
+
+apps\api\app\schemas\accounting.py:61
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\accounting.py:61: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class JournalResponse(JournalBase):
+
+apps\api\app\schemas\ap_ar.py:19
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:19: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APInvoiceLineResponse(APInvoiceLineBase):
+
+apps\api\app\schemas\ap_ar.py:39
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:39: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APInvoiceResponse(APInvoiceBase):
+
+apps\api\app\schemas\ap_ar.py:60
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:60: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ARInvoiceLineResponse(ARInvoiceLineBase):
+
+apps\api\app\schemas\ap_ar.py:80
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:80: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ARInvoiceResponse(ARInvoiceBase):
+
+apps\api\app\schemas\ap_ar.py:107
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:107: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class PaymentAllocationResponse(PaymentAllocationBase):
+
+apps\api\app\schemas\ap_ar.py:127
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\ap_ar.py:127: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class PaymentResponse(PaymentBase):
+
+apps\api\app\schemas\bank.py:20
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:20: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankAccountResponse(BankAccountBase):
+
+apps\api\app\schemas\bank.py:37
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:37: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankTransactionResponse(BankTransactionBase):
+
+apps\api\app\schemas\bank.py:55
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:55: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankStatementLineResponse(BankStatementLineBase):
+
+apps\api\app\schemas\bank.py:74
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\bank.py:74: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class BankStatementResponse(BankStatementBase):
+
+apps\api\app\schemas\documents.py:18
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\documents.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class DocumentVersionResponse(BaseModel):
+
+apps\api\app\schemas\documents.py:28
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\documents.py:28: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class DocumentPermissionResponse(BaseModel):
+
+apps\api\app\schemas\documents.py:37
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\documents.py:37: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class DocumentResponse(DocumentBase):
+
+apps\api\app\schemas\approvals.py:18
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:18: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalRuleResponse(ApprovalRuleBase):
+
+apps\api\app\schemas\approvals.py:24
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:24: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalStepResponse(BaseModel):
+
+apps\api\app\schemas\approvals.py:36
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:36: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalWorkflowResponse(BaseModel):
+
+apps\api\app\schemas\approvals.py:60
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\approvals.py:60: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class ApprovalDelegationResponse(ApprovalDelegationBase):
+
+apps\api\app\schemas\notifications.py:16
+  c:\Users\k_h50\git\Modern_Construction_ERP\apps\api\app\schemas\notifications.py:16: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class NotificationResponse(NotificationBase):
+
+..\..\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\testclient.py:1
+  C:\Users\k_h50\AppData\Local\Programs\Python\Python314\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_e2e_production.py::test_project_lifecycle_e2e
+  C:\Users\k_h50\git\Modern_Construction_ERP\apps\api\tests\conftest.py:41: SAWarning: Can't sort tables for DROP; an unresolvable foreign key dependency exists between tables: employees, hr_departments; and backend does not support ALTER.  To restore at least a partial sort, apply use_alter=True to ForeignKey and ForeignKeyConstraint objects involved in the cycle to mark these as known cycles that will be ignored.
+    Base.metadata.drop_all(bind=engine)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED apps\api\tests\test_e2e_production.py::test_inventory_golden_rule - sq...
+================== 1 failed, 3 passed, 35 warnings in 1.19s ===================

@@ -9,16 +9,16 @@ services:
     environment:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
-      - ENVIRONMENT=production
-      - LOG_LEVEL=INFO
-      - WORKERS=4
+      - ENVIRONMENT=staging
+      - LOG_LEVEL=DEBUG
+      - WORKERS=2
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
     networks:
-      - erp_prod_network
+      - erp_staging_network
 
   web:
     build:
@@ -28,7 +28,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     networks:
-      - erp_prod_network
+      - erp_staging_network
 
   db:
     image: postgres:15-alpine
@@ -38,28 +38,27 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
     volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
+      - postgres_staging_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - erp_prod_network
+      - erp_staging_network
 
   redis:
     image: redis:7-alpine
     restart: always
-    command: redis-server --save 60 1 --loglevel warning
     volumes:
-      - redis_prod_data:/data
+      - redis_staging_data:/data
     networks:
-      - erp_prod_network
+      - erp_staging_network
 
 volumes:
-  postgres_prod_data:
-  redis_prod_data:
+  postgres_staging_data:
+  redis_staging_data:
 
 networks:
-  erp_prod_network:
+  erp_staging_network:
     driver: bridge
