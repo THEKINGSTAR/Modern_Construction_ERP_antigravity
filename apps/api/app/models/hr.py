@@ -27,7 +27,7 @@ class HRDepartment(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
 
     id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String(100), nullable=False)
-    manager_id = Column(Uuid(as_uuid=True), ForeignKey("employees.id", ondelete="SET NULL"), nullable=True)
+    manager_id = Column(Uuid(as_uuid=True), ForeignKey("employees.id", ondelete="SET NULL", use_alter=True, name="fk_hr_departments_manager_id"), nullable=True)
 
 class Position(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "positions"
