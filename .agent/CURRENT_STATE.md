@@ -1,17 +1,17 @@
 # Current State
 
-- **Current Stage:** Stage 18 (Production Readiness) (COMPLETED).
+- **Current Stage:** Stage 18 (Production Readiness)
 - **Current Branch:** `main`.
-- **Latest Known-Good Checkpoint:** Baseline Validated. Environment is fully stable.
+- **Latest Known-Good Checkpoint:** agent-memory-baseline (Note: Baseline is RED).
 
 ## System State
-- **Application State:** API and Web folders exist with full models, services, schemas, and components implemented.
-- **Database State:** Core models and schemas are present. Cyclic dependencies fixed (`hr.py` manager_id `use_alter=True`).
-- **Test State:** E2E test suite and backend tests passing successfully. Static validation failures recorded but non-blocking.
-- **Migration State:** Complete. Migrations for Stages 11-18 have been generated and merged into Alembic.
-- **Git State:** Consistent. Tags matching `CHECKPOINTS.md` have been restored to the exact commits.
+- **Application State:** API and Web folders exist.
+- **Database State:** Core models present. Alembic native inspection fails due to expected environment dependency (Docker host resolution). 
+- **Test State:** E2E test suite and backend tests pass successfully against in-memory SQLite (`sqlite:///:memory:`).
+- **Migration State:** Migrations generated but cannot be fully verified locally without Docker or host override.
+- **Git State:** Clean, but baseline investigation is staged.
 
 ## Work & Issues
-- **Known Bugs:** None currently identified.
-- **Known Regressions:** None.
-- **Unfinished Work:** None. Awaiting next phase of development.
+- **Known Bugs:** Frontend fails to build due to `next.config.ts` being unsupported by Next.js 14.1.0 (Root cause CONFIRMED).
+- **Known Regressions:** Local database and backend startup broken natively because `db` host is unresolvable outside Docker. 
+- **Unfinished Work:** Baseline validation RED. Root causes investigated and documented in INV-001.

@@ -1,3 +1,5 @@
 # Active Task
 
-Currently awaiting human instruction. Deployment artifacts and Git state have been successfully repaired.
+- **Task:** RED Baseline Root-Cause Investigation
+- **Status:** COMPLETED
+- **Outcome:** Investigation concluded. Root causes confirmed. Identified historical artifact in frontend configuration and expected environment limitations regarding database host resolution. 
