@@ -1,0 +1,14 @@
+{
+    "project": "Modern Construction ERP",
+    "current_stage": null,
+    "current_task": null,
+    "status": "INITIALIZING",
+    "current_branch": null,
+    "current_commit": null,
+    "last_known_good_checkpoint": null,
+    "active_session": null,
+    "architecture_status": "UNKNOWN",
+    "tests_status": "UNKNOWN",
+    "database_status": "UNKNOWN",
+    "human_review_required": true
+}
