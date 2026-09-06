@@ -675,6 +675,41 @@ def cmd_rollback(args):
 
 
 # ==============================================================================
+# ==============================================================================
+# DEMO EXECUTION
+# ==============================================================================
+def cmd_demo(args):
+    """
+    Launch or verify the Modern Construction ERP end-to-end runnable demo.
+    Ensures DB, Migrations, Seeding, FastAPI backend and Next.js frontend are active.
+    """
+    repo_root = Path(__file__).resolve().parent.parent
+    print("=" * 70)
+    print("🚀 MODERN CONSTRUCTION ERP — RUNNABLE DEMO RUNNER")
+    print("=" * 70)
+
+    seed_script = repo_root / "scripts" / "seed.py"
+    res_seed = subprocess.run([sys.executable, str(seed_script)])
+    if res_seed.returncode != 0:
+        print("❌ Seeding failed", file=sys.stderr)
+        sys.exit(1)
+
+    e2e_script = repo_root / "scripts" / "test_demo_e2e.py"
+    res_e2e = subprocess.run([sys.executable, str(e2e_script)])
+    if res_e2e.returncode != 0:
+        print("❌ End-to-end verification encountered an issue", file=sys.stderr)
+        sys.exit(1)
+
+    print("=" * 70)
+    print("🎉 MODERN CONSTRUCTION ERP DEMO READY FOR BROWSER USE")
+    print("=" * 70)
+    print("Frontend URL:  http://localhost:3000")
+    print("Backend Docs:  http://localhost:8000/docs")
+    print("Health Check:  http://localhost:8000/health/ready")
+    print("Demo Account:  demo@apexconstruction.com / DemoPassword2026!")
+    print("=" * 70)
+
+
 # ACCEPTANCE TEST SIMULATIONS (Verification)
 # ==============================================================================
 def cmd_simulate_tests(args):
@@ -826,6 +861,7 @@ def main():
     rb_parser.add_argument("--type", choices=["attempt", "revert", "checkpoint"], required=True)
     rb_parser.add_argument("--sha", help="Target commit SHA or checkpoint name")
 
+    subparsers.add_parser("demo", help="Run end-to-end demo and verify stack")
     subparsers.add_parser("simulate-tests", help="Run the 4 acceptance tests")
 
     args = parser.parse_args()
@@ -842,6 +878,7 @@ def main():
         "record-failure": cmd_record_failure,
         "record-decision": cmd_record_decision,
         "commit": cmd_commit,
+                "demo": cmd_demo,
         "rollback": cmd_rollback,
         "simulate-tests": cmd_simulate_tests,
     }

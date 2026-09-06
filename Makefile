@@ -1,4 +1,7 @@
-.PHONY: bootstrap validate status test test-agent clean
+demo:
+	python3 scripts/agent.py demo
+
+.PHONY: demo bootstrap validate status test test-agent clean
 
 bootstrap:
 	python3 scripts/agent.py bootstrap

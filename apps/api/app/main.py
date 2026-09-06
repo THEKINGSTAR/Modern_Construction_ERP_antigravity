@@ -1,3 +1,4 @@
+import app.models  # Preload models before FastAPI instance binding
 import uuid
 import time
 from fastapi import FastAPI, Request
@@ -11,6 +12,8 @@ from app.core.logging import setup_logging
 from app.core.exceptions import BaseAPIException, api_exception_handler
 from app.core.database import SessionLocal
 from app.core.context import set_current_tenant_id
+import jwt
+from app.core.security import ALGORITHM
 
 setup_logging(settings.ENVIRONMENT)
 
@@ -31,6 +34,15 @@ app.add_middleware(
 @app.middleware("http")
 async def tenant_context_middleware(request: Request, call_next):
     tenant_id = request.headers.get("X-Tenant-ID")
+    if not tenant_id:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+            try:
+                payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+                tenant_id = payload.get("tenant_id")
+            except Exception:
+                pass
     if tenant_id:
         set_current_tenant_id(tenant_id)
     else:

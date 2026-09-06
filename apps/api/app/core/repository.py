@@ -23,9 +23,16 @@ class BaseRepository(Generic[ModelType]):
         query = self._apply_tenant_filter(query)
         return self.db.scalars(query).first()
 
-    def get_all(self) -> list[ModelType]:
+    def get_all(self, skip: int = 0, limit: int | None = None, **filters) -> list[ModelType]:
         query = select(self.model)
         query = self._apply_tenant_filter(query)
+        for field, value in filters.items():
+            if hasattr(self.model, field) and value is not None:
+                query = query.where(getattr(self.model, field) == value)
+        if skip:
+            query = query.offset(skip)
+        if limit is not None:
+            query = query.limit(limit)
         return list(self.db.scalars(query).all())
 
     def create(self, obj_in: dict[str, Any]) -> ModelType:

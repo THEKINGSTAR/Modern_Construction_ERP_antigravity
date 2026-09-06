@@ -16,7 +16,7 @@ from app.models.goods_receipts import GoodsReceipt, GoodsReceiptLine, GoodsRecei
 from app.models.material_issues import MaterialIssue, MaterialIssueLine, MaterialIssueStatus
 from app.services.inventory import InventoryService
 
-router = APIRouter(prefix="/inventory", tags=["Inventory"])
+router = APIRouter(tags=["Inventory"])
 
 @router.post("/goods-receipts", response_model=GoodsReceiptResponse)
 def create_goods_receipt(

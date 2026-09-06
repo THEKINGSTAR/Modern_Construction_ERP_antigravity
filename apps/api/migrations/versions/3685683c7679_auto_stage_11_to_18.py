@@ -456,6 +456,9 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_bank_statement_lines_tenant_id'), 'bank_statement_lines', ['tenant_id'], unique=False)
+    op.drop_index(op.f('ix_project_forecast_lines_cost_code_id'), table_name='project_forecast_lines')
+    op.drop_index(op.f('ix_project_forecast_lines_forecast_id'), table_name='project_forecast_lines')
+    op.drop_table('project_forecast_lines')
     op.drop_index(op.f('ix_project_forecasts_project_id'), table_name='project_forecasts')
     op.drop_table('project_forecasts')
     op.drop_index(op.f('ix_inventory_adjustment_lines_inventory_adjustment_id'), table_name='inventory_adjustment_lines')
@@ -468,9 +471,6 @@ def upgrade() -> None:
     op.drop_index(op.f('ix_inventory_adjustments_tenant_id'), table_name='inventory_adjustments')
     op.drop_index(op.f('ix_inventory_adjustments_warehouse_id'), table_name='inventory_adjustments')
     op.drop_table('inventory_adjustments')
-    op.drop_index(op.f('ix_project_forecast_lines_cost_code_id'), table_name='project_forecast_lines')
-    op.drop_index(op.f('ix_project_forecast_lines_forecast_id'), table_name='project_forecast_lines')
-    op.drop_table('project_forecast_lines')
     op.alter_column('accounting_periods', 'created_at',
                existing_type=postgresql.TIMESTAMP(),
                type_=sa.DateTime(timezone=True),

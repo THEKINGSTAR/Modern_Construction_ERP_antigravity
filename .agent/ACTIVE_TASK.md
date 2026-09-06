@@ -1,4 +1,4 @@
 # Active Task
 
-- **Task:** Record agent-baseline-green checkpoint in CHECKPOINTS.md
+- **Task:** Runnable End-to-End Application Demo
 - **Status:** COMPLETED
