@@ -1,4 +1,4 @@
 # Active Task
 
-- **Task:** Remediate RED baseline frontend build
+- **Task:** Record agent-baseline-green checkpoint in CHECKPOINTS.md
 - **Status:** COMPLETED

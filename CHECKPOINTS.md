@@ -28,7 +28,8 @@ This file records verified recovery points.
 | Name | Commit | Tag | Description |
 |---|---|---|---|
 | Project Memory Baseline | e8ce05a | agent-memory-baseline | Persistent continuity system established |
+| Green Baseline (Full System) | ca70269 | agent-baseline-green | Green baseline: backend tests and Next.js 14 production build verified |
 
 ## Recovery Rule
 
-The latest stage marked COMPLETE and verified by human review is the preferred rollback point.- [x] **Stage 15: Equipment Management** (Completed)
+The latest stage marked COMPLETE and verified by human review is the preferred rollback point.

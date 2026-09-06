@@ -7,12 +7,12 @@
     "current_branch": "main",
     "current_commit": "HEAD",
     "working_tree_clean": true,
-    "last_known_good_checkpoint": "agent-memory-baseline",
-    "active_session": "session-005",
+    "last_known_good_checkpoint": "agent-baseline-green",
+    "active_session": "session-006",
     "active_task": {
-        "name": "Remediate RED baseline frontend build",
+        "name": "Record agent-baseline-green checkpoint in CHECKPOINTS.md",
         "status": "COMPLETED",
-        "objective": "Remediate RED baseline frontend build"
+        "objective": "Record agent-baseline-green checkpoint in CHECKPOINTS.md"
     },
     "blockers": [],
     "next_action": {
