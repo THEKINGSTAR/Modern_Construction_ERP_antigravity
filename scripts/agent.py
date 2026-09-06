@@ -16,6 +16,7 @@ Provides mechanical enforcement of:
 """
 
 import os
+import re
 import sys
 import json
 import argparse
@@ -136,8 +137,15 @@ def validate_state(strict=True):
     state_stage = str(state.get("stage_number", ""))
     if BUILD_STATUS_FILE.exists():
         build_text = BUILD_STATUS_FILE.read_text(encoding="utf-8")
-        if "Stage 18" in build_text and state_stage and state_stage != "18":
-            errors.append(f"Stage mismatch: BUILD_STATUS.md specifies Stage 18, but state.json specifies Stage {state_stage}.")
+        expected_stage = "18"
+        for bline in build_text.splitlines():
+            if "current stage" in bline.lower():
+                m = re.search(r"(\d+)", bline)
+                if m:
+                    expected_stage = m.group(1)
+                break
+        if state_stage and state_stage != expected_stage:
+            errors.append(f"Stage mismatch: BUILD_STATUS.md specifies Stage {expected_stage}, but state.json specifies Stage {state_stage}.")
 
     # 4. Checkpoints check
     rec_chk = state.get("last_known_good_checkpoint")

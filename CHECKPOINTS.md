@@ -23,12 +23,14 @@ This file records verified recovery points.
 | 16 | COMPLETED | 9df4913 | stage-16 | YES | YES |
 | 17 | COMPLETED | e1b5cac | stage-17 | YES | YES |
 | 18 | COMPLETED | e10cea5 | stage-18 | YES | YES |
+| 19 | COMPLETED | f4e281e | stage-19-complete | YES | pending |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
 |---|---|---|---|
 | Project Memory Baseline | e8ce05a | agent-memory-baseline | Persistent continuity system established |
 | Green Baseline (Full System) | ca70269 | agent-baseline-green | Green baseline: backend tests and Next.js 14 production build verified |
+| Real ERP Production | f4e281e | real-erp-complete | Demo transformed into real ERP backed by PostgreSQL, live SQL aggregation, and full UI CRUD |
 
 ## Recovery Rule
 
