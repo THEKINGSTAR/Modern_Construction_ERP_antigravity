@@ -122,5 +122,23 @@ We provide convenient scripts to install dependencies and run the production env
 - Database backup and restore scripts are located in `infrastructure/scripts/`.
 - CI/CD workflows enforce tests, type checking, and security scans on every PR.
 
+
+## 🤖 Agent Workflow & Continuity
+
+This repository features an automated persistent agent-memory and workflow-continuity system allowing any autonomous coding agent to bootstrap, validate state, and continue tasks without manual context reconstruction:
+
+- **Machine State & Operational Memory:** Maintained in `.agent/` (`state.json`, `CURRENT_STATE.md`, `history/`, `lessons/`, `decisions/`).
+- **Project Knowledge & Architecture:** Maintained in `docs/` and `README.md`.
+- **Human Agent Control:** Maintained in `.agents/` (private human instruction layer; agents do not modify or depend on it).
+
+### Agent CLI (`scripts/agent` or `python3 scripts/agent.py`)
+- `agent bootstrap`: Discovers repository identity, verifies state consistency, prints working context, and outputs the next safe action.
+- `agent validate`: Enforces strict consistency between Git status, commit SHA, and recorded stage.
+- `agent retrieve --task "<task>"`: Deterministically retrieves relevant domain invariants, ADRs, and models.
+- `agent pre-flight`: Verifies baseline commit and protects pre-existing user changes before modifying code.
+- `agent record-failure`: Preserves failed attempts and records negative memory (lessons) to avoid repeating mistakes.
+- `agent commit`: Atomic task commit gate verifying tests, updating state, generating session logs, and recording handoffs.
+- `agent rollback`: Guided safe rollback adhering strictly to non-destructive Git principles.
+
 ## 📋 License
 Proprietary / Internal - Do Not Distribute

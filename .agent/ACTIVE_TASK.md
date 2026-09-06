@@ -1,5 +1,8 @@
 # Active Task
 
-- **Task:** RED Baseline Root-Cause Investigation
-- **Status:** COMPLETED
-- **Outcome:** Investigation concluded. Root causes confirmed. Identified historical artifact in frontend configuration and expected environment limitations regarding database host resolution. 
+- **Task:** Subcontractor Retention Tax Calculation
+- **Status:** BLOCKED
+- **Blocker / Failure:** Violated double-entry accounting invariant
+- **Root Cause:** Directly mutated invoice balance rather than ledger journal
+- **Lesson Record:** [LES-004](file:///home/king/git/Modern_Construction_ERP/.agent/lessons/LES-004-retention-tax-invariant.md)
+- **Recorded Date:** 2026-09-06
