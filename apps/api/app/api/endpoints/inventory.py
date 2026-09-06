@@ -259,3 +259,119 @@ def create_inventory_adjustment(
     db.commit()
     db.refresh(db_adjustment)
     return db_adjustment
+
+from app.models.materials import Material
+from app.models.warehouses import Warehouse
+from app.models.inventory import InventoryTransaction
+from app.schemas.inventory import (
+    MaterialResponse, MaterialCreate,
+    WarehouseResponse, WarehouseCreate,
+    InventoryTransactionResponse, InventoryBalanceDetailResponse
+)
+
+@router.get("/materials", response_model=List[MaterialResponse])
+def get_materials(
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Material).filter(Material.tenant_id == tenant_id).all()
+
+@router.post("/materials", response_model=MaterialResponse, status_code=status.HTTP_201_CREATED)
+def create_material(
+    material_in: MaterialCreate,
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant),
+    current_user: User = Depends(get_current_user)
+):
+    mat = Material(
+        tenant_id=tenant_id,
+        material_code=material_in.material_code,
+        name=material_in.name,
+        description=material_in.description,
+        category=material_in.category,
+        base_unit=material_in.base_unit,
+        active=True
+    )
+    db.add(mat)
+    db.commit()
+    db.refresh(mat)
+    return mat
+
+@router.get("/warehouses", response_model=List[WarehouseResponse])
+def get_warehouses(
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Warehouse).filter(Warehouse.tenant_id == tenant_id).all()
+
+@router.post("/warehouses", response_model=WarehouseResponse, status_code=status.HTTP_201_CREATED)
+def create_warehouse(
+    wh_in: WarehouseCreate,
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant),
+    current_user: User = Depends(get_current_user)
+):
+    wh = Warehouse(
+        tenant_id=tenant_id,
+        code=wh_in.code,
+        name=wh_in.name,
+        location=wh_in.location,
+        type=wh_in.type
+    )
+    db.add(wh)
+    db.commit()
+    db.refresh(wh)
+    return wh
+
+@router.get("/transactions", response_model=List[InventoryTransactionResponse])
+def get_transactions(
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(InventoryTransaction).filter(
+        InventoryTransaction.tenant_id == tenant_id
+    ).order_by(InventoryTransaction.transaction_date.desc()).all()
+
+@router.get("/balances/detail", response_model=List[InventoryBalanceDetailResponse])
+def get_detailed_balances(
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_current_tenant),
+    current_user: User = Depends(get_current_user)
+):
+    balances = db.query(
+        InventoryBalance.id,
+        InventoryBalance.warehouse_id,
+        Warehouse.name.label("warehouse_name"),
+        InventoryBalance.material_id,
+        Material.material_code,
+        Material.name.label("material_name"),
+        Material.base_unit,
+        InventoryBalance.quantity,
+        InventoryBalance.total_cost
+    ).join(
+        Warehouse, Warehouse.id == InventoryBalance.warehouse_id
+    ).join(
+        Material, Material.id == InventoryBalance.material_id
+    ).filter(
+        InventoryBalance.tenant_id == tenant_id
+    ).all()
+
+    results = []
+    for b in balances:
+        unit_c = (b.total_cost / b.quantity) if b.quantity > 0 else Decimal(0)
+        results.append(InventoryBalanceDetailResponse(
+            id=b.id,
+            warehouse_id=b.warehouse_id,
+            warehouse_name=b.warehouse_name,
+            material_id=b.material_id,
+            material_code=b.material_code,
+            material_name=b.material_name,
+            base_unit=b.base_unit,
+            quantity=b.quantity,
+            unit_cost=unit_c,
+            total_cost=b.total_cost
+        ))
+    return results

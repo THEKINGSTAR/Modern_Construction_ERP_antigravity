@@ -1,4 +1,4 @@
 # Next Action
 
-- **Action:** Provide final DEMO HANDOFF to user
+- **Action:** Deliver full real ERP application to user.
 - **Reason:** Previous task successfully completed and verified.

@@ -104,3 +104,11 @@ def cancel_purchase_order(
     po.status = POStatus.CANCELLED
     db.commit()
     return {"status": "success"}
+
+@router.get("/", response_model=List[PurchaseOrderResponse])
+def get_purchase_orders(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    return db.query(PurchaseOrder).filter(PurchaseOrder.tenant_id == tenant_id).all()

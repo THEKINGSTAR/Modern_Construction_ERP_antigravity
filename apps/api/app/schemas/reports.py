@@ -84,3 +84,19 @@ class TrialBalanceReport(BaseModel):
     lines: List[TrialBalanceLine] = []
     total_debit: Decimal = Decimal(0)
     total_credit: Decimal = Decimal(0)
+
+class ExecutiveDashboardReport(BaseModel):
+    total_active_contracts: int = 0
+    total_contract_value: Decimal = Decimal(0)
+    total_projects: int = 0
+    active_projects: int = 0
+    total_on_hand_quantity: Decimal = Decimal(0)
+    total_inventory_valuation: Decimal = Decimal(0)
+    warehouse_count: int = 0
+    total_journal_entries: int = 0
+    total_debits: Decimal = Decimal(0)
+    total_credits: Decimal = Decimal(0)
+    is_ledger_balanced: bool = True
+    total_ap_invoices: int = 0
+    total_open_payables: Decimal = Decimal(0)
+    total_clients: int = 0

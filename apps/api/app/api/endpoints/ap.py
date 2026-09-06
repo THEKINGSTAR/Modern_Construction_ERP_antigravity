@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -37,3 +38,11 @@ def create_payment(
 ):
     service = APService(db, current_user.tenant_id, current_user.id)
     return service.create_payment(payment)
+
+@router.get("/invoices", response_model=List[APInvoiceResponse])
+def get_invoices(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    from app.models.ap_ar import APInvoice
+    return db.query(APInvoice).filter(APInvoice.tenant_id == current_user.tenant_id).order_by(APInvoice.date.desc()).all()

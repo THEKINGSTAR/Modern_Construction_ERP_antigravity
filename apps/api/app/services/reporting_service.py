@@ -8,7 +8,7 @@ from decimal import Decimal
 from app.schemas.reports import (
     ProjectDashboardMetrics, CostCodeDetail, BudgetVsActualReport,
     CommitmentReport, CommitmentDetail, AgingReport, AgingDetail, AgingBucket,
-    TrialBalanceReport, TrialBalanceLine
+    TrialBalanceReport, TrialBalanceLine, ExecutiveDashboardReport
 )
 from app.services.project_cost import ProjectCostEngine
 from app.models.contracts import Contract
@@ -243,3 +243,77 @@ class ReportingService:
                 report.total_credit += c
                 
         return report
+
+    def get_executive_dashboard(self) -> ExecutiveDashboardReport:
+        from app.models.inventory import InventoryBalance
+        from app.models.warehouses import Warehouse
+        from app.models.contracts import ContractStatus
+
+        contracts_q = select(
+            func.count(Contract.id),
+            func.coalesce(func.sum(Contract.current_value), Decimal(0))
+        ).where(Contract.tenant_id == self.tenant_id, Contract.status != ContractStatus.CANCELLED)
+        active_contracts, contract_val = self.db.execute(contracts_q).one()
+
+        projects_total_q = select(func.count(Project.id)).where(Project.tenant_id == self.tenant_id)
+        total_projects = self.db.execute(projects_total_q).scalar_one()
+
+        projects_active_q = select(func.count(Project.id)).where(
+            Project.tenant_id == self.tenant_id,
+            Project.status != "COMPLETED"
+        )
+        active_projects = self.db.execute(projects_active_q).scalar_one()
+
+        inv_q = select(
+            func.coalesce(func.sum(InventoryBalance.quantity), Decimal(0)),
+            func.coalesce(func.sum(InventoryBalance.total_cost), Decimal(0))
+        ).where(InventoryBalance.tenant_id == self.tenant_id)
+        stock_qty, stock_val = self.db.execute(inv_q).one()
+
+        wh_count_q = select(func.count(Warehouse.id)).where(Warehouse.tenant_id == self.tenant_id)
+        wh_count = self.db.execute(wh_count_q).scalar_one()
+
+        j_count_q = select(func.count(Journal.id)).where(
+            Journal.tenant_id == self.tenant_id,
+            Journal.status == JournalStatus.POSTED
+        )
+        j_count = self.db.execute(j_count_q).scalar_one()
+
+        gl_q = select(
+            func.coalesce(func.sum(JournalLine.debit), Decimal(0)),
+            func.coalesce(func.sum(JournalLine.credit), Decimal(0))
+        ).join(Journal, Journal.id == JournalLine.journal_id).where(
+            Journal.tenant_id == self.tenant_id,
+            Journal.status == JournalStatus.POSTED
+        )
+        tot_debits, tot_credits = self.db.execute(gl_q).one()
+        is_balanced = (tot_debits == tot_credits)
+
+        ap_q = select(
+            func.count(APInvoice.id),
+            func.coalesce(func.sum(APInvoice.total_amount), Decimal(0))
+        ).where(
+            APInvoice.tenant_id == self.tenant_id,
+            APInvoice.status == InvoiceStatus.POSTED
+        )
+        ap_count, ap_open = self.db.execute(ap_q).one()
+
+        clients_count_q = select(func.count(Client.id)).where(Client.tenant_id == self.tenant_id)
+        clients_count = self.db.execute(clients_count_q).scalar_one()
+
+        return ExecutiveDashboardReport(
+            total_active_contracts=active_contracts,
+            total_contract_value=contract_val,
+            total_projects=total_projects,
+            active_projects=active_projects,
+            total_on_hand_quantity=stock_qty,
+            total_inventory_valuation=stock_val,
+            warehouse_count=wh_count,
+            total_journal_entries=j_count,
+            total_debits=tot_debits,
+            total_credits=tot_credits,
+            is_ledger_balanced=is_balanced,
+            total_ap_invoices=ap_count,
+            total_open_payables=ap_open,
+            total_clients=clients_count
+        )

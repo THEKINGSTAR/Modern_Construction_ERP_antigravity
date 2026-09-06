@@ -90,3 +90,5 @@ logs/
 # Databases
 *.sqlite3
 *.db
+tsconfig.tsbuildinfo
+*.tsbuildinfo

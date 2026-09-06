@@ -1,4 +1,4 @@
 # Active Task
 
-- **Task:** Runnable End-to-End Application Demo
+- **Task:** Real ERP Application Implementation
 - **Status:** COMPLETED

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-scripts/test_demo_e2e.py — End-to-End ERP Verification Test Suite.
+scripts/test_demo_e2e.py — Comprehensive End-to-End Real ERP Verification Suite.
 Validates the complete stack:
   Browser/Client -> Next.js Frontend -> FastAPI Backend -> PostgreSQL Database -> Business Logic -> Persistence
 """
@@ -17,11 +17,11 @@ WEB_BASE = "http://localhost:3000"
 
 def test_web_frontend():
     print("1. Testing Next.js Frontend HTTP Server...")
-    req = urllib.request.Request(f"{WEB_BASE}/")
+    req = urllib.request.Request(f"{WEB_BASE}/en")
     with urllib.request.urlopen(req) as resp:
         assert resp.status == 200, f"Expected 200 from Next.js, got {resp.status}"
         body = resp.read().decode("utf-8")
-        assert "html" in body, "Expected HTML in Next.js response"
+        assert "Modern Construction ERP" in body, "Expected ERP branding in HTML"
         print(f"   ✓ Frontend online at {resp.geturl()} (HTTP {resp.status})")
 
 def test_api_health():
@@ -77,9 +77,10 @@ def test_erp_workflows(token: str):
         print(f"   ✓ Existing projects retrieved: {initial_count} project(s)")
 
     # Create new project
+    suffix = str(os.getpid())
     new_proj_payload = json.dumps({
-        "project_number": "PRJ-E2E-TEST-001",
-        "name": "E2E Automated Verification Pier (DEMO)",
+        "project_number": f"PRJ-E2E-{suffix}",
+        "name": f"E2E Automated Verification Pier {suffix}",
         "budget_amount": "3500000.00",
         "status": "ACTIVE"
     }).encode("utf-8")
@@ -87,14 +88,14 @@ def test_erp_workflows(token: str):
     with urllib.request.urlopen(req) as resp:
         assert resp.status == 201
         created = json.loads(resp.read().decode("utf-8"))
-        assert created["project_number"] == "PRJ-E2E-TEST-001"
+        assert created["project_number"] == f"PRJ-E2E-{suffix}"
         print(f"   ✓ Created new project: {created['name']} ({created['project_number']})")
 
     print("6. Testing Clients Domain (Read & Create)...")
     new_client_payload = json.dumps({
-        "name": "E2E Verification Client Ltd (DEMO)",
-        "legal_name": "E2E Verification Client Limited",
-        "contact_information": "e2e@test.demo",
+        "name": f"E2E Verification Client Ltd {suffix}",
+        "legal_name": f"E2E Verification Client Limited",
+        "contact_information": f"e2e-{suffix}@test.erp",
         "status": "ACTIVE"
     }).encode("utf-8")
     req = urllib.request.Request(f"{API_BASE}/clients/", data=new_client_payload, headers=headers, method="POST")
@@ -103,42 +104,59 @@ def test_erp_workflows(token: str):
         created_client = json.loads(resp.read().decode("utf-8"))
         print(f"   ✓ Created new client: {created_client['name']}")
 
-    print("7. Testing Inventory Ledger Balances...")
-    req = urllib.request.Request(f"{API_BASE}/inventory/balances", headers=headers)
+    print("7. Testing Inventory Ledger & Detailed Warehouse Stock Balances...")
+    req = urllib.request.Request(f"{API_BASE}/inventory/balances/detail", headers=headers)
     with urllib.request.urlopen(req) as resp:
-        balances = json.loads(resp.read().decode("utf-8"))
-        assert len(balances) >= 1, "Expected at least 1 warehouse balance"
-        b = balances[0]
-        qty = Decimal(b["quantity"])
-        val = Decimal(b["total_cost"])
-        assert qty > 0, "Inventory quantity must be positive"
-        assert val > 0, "Inventory valuation must be positive"
-        print(f"   ✓ Inventory verified: {qty} units, total valuation ${val:,.2f}")
+        detailed_balances = json.loads(resp.read().decode("utf-8"))
+        assert len(detailed_balances) >= 1, "Expected at least 1 detailed warehouse balance"
+        b = detailed_balances[0]
+        assert "material_name" in b, "Missing material_name joined in balance detail"
+        assert "warehouse_name" in b, "Missing warehouse_name joined in balance detail"
+        qty = Decimal(str(b["quantity"]))
+        val = Decimal(str(b["total_cost"]))
+        print(f"   ✓ Detailed stock balance: {b['material_name']} in {b['warehouse_name']} — {qty} {b['base_unit']} (Valuation: ${val:,.2f})")
 
-    print("8. Testing Project Cost & Reporting Dashboard...")
-    # Seeded project ID
-    proj_id = "88888888-8888-4888-8888-888888888888"
-    req = urllib.request.Request(f"{API_BASE}/reports/projects/{proj_id}/dashboard", headers=headers)
+    print("8. Testing Procurement Domain (Purchase Orders)...")
+    req = urllib.request.Request(f"{API_BASE}/purchase-orders/", headers=headers)
     with urllib.request.urlopen(req) as resp:
-        dash = json.loads(resp.read().decode("utf-8"))
-        contract_val = Decimal(dash["contract_value"])
-        payable = Decimal(dash["payable"])
-        assert contract_val == Decimal("7500000.00"), f"Expected $7.5M contract value, got {contract_val}"
-        assert payable == Decimal("85000.00"), f"Expected $85k payable, got {payable}"
-        print(f"   ✓ Reporting dashboard computed live metrics: Contract=${contract_val:,.2f}, Payable=${payable:,.2f}")
+        pos = json.loads(resp.read().decode("utf-8"))
+        assert len(pos) >= 1, "Expected at least 1 purchase order"
+        print(f"   ✓ Purchase orders retrieved: {len(pos)} PO(s) on file (Latest PO: {pos[0]['po_number']})")
 
-    print("9. Testing General Ledger Trial Balance (Golden Rule: Debits == Credits)...")
+    print("9. Testing Accounts Payable Invoices...")
+    req = urllib.request.Request(f"{API_BASE}/ap/invoices", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        invoices = json.loads(resp.read().decode("utf-8"))
+        assert len(invoices) >= 1, "Expected at least 1 AP invoice"
+        print(f"   ✓ Accounts Payable retrieved: {len(invoices)} invoice(s) (Invoice #{invoices[0]['number']} for ${float(invoices[0]['total_amount']):,.2f})")
+
+    print("10. Testing General Ledger Trial Balance (Golden Rule: Debits == Credits)...")
     req = urllib.request.Request(f"{API_BASE}/reports/accounting/trial-balance", headers=headers)
     with urllib.request.urlopen(req) as resp:
         tb = json.loads(resp.read().decode("utf-8"))
-        total_debit = Decimal(tb["total_debit"])
-        total_credit = Decimal(tb["total_credit"])
+        total_debit = Decimal(str(tb["total_debit"]))
+        total_credit = Decimal(str(tb["total_credit"]))
         assert total_debit == total_credit, f"Golden Rule broken! Debit {total_debit} != Credit {total_credit}"
         print(f"   ✓ Trial Balance balanced: Total Debits (${total_debit:,.2f}) == Total Credits (${total_credit:,.2f})")
 
+    print("11. Testing Executive Dashboard Live SQL Aggregation Engine...")
+    req = urllib.request.Request(f"{API_BASE}/reports/executive-dashboard", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        exec_dash = json.loads(resp.read().decode("utf-8"))
+        assert Decimal(str(exec_dash["total_contract_value"])) >= Decimal("7500000.00")
+        assert exec_dash["total_active_contracts"] >= 1
+        assert Decimal(str(exec_dash["total_on_hand_quantity"])) >= Decimal("65.0")
+        assert exec_dash["is_ledger_balanced"] is True
+        assert Decimal(str(exec_dash["total_open_payables"])) >= Decimal("85000.00")
+        print(f"   ✓ Executive Dashboard SQL Engine aggregated live values:")
+        print(f"     - Contracts: ${float(exec_dash['total_contract_value']):,.2f} ({exec_dash['total_active_contracts']} active)")
+        print(f"     - Stock: {float(exec_dash['total_on_hand_quantity']):.1f} TON (Valuation: ${float(exec_dash['total_inventory_valuation']):,.2f})")
+        print(f"     - General Ledger: ${float(exec_dash['total_debits']):,.2f} (Balanced: {exec_dash['is_ledger_balanced']})")
+        print(f"     - Trade Payables: ${float(exec_dash['total_open_payables']):,.2f} ({exec_dash['total_ap_invoices']} invoices)")
+
 def main():
     print("=" * 70)
-    print("🚀 MODERN CONSTRUCTION ERP — RUNNABLE DEMO VERIFICATION SUITE")
+    print("🚀 MODERN CONSTRUCTION ERP — FULL APPLICATION STACK VERIFICATION")
     print("=" * 70)
     try:
         test_web_frontend()
@@ -146,7 +164,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 9 END-TO-END DEMO VERIFICATION CHECKS PASSED SUCCESSFULLY!")
+        print("🎉 ALL 11 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:

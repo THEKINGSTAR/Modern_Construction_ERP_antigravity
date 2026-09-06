@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from app.core.database import get_db
 from app.core.auth import get_current_user, get_current_tenant as get_tenant_id
 from app.models.user import User
-from app.schemas.accounting import JournalCreate, JournalResponse, GLBalanceResponse, GLBalanceQuery
+from app.schemas.accounting import JournalCreate, JournalResponse, AccountResponse, GLBalanceResponse, GLBalanceQuery
 from app.services.accounting import AccountingEngine
 
 router = APIRouter()
@@ -80,3 +80,21 @@ def get_gl_balances(
         business_unit_id=query.business_unit_id
     )
     return balances
+
+from app.models.accounting import Account, Journal
+
+@router.get("/accounts", response_model=List[AccountResponse])
+def get_accounts(
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Account).filter(Account.tenant_id == tenant_id).order_by(Account.account_code).all()
+
+@router.get("/journals", response_model=List[JournalResponse])
+def get_journals(
+    db: Session = Depends(get_db),
+    tenant_id: UUID = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(Journal).filter(Journal.tenant_id == tenant_id).order_by(Journal.date.desc()).all()

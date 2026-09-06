@@ -107,3 +107,65 @@ class InventoryAdjustmentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MaterialResponse(BaseModel):
+    id: UUID4
+    material_code: str
+    name: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    base_unit: str
+    active: bool = True
+
+    class Config:
+        from_attributes = True
+
+class MaterialCreate(BaseModel):
+    material_code: str
+    name: str
+    description: Optional[str] = None
+    category: Optional[str] = None
+    base_unit: str
+
+class WarehouseResponse(BaseModel):
+    id: UUID4
+    code: str
+    name: str
+    location: Optional[str] = None
+    type: str
+
+    class Config:
+        from_attributes = True
+
+class WarehouseCreate(BaseModel):
+    code: str
+    name: str
+    location: Optional[str] = None
+    type: str = "CENTRAL"
+
+class InventoryTransactionResponse(BaseModel):
+    id: UUID4
+    warehouse_id: UUID4
+    material_id: UUID4
+    project_id: Optional[UUID4] = None
+    transaction_type: str
+    quantity: Decimal
+    unit_cost: Decimal
+    total_cost: Decimal
+    reference_type: Optional[str] = None
+    transaction_date: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+class InventoryBalanceDetailResponse(BaseModel):
+    id: UUID4
+    warehouse_id: UUID4
+    warehouse_name: str
+    material_id: UUID4
+    material_code: str
+    material_name: str
+    base_unit: str
+    quantity: Decimal
+    unit_cost: Decimal
+    total_cost: Decimal
