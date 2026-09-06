@@ -516,12 +516,12 @@ def cmd_commit(args):
         sys.exit(1)
 
     if not args.skip_tests:
-        print("🧪 Executing test validation gate (apps/api)...")
-        test_out = run_cmd("python3 -m pytest tests/ -v", cwd=REPO_ROOT / "apps" / "api", check=False)
-        if "failed" in test_out or "error" in test_out.lower() and "passed" not in test_out:
-            print(f"[ERROR] Tests failed! Cannot commit completion state:\n{test_out}", file=sys.stderr)
+        print("🧪 Executing test validation gate (backend pytest + frontend build)...")
+        res = subprocess.run("bash scripts/test.sh", cwd=str(REPO_ROOT), shell=True, capture_output=True, text=True)
+        if res.returncode != 0:
+            print(f"[ERROR] Tests failed! Cannot commit completion state:\n{res.stdout}\n{res.stderr}", file=sys.stderr)
             sys.exit(1)
-        print("  ✅ Backend tests passed.")
+        print("  ✅ Backend and frontend test suite passed.")
         run_cmd("git checkout HEAD -- apps/api/test_conc.db", check=False)
 
     now = datetime.datetime.now()

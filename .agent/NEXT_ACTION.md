@@ -1,4 +1,4 @@
 # Next Action
 
-- **Action:** Refactor retention to post journal transaction to Accounts Payable
-- **Reason:** Root cause discovered: Directly mutated invoice balance rather than ledger journal
+- **Action:** Select next roadmap objective (MVP Launch Preparation)
+- **Reason:** Previous task successfully completed and verified.

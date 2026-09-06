@@ -12,12 +12,9 @@ cd "${REPO_ROOT}/apps/api"
 python3 -m pytest tests/ -v
 
 echo "========================================="
-echo "[2/2] Checking Frontend Build..."
+echo "[2/2] Building Frontend (Next.js)..."
 cd "${REPO_ROOT}/apps/web"
-if [ -f "next.config.ts" ]; then
-    echo "⚠️  WARNING: apps/web/next.config.ts is present (known incompatibility with Next.js 14.1.0)."
-    echo "    Frontend build will fail until renamed to next.config.mjs."
-fi
+npm run build
 
 echo "========================================="
-echo "Backend test suite completed successfully."
+echo "All backend and frontend test/build suites completed successfully."
