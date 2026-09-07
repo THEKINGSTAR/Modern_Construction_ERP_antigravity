@@ -1,5 +1,6 @@
 import uuid
 import enum
+from decimal import Decimal
 from sqlalchemy import Column, String, Date, Numeric, ForeignKey, Enum, Uuid, Text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -37,8 +38,20 @@ class Account(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     account_type = Column(Enum(AccountType, native_enum=False), nullable=False, index=True)
     is_control_account = Column(String(50), default="False", nullable=False)
 
-    chart_of_accounts = relationship("ChartOfAccounts", back_populates="accounts")
-    parent = relationship("Account", remote_side=[id], backref="children")
+    chart_of_accounts = relationship("ChartOfAccounts", back_populates="accounts", lazy="joined")
+    parent = relationship("Account", remote_side=[id], backref="children", lazy="joined")
+
+    @property
+    def chart_name(self) -> str:
+        return self.chart_of_accounts.name if self.chart_of_accounts else "Standard COA"
+
+    @property
+    def parent_code(self) -> str:
+        return self.parent.account_code if self.parent else None
+
+    @property
+    def parent_name(self) -> str:
+        return self.parent.name if self.parent else None
 
 class Journal(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "journals"
@@ -50,7 +63,23 @@ class Journal(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     status = Column(Enum(JournalStatus, native_enum=False), default=JournalStatus.DRAFT, nullable=False, index=True)
     reversal_journal_id = Column(Uuid(as_uuid=True), ForeignKey("journals.id", ondelete="SET NULL"), nullable=True)
 
-    lines = relationship("JournalLine", back_populates="journal", cascade="all, delete-orphan")
+    lines = relationship("JournalLine", back_populates="journal", cascade="all, delete-orphan", lazy="selectin")
+
+    @property
+    def lines_count(self) -> int:
+        return len(self.lines) if self.lines else 0
+
+    @property
+    def total_debit(self) -> Decimal:
+        return sum((Decimal(str(line.debit)) for line in self.lines), Decimal("0.0000")) if self.lines else Decimal("0.0000")
+
+    @property
+    def total_credit(self) -> Decimal:
+        return sum((Decimal(str(line.credit)) for line in self.lines), Decimal("0.0000")) if self.lines else Decimal("0.0000")
+
+    @property
+    def is_balanced(self) -> bool:
+        return self.total_debit == self.total_credit
 
 class JournalLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "journal_lines"
@@ -70,9 +99,25 @@ class JournalLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     business_unit_id = Column(Uuid(as_uuid=True), ForeignKey("business_units.id", ondelete="SET NULL"), nullable=True, index=True)
 
     journal = relationship("Journal", back_populates="lines")
-    account = relationship("Account")
-    project = relationship("Project")
-    cost_code = relationship("CostCode")
-    department = relationship("Department")
-    branch = relationship("Branch")
-    business_unit = relationship("BusinessUnit")
+    account = relationship("Account", lazy="joined")
+    project = relationship("Project", lazy="joined")
+    cost_code = relationship("CostCode", lazy="joined")
+    department = relationship("Department", lazy="joined")
+    branch = relationship("Branch", lazy="joined")
+    business_unit = relationship("BusinessUnit", lazy="joined")
+
+    @property
+    def account_code(self) -> str:
+        return self.account.account_code if self.account else None
+
+    @property
+    def account_name(self) -> str:
+        return self.account.name if self.account else None
+
+    @property
+    def project_name(self) -> str:
+        return self.project.name if self.project else None
+
+    @property
+    def cost_code_code(self) -> str:
+        return self.cost_code.code if self.cost_code else None

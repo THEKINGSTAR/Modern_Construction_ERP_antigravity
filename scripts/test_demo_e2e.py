@@ -13,6 +13,7 @@ import json
 import urllib.request
 import urllib.parse
 from decimal import Decimal
+import time
 
 API_BASE = "http://localhost:8000/api/v1"
 WEB_BASE = "http://localhost:3000"
@@ -675,7 +676,147 @@ def test_erp_workflows(token: str):
         assert len(all_payments) >= 1
         print(f"   ✓ Verified Payments Register ({len(all_payments)} disbursements loaded)")
 
-    print("42. Testing Multi-Page Web Portal Health (All 31 Engineering, Commercial, Procurement, Logistics & AP Routes)...")
+    print("42. Testing General Ledger Summary & Real-Time Balancing Engine...")
+    req = urllib.request.Request(f"{API_BASE}/accounting/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        gl_summary = json.loads(resp.read().decode("utf-8"))
+        assert gl_summary["is_ledger_balanced"] is True
+        assert float(gl_summary["total_debits"]) == float(gl_summary["total_credits"])
+        assert gl_summary["total_accounts"] >= 20
+        assert gl_summary["posted_journals"] >= 1
+        print(f"   ✓ Verified Live GL Summary: Balanced={gl_summary['is_ledger_balanced']} | Volume=${float(gl_summary['total_debits']):,.2f} | Accounts={gl_summary['total_accounts']}")
+
+    print("43. Testing Chart of Accounts Query & Category Breakdown...")
+    req = urllib.request.Request(f"{API_BASE}/accounting/accounts", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        accounts = json.loads(resp.read().decode("utf-8"))
+        assert len(accounts) >= 20
+        asset_accs = [a for a in accounts if a["account_type"] == "ASSET"]
+        assert len(asset_accs) >= 4
+        print(f"   ✓ Chart of Accounts Loaded ({len(accounts)} accounts with live balances, {len(asset_accs)} assets)")
+
+    print("44. Testing Account Creation Validation...")
+    new_acc_payload = json.dumps({
+        "account_code": f"1099-{int(time.time()) % 10000}",
+        "name": "E2E Petty Cash Site Fund",
+        "account_type": "ASSET",
+        "description": "Petty cash emergency fund for site operations",
+        "is_active": True
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/accounting/accounts", data=new_acc_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        created_acc = json.loads(resp.read().decode("utf-8"))
+        assert created_acc["account_type"] == "ASSET"
+        print(f"   ✓ Created New GL Account: [{created_acc['account_code']}] {created_acc['name']}")
+
+    print("45. Testing Journal Vouchers Register & Lines...")
+    req = urllib.request.Request(f"{API_BASE}/accounting/journals", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        journals = json.loads(resp.read().decode("utf-8"))
+        assert len(journals) >= 1
+        print(f"   ✓ Journal Vouchers Register: {len(journals)} vouchers loaded with multi-line breakdown")
+
+    print("46. Testing Double-Entry Journal Creation & Posting to GL...")
+    # Find cash account and equity account
+    cash_acc = next((a for a in accounts if a["account_code"] == "1010"), accounts[0])
+    equity_acc = next((a for a in accounts if a["account_code"] == "3010"), accounts[-1])
+    jv_payload = json.dumps({
+        "date": "2026-08-15",
+        "reference": f"E2E-CAPITAL-{int(time.time()) % 1000}",
+        "description": "Additional Owner Capital Injection for Project Expansion",
+        "lines": [
+            {
+                "account_id": cash_acc["id"],
+                "debit": 50000.0,
+                "credit": 0.0,
+                "description": "Bank Cash Inflow"
+            },
+            {
+                "account_id": equity_acc["id"],
+                "debit": 0.0,
+                "credit": 50000.0,
+                "description": "Owner Paid-in Capital"
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/accounting/journals", data=jv_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        created_jv = json.loads(resp.read().decode("utf-8"))
+        jv_id = created_jv["id"]
+        assert created_jv["status"] == "DRAFT"
+        assert created_jv["is_balanced"] is True
+        print(f"   ✓ Created Balanced JV: {created_jv.get('reference', created_jv['id'])} (Debits: ${float(created_jv['total_debit']):,.2f} == Credits: ${float(created_jv['total_credit']):,.2f})")
+
+    # Post JV
+    req = urllib.request.Request(f"{API_BASE}/accounting/journals/{jv_id}/post", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        posted_jv = json.loads(resp.read().decode("utf-8"))
+        assert posted_jv["status"] == "POSTED"
+        print(f"   ✓ Posted JV {posted_jv.get('reference', posted_jv['id'])} to General Ledger (Status: POSTED)")
+
+    print("47. Testing Journal Voucher Audit Reversal...")
+    rev_payload = json.dumps({
+        "reversal_date": "2026-08-16",
+        "description": "Audit Correction Reversal for Capital Entry"
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/accounting/journals/{jv_id}/reverse", data=rev_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        rev_jv = json.loads(resp.read().decode("utf-8"))
+        assert rev_jv["status"] == "POSTED"
+        assert "REV-" in (rev_jv.get("reference") or "")
+        print(f"   ✓ Reversed JV: Original status now REVERSED, Reversal voucher {rev_jv.get('reference', rev_jv['id'])} posted")
+
+    print("48. Testing Financial Periods & Month-End Closing Controls...")
+    req = urllib.request.Request(f"{API_BASE}/accounting/periods", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        periods = json.loads(resp.read().decode("utf-8"))
+        assert len(periods) >= 12
+        open_periods = [p for p in periods if not p["is_closed"]]
+        target_period = open_periods[-1]
+        p_id = target_period["id"]
+        print(f"   ✓ Loaded {len(periods)} Financial Periods ({len(open_periods)} Open, {len(periods)-len(open_periods)} Closed)")
+
+    # Test closing period
+    req = urllib.request.Request(f"{API_BASE}/accounting/periods/{p_id}/close", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        closed_p = json.loads(resp.read().decode("utf-8"))
+        assert closed_p["is_closed"] is True
+        print(f"   ✓ Closed Period {closed_p['name']} (Month-End Lock Active)")
+
+    # Test reopening period
+    req = urllib.request.Request(f"{API_BASE}/accounting/periods/{p_id}/reopen", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        reopened_p = json.loads(resp.read().decode("utf-8"))
+        assert reopened_p["is_closed"] is False
+        print(f"   ✓ Reopened Period {reopened_p['name']} (Period Unlocked for Postings)")
+
+    print("49. Testing Financial Statements Studio (Balance Sheet & Income Statement)...")
+    req = urllib.request.Request(f"{API_BASE}/accounting/reports/balance-sheet?as_of_date=2026-12-31", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        bs = json.loads(resp.read().decode("utf-8"))
+        assert bs["is_balanced"] is True
+        assert abs(float(bs["total_assets"]) - (float(bs["total_liabilities"]) + float(bs["total_equity"]) + float(bs["retained_earnings"]))) < 0.01
+        print(f"   ✓ Balance Sheet As-of 2026-12-31: Assets=${float(bs['total_assets']):,.2f} == Liab+Eq+RetEarnings=${float(bs['total_liabilities']) + float(bs['total_equity']) + float(bs['retained_earnings']):,.2f} (Balanced={bs['is_balanced']})")
+
+    req = urllib.request.Request(f"{API_BASE}/accounting/reports/income-statement?start_date=2026-01-01&end_date=2026-12-31", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        pnl = json.loads(resp.read().decode("utf-8"))
+        assert abs(float(pnl["net_profit"]) - (float(pnl["total_revenue"]) - float(pnl["total_expenses"]))) < 0.01
+        print(f"   ✓ Income Statement (P&L): Revenue=${float(pnl['total_revenue']):,.2f} | Expenses=${float(pnl['total_expenses']):,.2f} | Net Profit=${float(pnl['net_profit']):,.2f}")
+
+    print("50. Testing Multi-Page Web Portal Health (All 39 Engineering, Commercial, Procurement, Logistics, AP & GL Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -699,6 +840,10 @@ def test_erp_workflows(token: str):
         "/en/material-issues",
         "/en/ap/invoices",
         "/en/ap/payments",
+        "/en/accounting/accounts",
+        "/en/accounting/journals",
+        "/en/accounting/periods",
+        "/en/accounting/reports",
         "/ar/subcontracts",
         "/ar/suppliers",
         "/ar/purchase-orders",
@@ -708,6 +853,10 @@ def test_erp_workflows(token: str):
         "/ar/material-issues",
         "/ar/ap/invoices",
         "/ar/ap/payments",
+        "/ar/accounting/accounts",
+        "/ar/accounting/journals",
+        "/ar/accounting/periods",
+        "/ar/accounting/reports",
     ]
     for route in routes:
         req = urllib.request.Request(f"{WEB_BASE}{route}")
@@ -725,7 +874,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 42 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 50 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:

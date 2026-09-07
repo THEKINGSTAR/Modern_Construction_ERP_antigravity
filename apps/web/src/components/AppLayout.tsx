@@ -53,10 +53,19 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
       ],
     },
     {
-      title: "Accounts Payable & Finance",
+      title: "Accounts Payable",
       items: [
         { label: "AP Invoices & 3-Way Match", path: `/${locale}/ap/invoices`, icon: "🧾" },
         { label: "Vendor Payments", path: `/${locale}/ap/payments`, icon: "💳" },
+      ],
+    },
+    {
+      title: "General Ledger & Accounting",
+      items: [
+        { label: "Chart of Accounts", path: `/${locale}/accounting/accounts`, icon: "📑" },
+        { label: "Journal Vouchers", path: `/${locale}/accounting/journals`, icon: "📒" },
+        { label: "Financial Periods", path: `/${locale}/accounting/periods`, icon: "📅" },
+        { label: "Financial Statements", path: `/${locale}/accounting/reports`, icon: "📊" },
       ],
     },
     {

@@ -44,7 +44,11 @@ class AccountingPeriod(Base, TenantAwareMixin, TimestampMixin):
     end_date = Column(Date, nullable=False)
     is_closed = Column(Boolean, default=False, nullable=False)
     
-    fiscal_year = relationship("FiscalYear", back_populates="periods")
+    fiscal_year = relationship("FiscalYear", back_populates="periods", lazy="joined")
+
+    @property
+    def fiscal_year_name(self) -> str:
+        return self.fiscal_year.name if self.fiscal_year else "FY" 
 
 class TenantSettings(Base, TenantAwareMixin, TimestampMixin):
     __tablename__ = "tenant_settings"

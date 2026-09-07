@@ -105,5 +105,25 @@
     "title": "Vendor Payments & Disbursements",
     "description": "Treasury cash disbursement vouchers, general ledger settlement, and AP invoice allocation.",
     "coming_soon": "Vendor disbursements active."
+  },
+  "ChartOfAccounts": {
+    "title": "Chart of Accounts (COA)",
+    "description": "Enterprise construction general ledger chart of accounts with real-time balance aggregation.",
+    "coming_soon": "Chart of accounts ledger active."
+  },
+  "JournalVouchers": {
+    "title": "Journal Vouchers & GL Studio",
+    "description": "Double-entry journal vouchers with real-time debit/credit balancing, project cost allocation, and audit reversal.",
+    "coming_soon": "Journal voucher register active."
+  },
+  "FinancialPeriods": {
+    "title": "Financial Periods & Closing",
+    "description": "Fiscal year accounting period lifecycle, month-end lock controls, and audit integrity.",
+    "coming_soon": "Financial periods control active."
+  },
+  "FinancialStatements": {
+    "title": "Financial Statements & Reporting",
+    "description": "Real-time Trial Balance, Balance Sheet, and Income Statement (P&L) generated directly from posted journal lines.",
+    "coming_soon": "Financial reports studio active."
   }
 }

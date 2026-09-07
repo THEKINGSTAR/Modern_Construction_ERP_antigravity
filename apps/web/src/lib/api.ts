@@ -268,16 +268,38 @@ export interface Account {
   account_code: string;
   account_type?: string;
   is_control_account: boolean;
-  chart_of_accounts_id: string;
+  chart_of_accounts_id?: string;
+  chart_name?: string;
+  parent_code?: string;
+  parent_name?: string;
+  balance?: number;
+  total_debit?: number;
+  total_credit?: number;
+}
+
+export interface CreateAccountInput {
+  name: string;
+  account_code: string;
+  account_type: string;
+  is_control_account?: boolean;
+  parent_id?: string | null;
+  chart_of_accounts_id?: string | null;
 }
 
 export interface JournalLine {
   id?: string;
   account_id: string;
-  debit: string;
-  credit: string;
+  debit: string | number;
+  credit: string | number;
   project_id?: string | null;
   cost_code_id?: string | null;
+  department_id?: string | null;
+  branch_id?: string | null;
+  business_unit_id?: string | null;
+  account_code?: string;
+  account_name?: string;
+  project_name?: string;
+  cost_code_code?: string;
 }
 
 export interface Journal {
@@ -286,7 +308,89 @@ export interface Journal {
   reference?: string | null;
   description: string;
   status: string;
+  reversal_journal_id?: string | null;
+  lines_count?: number;
+  total_debit?: number;
+  total_credit?: number;
+  is_balanced?: boolean;
   lines: JournalLine[];
+}
+
+export interface CreateJournalInput {
+  date?: string;
+  entry_date?: string;
+  journal_number?: string;
+  reference?: string | null;
+  description: string;
+  source_document_type?: string;
+  source_document_id?: string;
+  lines: Array<{
+    account_id: string | null;
+    debit?: number;
+    credit?: number;
+    debit_amount?: number;
+    credit_amount?: number;
+    line_number?: number;
+    project_id?: string | null;
+    cost_code_id?: string | null;
+    description?: string | null;
+  }>;
+}
+
+export interface GLSummary {
+  total_journals: number;
+  posted_journals: number;
+  draft_journals: number;
+  reversed_journals: number;
+  total_debits: number;
+  total_credits: number;
+  is_ledger_balanced: boolean;
+  total_accounts: number;
+  asset_accounts: number;
+  liability_accounts: number;
+  equity_accounts: number;
+  revenue_accounts: number;
+  expense_accounts: number;
+  total_periods: number;
+  open_periods: number;
+  closed_periods: number;
+  total_revenue: number;
+  total_expenses: number;
+  net_income: number;
+}
+
+export interface FinancialStatementItem {
+  account_id: string;
+  account_code: string;
+  account_name: string;
+  account_type: string;
+  debit: number;
+  credit: number;
+  balance: number;
+}
+
+export interface BalanceSheetReport {
+  as_of_date: string;
+  assets: FinancialStatementItem[];
+  total_assets: number;
+  liabilities: FinancialStatementItem[];
+  total_liabilities: number;
+  equity: FinancialStatementItem[];
+  total_equity: number;
+  retained_earnings: number;
+  total_liabilities_and_equity: number;
+  is_balanced: boolean;
+}
+
+export interface IncomeStatementReport {
+  start_date: string;
+  end_date: string;
+  revenue: FinancialStatementItem[];
+  total_revenue: number;
+  expenses: FinancialStatementItem[];
+  total_expenses: number;
+  gross_profit: number;
+  net_profit: number;
 }
 
 export interface APInvoiceLine {
@@ -806,20 +910,113 @@ export async function cancelPurchaseOrder(poId: string): Promise<{ status: strin
   });
 }
 
-// ----------------- Accounting & AP -----------------
-export async function getAccounts(): Promise<Account[]> {
-  return request<Account[]>('/accounting/accounts');
+// ----------------- General Ledger & Accounting -----------------
+export async function getGLSummary(): Promise<GLSummary> {
+  return request<GLSummary>('/accounting/summary');
 }
 
-export async function getJournals(): Promise<Journal[]> {
-  return request<Journal[]>('/accounting/journals');
+export async function getAccounts(params?: {
+  account_type?: string;
+  search?: string;
+}): Promise<Account[]> {
+  const query = new URLSearchParams();
+  if (params?.account_type) query.append('account_type', params.account_type);
+  if (params?.search) query.append('search', params.search);
+  const qStr = query.toString() ? `?${query.toString()}` : '';
+  return request<Account[]>(`/accounting/accounts${qStr}`);
 }
 
-export async function createJournal(data: any): Promise<Journal> {
-  return request<Journal>('/accounting/journals?auto_post=true', {
+export async function getAccount(id: string): Promise<Account> {
+  return request<Account>(`/accounting/accounts/${id}`);
+}
+
+export async function createAccount(data: CreateAccountInput): Promise<Account> {
+  return request<Account>('/accounting/accounts', {
     method: 'POST',
     body: JSON.stringify(data),
   });
+}
+
+export async function getJournals(params?: {
+  status?: string;
+  search?: string;
+  start_date?: string;
+  end_date?: string;
+}): Promise<Journal[]> {
+  const query = new URLSearchParams();
+  if (params?.status) query.append('status_filter', params.status);
+  if (params?.search) query.append('search', params.search);
+  if (params?.start_date) query.append('start_date', params.start_date);
+  if (params?.end_date) query.append('end_date', params.end_date);
+  const qStr = query.toString() ? `?${query.toString()}` : '';
+  return request<Journal[]>(`/accounting/journals${qStr}`);
+}
+
+export async function getJournal(id: string): Promise<Journal> {
+  return request<Journal>(`/accounting/journals/${id}`);
+}
+
+export async function createJournal(data: CreateJournalInput, auto_post: boolean = false): Promise<Journal> {
+  const payload = {
+    ...data,
+    date: data.date || data.entry_date || new Date().toISOString().split('T')[0],
+    entry_date: data.entry_date || data.date || new Date().toISOString().split('T')[0],
+    lines: data.lines.map((l, idx) => ({
+      account_id: l.account_id || '',
+      debit: l.debit !== undefined ? l.debit : (l.debit_amount || 0),
+      credit: l.credit !== undefined ? l.credit : (l.credit_amount || 0),
+      line_number: l.line_number ?? idx + 1,
+      project_id: l.project_id || null,
+      cost_code_id: l.cost_code_id || null,
+      description: l.description || null,
+    })),
+  };
+  return request<Journal>(`/accounting/journals?auto_post=${auto_post}`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function postJournal(id: string): Promise<Journal> {
+  return request<Journal>(`/accounting/journals/${id}/post`, {
+    method: 'POST',
+  });
+}
+
+export async function reverseJournal(id: string, reversal_date: string, description: string): Promise<Journal> {
+  return request<Journal>(`/accounting/journals/${id}/reverse`, {
+    method: 'POST',
+    body: JSON.stringify({ reversal_date, description }),
+  });
+}
+
+export async function getAccountingPeriods(): Promise<AccountingPeriod[]> {
+  return request<AccountingPeriod[]>('/accounting/periods');
+}
+
+export async function closeAccountingPeriod(id: string): Promise<AccountingPeriod> {
+  return request<AccountingPeriod>(`/accounting/periods/${id}/close`, {
+    method: 'POST',
+  });
+}
+
+export async function reopenAccountingPeriod(id: string): Promise<AccountingPeriod> {
+  return request<AccountingPeriod>(`/accounting/periods/${id}/reopen`, {
+    method: 'POST',
+  });
+}
+
+export async function getBalanceSheet(as_of_date?: string): Promise<BalanceSheetReport> {
+  const qStr = as_of_date ? `?as_of_date=${as_of_date}` : '';
+  return request<BalanceSheetReport>(`/accounting/reports/balance-sheet${qStr}`);
+}
+
+export async function getIncomeStatement(start_date?: string, end_date?: string): Promise<IncomeStatementReport> {
+  const query = new URLSearchParams();
+  if (start_date) query.append('start_date', start_date);
+  if (end_date) query.append('end_date', end_date);
+  const qStr = query.toString() ? `?${query.toString()}` : '';
+  return request<IncomeStatementReport>(`/accounting/reports/income-statement${qStr}`);
 }
 
 export async function getAPInvoices(params?: {
@@ -1329,11 +1526,10 @@ export interface AccountingPeriod {
   end_date: string;
   is_closed: boolean;
   fiscal_year_id?: string;
+  fiscal_year_name?: string;
 }
 
-export async function getAccountingPeriods(): Promise<AccountingPeriod[]> {
-  return request<AccountingPeriod[]>("/settings/accounting-periods");
-}
+// using getAccountingPeriods from accounting section above
 
 // ----------------- Procurement & Supply Chain Extensions -----------------
 
