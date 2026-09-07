@@ -39,6 +39,14 @@ class Subcontract(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     project = relationship("Project")
     supplier = relationship("Supplier")
 
+    @property
+    def project_name(self):
+        return self.project.name if self.project else None
+
+    @property
+    def supplier_name(self):
+        return self.supplier.name if self.supplier else None
+
 class ClientChangeOrder(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "client_change_orders"
     
@@ -54,6 +62,10 @@ class ClientChangeOrder(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     
     contract = relationship("Contract")
 
+    @property
+    def contract_number(self):
+        return self.contract.contract_number if self.contract else None
+
 class SubcontractChangeOrder(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "subcontract_change_orders"
     
@@ -68,6 +80,10 @@ class SubcontractChangeOrder(Base, TenantAwareMixin, TimestampMixin, AuditMixin)
     approved_date = Column(Date, nullable=True)
     
     subcontract = relationship("Subcontract")
+
+    @property
+    def subcontract_number(self):
+        return self.subcontract.subcontract_number if self.subcontract else None
 
 class ClientPaymentApplication(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "client_payment_applications"
@@ -93,6 +109,14 @@ class ClientPaymentApplication(Base, TenantAwareMixin, TimestampMixin, AuditMixi
     accounting_period = relationship("AccountingPeriod")
     journal = relationship("Journal")
 
+    @property
+    def contract_number(self):
+        return self.contract.contract_number if self.contract else None
+
+    @property
+    def period_name(self):
+        return self.accounting_period.name if self.accounting_period else None
+
 class SubcontractPaymentApplication(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "subcontract_payment_applications"
     
@@ -116,3 +140,11 @@ class SubcontractPaymentApplication(Base, TenantAwareMixin, TimestampMixin, Audi
     subcontract = relationship("Subcontract")
     accounting_period = relationship("AccountingPeriod")
     journal = relationship("Journal")
+
+    @property
+    def subcontract_number(self):
+        return self.subcontract.subcontract_number if self.subcontract else None
+
+    @property
+    def period_name(self):
+        return self.accounting_period.name if self.accounting_period else None

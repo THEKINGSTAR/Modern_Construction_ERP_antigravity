@@ -40,5 +40,20 @@
     "title": "Project Budgets",
     "description": "Approved project budget baselines and cost code control.",
     "coming_soon": "Budgets module active."
+  },
+  "Subcontracts": {
+    "title": "Trade Subcontracts",
+    "description": "Subcontract packages, specialized trade contractors, and retention commitments.",
+    "coming_soon": "Subcontracts module active."
+  },
+  "ChangeOrders": {
+    "title": "Variation Orders (VO)",
+    "description": "Contractual variations, client change orders (CCO), and subcontract adjustments (SCO).",
+    "coming_soon": "Change Orders module active."
+  },
+  "PaymentApplications": {
+    "title": "Progress Billings & Claims",
+    "description": "Client interim payment certificates (IPC), subcontractor payment claims, and GL postings.",
+    "coming_soon": "Payment Applications module active."
   }
 }

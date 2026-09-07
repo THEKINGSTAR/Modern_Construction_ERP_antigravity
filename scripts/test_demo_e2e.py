@@ -160,6 +160,7 @@ def test_erp_workflows(token: str):
     with urllib.request.urlopen(req) as resp:
         contracts = json.loads(resp.read().decode("utf-8"))
         assert len(contracts) >= 1, "Expected at least 1 contract"
+        active_contract_id = contracts[0]["id"]
         print(f"   ✓ Prime Contracts retrieved: {len(contracts)} contract(s) on file (Contract #{contracts[0]['contract_number']} for ${float(contracts[0]['current_value']):,.2f})")
 
     # Get project id for linked modules
@@ -223,7 +224,113 @@ def test_erp_workflows(token: str):
         created_budget = json.loads(resp.read().decode("utf-8"))
         print(f"   ✓ Created Project Budget: {created_budget['name']}")
 
-    print("18. Testing Multi-Page Web Portal Health (All 9 Engineering Routes)...")
+    print("18. Testing Trade Subcontracts Domain...")
+    # Fetch first supplier for subcontract
+    req_sup = urllib.request.Request(f"{API_BASE}/suppliers/", headers=headers)
+    with urllib.request.urlopen(req_sup) as resp:
+        suppliers = json.loads(resp.read().decode("utf-8"))
+        assert len(suppliers) > 0, "Expected at least one supplier"
+        supplier_id = suppliers[0]["id"]
+
+    rand_sc = random.randint(1000, 9999)
+    sc_payload = json.dumps({
+        "project_id": active_project_id,
+        "supplier_id": supplier_id,
+        "subcontract_number": f"SC-E2E-{rand_sc}",
+        "original_value": 750000.00,
+        "currency_code": "USD",
+        "retention_rate": 10.0,
+        "start_date": "2026-03-01",
+        "end_date": "2026-11-30"
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/commercial/subcontracts", data=sc_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_sc = json.loads(resp.read().decode("utf-8"))
+        assert created_sc["subcontract_number"] == f"SC-E2E-{rand_sc}"
+        assert float(created_sc["current_value"]) == 750000.00
+        active_subcontract_id = created_sc["id"]
+        print(f"   ✓ Awarded Trade Subcontract: {created_sc['subcontract_number']} ($750,000.00, 10% retention)")
+
+    print("19. Testing Variation Orders (CCO/SCO) with Dynamic Contract Adjustments...")
+    # 1. Fetch initial contract value
+    req_ctr = urllib.request.Request(f"{API_BASE}/contracts/{active_contract_id}", headers=headers)
+    with urllib.request.urlopen(req_ctr) as resp:
+        pre_ctr = json.loads(resp.read().decode("utf-8"))
+        pre_val = float(pre_ctr["current_value"])
+
+    # 2. Submit CCO
+    cco_payload = json.dumps({
+        "contract_id": active_contract_id,
+        "number": f"CCO-E2E-{rand_sc}",
+        "title": "Facade Glazing Specification Upgrade",
+        "description": "Double-glazed acoustic unitized curtain wall upgrade",
+        "amount": 125000.00
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/commercial/client-change-orders", data=cco_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_cco = json.loads(resp.read().decode("utf-8"))
+        assert created_cco["status"] == "DRAFT"
+        cco_id = created_cco["id"]
+
+    # 3. Approve CCO
+    req = urllib.request.Request(f"{API_BASE}/commercial/client-change-orders/{cco_id}/approve", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        app_cco = json.loads(resp.read().decode("utf-8"))
+        assert app_cco["status"] == "APPROVED"
+
+    # 4. Verify parent contract current_value increased in PostgreSQL
+    req_ctr = urllib.request.Request(f"{API_BASE}/contracts/{active_contract_id}", headers=headers)
+    with urllib.request.urlopen(req_ctr) as resp:
+        post_ctr = json.loads(resp.read().decode("utf-8"))
+        post_val = float(post_ctr["current_value"])
+        assert post_val == pre_val + 125000.00, f"Expected {pre_val + 125000.00}, got {post_val}"
+        print(f"   ✓ Approved Client Variation: CCO-E2E-{rand_sc} (+$125,000.00), Contract value updated from ${pre_val:,.2f} to ${post_val:,.2f}")
+
+    print("20. Testing Progress Billings & Statutory 10% Retention Calculation...")
+    # Fetch accounting period
+    req_per = urllib.request.Request(f"{API_BASE}/settings/accounting-periods", headers=headers)
+    with urllib.request.urlopen(req_per) as resp:
+        periods = json.loads(resp.read().decode("utf-8"))
+        assert len(periods) > 0
+        period_id = periods[0]["id"]
+
+    cpa_payload = json.dumps({
+        "contract_id": active_contract_id,
+        "accounting_period_id": period_id,
+        "number": f"IPC-E2E-{rand_sc}",
+        "date": "2026-09-30",
+        "gross_work": 1500000.00,
+        "previous_certified_work": 500000.00,
+        "retention_amount": 100000.00, # 10% of 1,000,000 current work
+        "advance_recovery_amount": 0.00,
+        "deductions_amount": 0.00,
+        "adjustments_amount": 0.00
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/commercial/client-payment-applications", data=cpa_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_cpa = json.loads(resp.read().decode("utf-8"))
+        assert float(created_cpa["net_amount_due"]) == 900000.00, f"Expected 900000.00, got {created_cpa['net_amount_due']}"
+        cpa_id = created_cpa["id"]
+
+    # Approve Application
+    req = urllib.request.Request(f"{API_BASE}/commercial/client-payment-applications/{cpa_id}/approve", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        app_cpa = json.loads(resp.read().decode("utf-8"))
+        assert app_cpa["status"] == "APPROVED"
+        print(f"   ✓ Verified Payment Application: IPC-E2E-{rand_sc} (Gross $1.5M, Current $1.0M, Retention $100K, Net Due $900,000.00, Status: APPROVED)")
+
+    print("21. Testing Consolidated Commercial Summary Aggregation...")
+    req = urllib.request.Request(f"{API_BASE}/commercial/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        summary = json.loads(resp.read().decode("utf-8"))
+        assert float(summary["total_prime_contract_value"]) > 0
+        assert float(summary["total_subcontracts_value"]) > 0
+        assert float(summary["total_client_change_orders_approved"]) > 0
+        assert float(summary["total_client_billed"]) > 0
+        assert int(summary["subcontracts_count"]) >= 4
+        print(f"   ✓ Live Commercial Metrics: Prime Contracts=${float(summary['total_prime_contract_value']):,.2f}, Subcontracts=${float(summary['total_subcontracts_value']):,.2f}, Retention Held=${float(summary['total_client_retention']):,.2f}")
+
+    print("22. Testing Multi-Page Web Portal Health (All 15 Construction Engineering & Commercial Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -234,12 +341,18 @@ def test_erp_workflows(token: str):
         "/en/boq",
         "/en/estimates",
         "/en/budgets",
+        "/en/subcontracts",
+        "/en/change-orders",
+        "/en/payment-applications",
+        "/ar/subcontracts",
+        "/ar/change-orders",
+        "/ar/payment-applications",
     ]
     for route in routes:
         req = urllib.request.Request(f"{WEB_BASE}{route}")
         with urllib.request.urlopen(req) as resp:
             assert resp.status == 200
-    print(f"   ✓ All {len(routes)} construction engineering portal routes responded with HTTP 200 (OK)")
+    print(f"   ✓ All {len(routes)} construction engineering and commercial portal routes responded with HTTP 200 (OK)")
 
 def main():
     print("=" * 70)
@@ -251,7 +364,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 18 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 22 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:

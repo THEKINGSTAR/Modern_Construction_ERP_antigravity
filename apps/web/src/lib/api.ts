@@ -385,8 +385,17 @@ export async function createMaterialIssue(data: any): Promise<any> {
 }
 
 // ----------------- Procurement -----------------
-export async function getSuppliers(): Promise<any[]> {
-  return request<any[]>('/suppliers/');
+export interface Supplier {
+  id: string;
+  name: string;
+  legal_name?: string;
+  tax_identifier?: string;
+  address?: string;
+  status: string;
+}
+
+export async function getSuppliers(): Promise<Supplier[]> {
+  return request<Supplier[]>('/suppliers/');
 }
 
 export async function getPurchaseOrders(): Promise<PurchaseOrder[]> {
@@ -632,3 +641,234 @@ export async function createBudget(data: Partial<Budget>): Promise<Budget> {
   });
 }
 
+
+
+// ----------------- Commercial: Subcontracts -----------------
+export interface Subcontract {
+  id: string;
+  project_id: string;
+  supplier_id: string;
+  subcontract_number: string;
+  original_value: number;
+  current_value: number;
+  currency_code: string;
+  retention_rate: number;
+  start_date?: string;
+  end_date?: string;
+  project_name?: string;
+  supplier_name?: string;
+  created_at?: string;
+}
+
+export async function getSubcontracts(projectId?: string): Promise<Subcontract[]> {
+  const q = projectId ? `?project_id=${projectId}` : "";
+  return request<Subcontract[]>(`/commercial/subcontracts${q}`);
+}
+
+export async function getSubcontract(id: string): Promise<Subcontract> {
+  return request<Subcontract>(`/commercial/subcontracts/${id}`);
+}
+
+export async function createSubcontract(data: Partial<Subcontract>): Promise<Subcontract> {
+  return request<Subcontract>("/commercial/subcontracts", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ----------------- Commercial: Change Orders -----------------
+export interface ClientChangeOrder {
+  id: string;
+  contract_id: string;
+  number: string;
+  title: string;
+  description?: string;
+  amount: number;
+  status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "CANCELLED";
+  approved_date?: string;
+  contract_number?: string;
+  created_at?: string;
+}
+
+export async function getClientChangeOrders(contractId?: string): Promise<ClientChangeOrder[]> {
+  const q = contractId ? `?contract_id=${contractId}` : "";
+  return request<ClientChangeOrder[]>(`/commercial/client-change-orders${q}`);
+}
+
+export async function createClientChangeOrder(data: Partial<ClientChangeOrder>): Promise<ClientChangeOrder> {
+  return request<ClientChangeOrder>("/commercial/client-change-orders", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function approveClientChangeOrder(id: string): Promise<ClientChangeOrder> {
+  return request<ClientChangeOrder>(`/commercial/client-change-orders/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export interface SubcontractChangeOrder {
+  id: string;
+  subcontract_id: string;
+  number: string;
+  title: string;
+  description?: string;
+  amount: number;
+  status: "DRAFT" | "SUBMITTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "CANCELLED";
+  approved_date?: string;
+  subcontract_number?: string;
+  created_at?: string;
+}
+
+export async function getSubcontractChangeOrders(subcontractId?: string): Promise<SubcontractChangeOrder[]> {
+  const q = subcontractId ? `?subcontract_id=${subcontractId}` : "";
+  return request<SubcontractChangeOrder[]>(`/commercial/subcontract-change-orders${q}`);
+}
+
+export async function createSubcontractChangeOrder(data: Partial<SubcontractChangeOrder>): Promise<SubcontractChangeOrder> {
+  return request<SubcontractChangeOrder>("/commercial/subcontract-change-orders", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function approveSubcontractChangeOrder(id: string): Promise<SubcontractChangeOrder> {
+  return request<SubcontractChangeOrder>(`/commercial/subcontract-change-orders/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+// ----------------- Commercial: Payment Applications -----------------
+export interface ClientPaymentApplication {
+  id: string;
+  contract_id: string;
+  accounting_period_id: string;
+  number: string;
+  date: string;
+  gross_work: number;
+  previous_certified_work: number;
+  retention_amount: number;
+  advance_recovery_amount: number;
+  deductions_amount: number;
+  adjustments_amount: number;
+  net_amount_due: number;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "POSTED" | "PAID";
+  journal_id?: string;
+  contract_number?: string;
+  period_name?: string;
+  created_at?: string;
+}
+
+export async function getClientPaymentApplications(contractId?: string): Promise<ClientPaymentApplication[]> {
+  const q = contractId ? `?contract_id=${contractId}` : "";
+  return request<ClientPaymentApplication[]>(`/commercial/client-payment-applications${q}`);
+}
+
+export async function createClientPaymentApplication(data: Partial<ClientPaymentApplication>): Promise<ClientPaymentApplication> {
+  return request<ClientPaymentApplication>("/commercial/client-payment-applications", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function approveClientPaymentApplication(id: string): Promise<ClientPaymentApplication> {
+  return request<ClientPaymentApplication>(`/commercial/client-payment-applications/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export async function postClientPaymentApplication(
+  id: string,
+  arAccountId: string,
+  revenueAccountId: string,
+  retentionAccountId: string
+): Promise<ClientPaymentApplication> {
+  const q = `?ar_account_id=${arAccountId}&revenue_account_id=${revenueAccountId}&retention_account_id=${retentionAccountId}`;
+  return request<ClientPaymentApplication>(`/commercial/client-payment-applications/${id}/post${q}`, {
+    method: "POST",
+  });
+}
+
+export interface SubcontractPaymentApplication {
+  id: string;
+  subcontract_id: string;
+  accounting_period_id: string;
+  number: string;
+  date: string;
+  gross_work: number;
+  previous_certified_work: number;
+  retention_amount: number;
+  advance_recovery_amount: number;
+  deductions_amount: number;
+  adjustments_amount: number;
+  net_amount_due: number;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "POSTED" | "PAID";
+  journal_id?: string;
+  subcontract_number?: string;
+  period_name?: string;
+  created_at?: string;
+}
+
+export async function getSubcontractPaymentApplications(subcontractId?: string): Promise<SubcontractPaymentApplication[]> {
+  const q = subcontractId ? `?subcontract_id=${subcontractId}` : "";
+  return request<SubcontractPaymentApplication[]>(`/commercial/subcontract-payment-applications${q}`);
+}
+
+export async function createSubcontractPaymentApplication(data: Partial<SubcontractPaymentApplication>): Promise<SubcontractPaymentApplication> {
+  return request<SubcontractPaymentApplication>("/commercial/subcontract-payment-applications", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function approveSubcontractPaymentApplication(id: string): Promise<SubcontractPaymentApplication> {
+  return request<SubcontractPaymentApplication>(`/commercial/subcontract-payment-applications/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export async function postSubcontractPaymentApplication(
+  id: string,
+  wipAccountId: string,
+  apAccountId: string,
+  retentionAccountId: string
+): Promise<SubcontractPaymentApplication> {
+  const q = `?wip_account_id=${wipAccountId}&ap_account_id=${apAccountId}&retention_account_id=${retentionAccountId}`;
+  return request<SubcontractPaymentApplication>(`/commercial/subcontract-payment-applications/${id}/post${q}`, {
+    method: "POST",
+  });
+}
+
+// ----------------- Commercial Summary & Periods -----------------
+export interface CommercialSummary {
+  total_prime_contract_value: number;
+  total_subcontracts_value: number;
+  total_client_change_orders_approved: number;
+  total_client_change_orders_pending: number;
+  total_subcontract_change_orders_approved: number;
+  total_client_billed: number;
+  total_client_retention: number;
+  total_subcontractor_billed: number;
+  total_subcontractor_retention: number;
+  subcontracts_count: number;
+  change_orders_count: number;
+  payment_applications_count: number;
+}
+
+export async function getCommercialSummary(): Promise<CommercialSummary> {
+  return request<CommercialSummary>("/commercial/summary");
+}
+
+export interface AccountingPeriod {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  is_closed: boolean;
+  fiscal_year_id?: string;
+}
+
+export async function getAccountingPeriods(): Promise<AccountingPeriod[]> {
+  return request<AccountingPeriod[]>("/settings/accounting-periods");
+}

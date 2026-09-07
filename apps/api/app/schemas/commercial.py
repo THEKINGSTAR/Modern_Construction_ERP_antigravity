@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field
-from pydantic.types import UUID4
+from uuid import UUID
 from typing import Optional, List
 from datetime import date
 from decimal import Decimal
@@ -7,8 +7,8 @@ from app.models.commercial import ChangeOrderStatus, PaymentAppStatus
 
 # Subcontracts
 class SubcontractBase(BaseModel):
-    project_id: UUID4
-    supplier_id: UUID4
+    project_id: UUID
+    supplier_id: UUID
     subcontract_number: str = Field(..., max_length=100)
     original_value: Decimal = Field(default=Decimal("0.0"))
     currency_code: str = Field(..., max_length=3)
@@ -20,14 +20,16 @@ class SubcontractCreate(SubcontractBase):
     pass
 
 class SubcontractResponse(SubcontractBase):
-    id: UUID4
+    id: UUID
     current_value: Decimal
+    project_name: Optional[str] = None
+    supplier_name: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 
 # Client Change Orders
 class ClientChangeOrderBase(BaseModel):
-    contract_id: UUID4
+    contract_id: UUID
     number: str = Field(..., max_length=100)
     title: str = Field(..., max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
@@ -37,15 +39,16 @@ class ClientChangeOrderCreate(ClientChangeOrderBase):
     pass
 
 class ClientChangeOrderResponse(ClientChangeOrderBase):
-    id: UUID4
+    id: UUID
     status: ChangeOrderStatus
-    approved_date: Optional[date]
+    approved_date: Optional[date] = None
+    contract_number: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 
 # Subcontract Change Orders
 class SubcontractChangeOrderBase(BaseModel):
-    subcontract_id: UUID4
+    subcontract_id: UUID
     number: str = Field(..., max_length=100)
     title: str = Field(..., max_length=200)
     description: Optional[str] = Field(None, max_length=1000)
@@ -55,9 +58,10 @@ class SubcontractChangeOrderCreate(SubcontractChangeOrderBase):
     pass
 
 class SubcontractChangeOrderResponse(SubcontractChangeOrderBase):
-    id: UUID4
+    id: UUID
     status: ChangeOrderStatus
-    approved_date: Optional[date]
+    approved_date: Optional[date] = None
+    subcontract_number: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -71,8 +75,8 @@ class PaymentApplicationCalcInput(BaseModel):
     adjustments_amount: Decimal = Field(default=Decimal("0.0"))
 
 class ClientPaymentApplicationBase(PaymentApplicationCalcInput):
-    contract_id: UUID4
-    accounting_period_id: UUID4
+    contract_id: UUID
+    accounting_period_id: UUID
     number: str = Field(..., max_length=100)
     date: date
 
@@ -80,16 +84,18 @@ class ClientPaymentApplicationCreate(ClientPaymentApplicationBase):
     pass
 
 class ClientPaymentApplicationResponse(ClientPaymentApplicationBase):
-    id: UUID4
+    id: UUID
     net_amount_due: Decimal
     status: PaymentAppStatus
-    journal_id: Optional[UUID4]
+    journal_id: Optional[UUID] = None
+    contract_number: Optional[str] = None
+    period_name: Optional[str] = None
     
     model_config = ConfigDict(from_attributes=True)
 
 class SubcontractPaymentApplicationBase(PaymentApplicationCalcInput):
-    subcontract_id: UUID4
-    accounting_period_id: UUID4
+    subcontract_id: UUID
+    accounting_period_id: UUID
     number: str = Field(..., max_length=100)
     date: date
 
@@ -97,9 +103,27 @@ class SubcontractPaymentApplicationCreate(SubcontractPaymentApplicationBase):
     pass
 
 class SubcontractPaymentApplicationResponse(SubcontractPaymentApplicationBase):
-    id: UUID4
+    id: UUID
     net_amount_due: Decimal
     status: PaymentAppStatus
-    journal_id: Optional[UUID4]
+    journal_id: Optional[UUID] = None
+    subcontract_number: Optional[str] = None
+    period_name: Optional[str] = None
     
+    model_config = ConfigDict(from_attributes=True)
+
+class CommercialSummaryResponse(BaseModel):
+    total_prime_contract_value: Decimal
+    total_subcontracts_value: Decimal
+    total_client_change_orders_approved: Decimal
+    total_client_change_orders_pending: Decimal
+    total_subcontract_change_orders_approved: Decimal
+    total_client_billed: Decimal
+    total_client_retention: Decimal
+    total_subcontractor_billed: Decimal
+    total_subcontractor_retention: Decimal
+    subcontracts_count: int
+    change_orders_count: int
+    payment_applications_count: int
+
     model_config = ConfigDict(from_attributes=True)

@@ -15,16 +15,34 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
   const pathname = usePathname() || "/";
   const locale = pathname.startsWith("/ar") ? "ar" : "en";
 
-  const navItems = [
-    { label: "Executive Dashboard", path: `/${locale}`, icon: "📊" },
-    { label: "Projects Directory", path: `/${locale}/projects`, icon: "📁" },
-    { label: "Prime Contracts", path: `/${locale}/contracts`, icon: "📜" },
-    { label: "Client Registry", path: `/${locale}/clients`, icon: "🏢" },
-    { label: "Work Breakdown (WBS)", path: `/${locale}/wbs`, icon: "🌲" },
-    { label: "Standard Cost Codes", path: `/${locale}/cost-codes`, icon: "🏷️" },
-    { label: "Bill of Quantities (BOQ)", path: `/${locale}/boq`, icon: "📋" },
-    { label: "Cost Estimating", path: `/${locale}/estimates`, icon: "📐" },
-    { label: "Project Budgets", path: `/${locale}/budgets`, icon: "💰" },
+  const navSections = [
+    {
+      title: "Core Operations",
+      items: [
+        { label: "Executive Dashboard", path: `/${locale}`, icon: "📊" },
+        { label: "Projects Directory", path: `/${locale}/projects`, icon: "📁" },
+        { label: "Prime Contracts", path: `/${locale}/contracts`, icon: "📜" },
+        { label: "Client Registry", path: `/${locale}/clients`, icon: "🏢" },
+      ],
+    },
+    {
+      title: "Commercial & Subcontracts",
+      items: [
+        { label: "Trade Subcontracts", path: `/${locale}/subcontracts`, icon: "🤝" },
+        { label: "Variation / Change Orders", path: `/${locale}/change-orders`, icon: "🔄" },
+        { label: "Progress Billings & Claims", path: `/${locale}/payment-applications`, icon: "📑" },
+      ],
+    },
+    {
+      title: "Project Controls & Estimating",
+      items: [
+        { label: "Work Breakdown (WBS)", path: `/${locale}/wbs`, icon: "🌲" },
+        { label: "Standard Cost Codes", path: `/${locale}/cost-codes`, icon: "🏷️" },
+        { label: "Bill of Quantities (BOQ)", path: `/${locale}/boq`, icon: "📋" },
+        { label: "Cost Estimating", path: `/${locale}/estimates`, icon: "📐" },
+        { label: "Project Budgets", path: `/${locale}/budgets`, icon: "💰" },
+      ],
+    },
   ];
 
   const switchLocale = locale === "en" ? "ar" : "en";
@@ -52,33 +70,37 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
           </div>
 
           {/* Navigation Links */}
-          <nav className="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-170px)]">
-            <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 px-3 py-1.5">
-              Core Modules
-            </div>
-            {navItems.map((item) => {
-              const isActive =
-                item.path === `/${locale}`
-                  ? pathname === `/${locale}` || pathname === "/"
-                  : pathname.startsWith(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                    isActive
-                      ? "bg-amber-500/10 text-amber-400 font-semibold border border-amber-500/20 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                  }`}
-                >
-                  <span className="text-base">{item.icon}</span>
-                  <span className="truncate">{item.label}</span>
-                  {isActive && (
-                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  )}
-                </Link>
-              );
-            })}
+          <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-170px)]">
+            {navSections.map((sec) => (
+              <div key={sec.title} className="space-y-1">
+                <div className="text-[10px] uppercase font-bold tracking-wider text-slate-500 px-3 py-1">
+                  {sec.title}
+                </div>
+                {sec.items.map((item) => {
+                  const isActive =
+                    item.path === `/${locale}`
+                      ? pathname === `/${locale}` || pathname === "/"
+                      : pathname.startsWith(item.path);
+                  return (
+                    <Link
+                      key={item.path}
+                      href={item.path}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                        isActive
+                          ? "bg-amber-500/10 text-amber-400 font-semibold border border-amber-500/20 shadow-sm"
+                          : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                      }`}
+                    >
+                      <span className="text-base">{item.icon}</span>
+                      <span className="truncate">{item.label}</span>
+                      {isActive && (
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
@@ -91,7 +113,7 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
           <div className="text-[11px] text-slate-400 truncate">
             Tenant: <strong className="text-slate-200">Apex Contracting LLC</strong>
           </div>
-          <div className="text-[10px] text-slate-500 mt-1">Multi-Tenant Isolated</div>
+          <div className="text-[10px] text-slate-500 mt-1">Commercial Operations Active</div>
         </div>
       </aside>
 

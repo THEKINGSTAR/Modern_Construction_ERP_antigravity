@@ -79,3 +79,13 @@ def get_exchange_rates(
     repo = BaseRepository(ExchangeRate, db)
     rates = repo.get_all()
     return [{"id": str(r.id), "from_currency": r.from_currency_code, "to_currency": r.to_currency_code, "rate": float(r.rate), "valid_from": str(r.valid_from)} for r in rates]
+
+# Accounting Periods Endpoint
+@router.get("/accounting-periods", response_model=List[Dict[str, Any]])
+def get_accounting_periods(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    repo = BaseRepository(AccountingPeriod, db)
+    periods = repo.get_all()
+    return [{"id": str(p.id), "name": p.name, "start_date": str(p.start_date), "end_date": str(p.end_date), "is_closed": p.is_closed, "fiscal_year_id": str(p.fiscal_year_id)} for p in periods]
