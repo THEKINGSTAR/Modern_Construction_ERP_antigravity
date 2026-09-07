@@ -10,5 +10,35 @@
   "Projects": {
     "title": "Projects",
     "description": "Manage construction projects and their lifecycle."
+  },
+  "Contracts": {
+    "title": "Prime Contracts",
+    "description": "Commercial contract administration, change management, and retention baselines.",
+    "coming_soon": "Contracts module active."
+  },
+  "WBS": {
+    "title": "Work Breakdown Structure",
+    "description": "Hierarchical project deliverables and work packages.",
+    "coming_soon": "WBS module active."
+  },
+  "CostCodes": {
+    "title": "Standard Cost Codes",
+    "description": "CSI MasterFormat uniform cost accounting codes.",
+    "coming_soon": "Cost Codes module active."
+  },
+  "BOQ": {
+    "title": "Bill of Quantities",
+    "description": "Itemized construction scope and measured quantities.",
+    "coming_soon": "BOQ module active."
+  },
+  "Estimates": {
+    "title": "Cost Estimating",
+    "description": "Direct cost build-ups and markup estimations.",
+    "coming_soon": "Estimates module active."
+  },
+  "Budgets": {
+    "title": "Project Budgets",
+    "description": "Approved project budget baselines and cost code control.",
+    "coming_soon": "Budgets module active."
   }
 }

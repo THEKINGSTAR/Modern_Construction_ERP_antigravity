@@ -7,7 +7,11 @@ export interface Project {
   client_id?: string | null;
   start_date?: string | null;
   target_end_date?: string | null;
+  planned_end_date?: string | null;
   budget_amount?: string | null;
+  project_type?: string | null;
+  location?: string | null;
+  description?: string | null;
   status: string;
 }
 
@@ -421,3 +425,210 @@ export async function createJournal(data: any): Promise<Journal> {
 export async function getAPInvoices(): Promise<APInvoice[]> {
   return request<APInvoice[]>('/ap/invoices');
 }
+
+// ----------------- Contracts -----------------
+export interface ContractType {
+  id: string;
+  name: string;
+  description?: string;
+  is_active: boolean;
+}
+
+export interface Contract {
+  id: string;
+  project_id: string;
+  client_id?: string;
+  contract_number: string;
+  contract_type_id: string;
+  original_value: number;
+  current_value: number;
+  currency_code: string;
+  start_date?: string;
+  end_date?: string;
+  retention_rate: number;
+  payment_terms?: string;
+  status: string;
+  created_at?: string;
+}
+
+export async function getContracts(projectId?: string): Promise<Contract[]> {
+  const q = projectId ? ("?project_id=" + projectId) : "";
+  return request<Contract[]>("/contracts" + q);
+}
+
+export async function getContract(id: string): Promise<Contract> {
+  return request<Contract>("/contracts/" + id);
+}
+
+export async function createContract(data: Partial<Contract>): Promise<Contract> {
+  return request<Contract>("/contracts", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateContract(id: string, data: Partial<Contract>): Promise<Contract> {
+  return request<Contract>("/contracts/" + id, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteContract(id: string): Promise<void> {
+  return request<void>("/contracts/" + id, {
+    method: "DELETE",
+  });
+}
+
+export async function getContractTypes(): Promise<ContractType[]> {
+  return request<ContractType[]>("/contracts/types");
+}
+
+// ----------------- WBS -----------------
+export interface WBSNode {
+  id: string;
+  project_id: string;
+  parent_id?: string | null;
+  code: string;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  children?: WBSNode[];
+}
+
+export async function getWBSNodes(projectId?: string): Promise<WBSNode[]> {
+  const q = projectId ? ("?project_id=" + projectId) : "";
+  return request<WBSNode[]>("/wbs" + q);
+}
+
+export async function getWBSTree(projectId: string): Promise<WBSNode[]> {
+  return request<WBSNode[]>("/wbs/tree/" + projectId);
+}
+
+export async function createWBSNode(data: Partial<WBSNode>): Promise<WBSNode> {
+  return request<WBSNode>("/wbs", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ----------------- Cost Codes -----------------
+export interface CostCode {
+  id: string;
+  parent_id?: string | null;
+  code: string;
+  name: string;
+  category?: string;
+  is_active: boolean;
+  children?: CostCode[];
+}
+
+export async function getCostCodes(): Promise<CostCode[]> {
+  return request<CostCode[]>("/cost-codes");
+}
+
+export async function getCostCodesTree(): Promise<CostCode[]> {
+  return request<CostCode[]>("/cost-codes/tree");
+}
+
+export async function createCostCode(data: Partial<CostCode>): Promise<CostCode> {
+  return request<CostCode>("/cost-codes", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ----------------- BOQ -----------------
+export interface BOQItem {
+  id?: string;
+  item_code: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unit_rate: number;
+  cost_code_id?: string;
+}
+
+export interface BOQ {
+  id: string;
+  project_id: string;
+  name: string;
+  status: string;
+  current_revision_id?: string;
+  created_at?: string;
+}
+
+export async function getBOQs(projectId?: string): Promise<BOQ[]> {
+  const q = projectId ? ("?project_id=" + projectId) : "";
+  return request<BOQ[]>("/boqs/" + q);
+}
+
+export async function createBOQ(data: Partial<BOQ>): Promise<BOQ> {
+  return request<BOQ>("/boqs/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ----------------- Estimates -----------------
+export interface EstimateItem {
+  id?: string;
+  item_code: string;
+  description: string;
+  unit: string;
+  quantity: number;
+  unit_rate: number;
+  cost_code_id?: string;
+}
+
+export interface Estimate {
+  id: string;
+  project_id: string;
+  name: string;
+  status: string;
+  current_revision_id?: string;
+  created_at?: string;
+}
+
+export async function getEstimates(projectId?: string): Promise<Estimate[]> {
+  const q = projectId ? ("?project_id=" + projectId) : "";
+  return request<Estimate[]>("/estimates/" + q);
+}
+
+export async function createEstimate(data: Partial<Estimate>): Promise<Estimate> {
+  return request<Estimate>("/estimates/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+// ----------------- Budgets -----------------
+export interface BudgetLine {
+  id?: string;
+  budget_id?: string;
+  cost_code_id: string;
+  original_budget: number;
+  approved_changes: number;
+  current_budget?: number;
+}
+
+export interface Budget {
+  id: string;
+  project_id: string;
+  name: string;
+  created_at?: string;
+  lines?: BudgetLine[];
+}
+
+export async function getBudgets(projectId?: string): Promise<Budget[]> {
+  const q = projectId ? ("?project_id=" + projectId) : "";
+  return request<Budget[]>("/budgets/" + q);
+}
+
+export async function createBudget(data: Partial<Budget>): Promise<Budget> {
+  return request<Budget>("/budgets/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+

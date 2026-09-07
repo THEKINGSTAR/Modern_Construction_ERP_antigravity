@@ -1,3 +1,4 @@
+import random
 #!/usr/bin/env python3
 """
 scripts/test_demo_e2e.py — Comprehensive End-to-End Real ERP Verification Suite.
@@ -154,6 +155,92 @@ def test_erp_workflows(token: str):
         print(f"     - General Ledger: ${float(exec_dash['total_debits']):,.2f} (Balanced: {exec_dash['is_ledger_balanced']})")
         print(f"     - Trade Payables: ${float(exec_dash['total_open_payables']):,.2f} ({exec_dash['total_ap_invoices']} invoices)")
 
+    print("12. Testing Prime Commercial Contracts Domain...")
+    req = urllib.request.Request(f"{API_BASE}/contracts", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        contracts = json.loads(resp.read().decode("utf-8"))
+        assert len(contracts) >= 1, "Expected at least 1 contract"
+        print(f"   ✓ Prime Contracts retrieved: {len(contracts)} contract(s) on file (Contract #{contracts[0]['contract_number']} for ${float(contracts[0]['current_value']):,.2f})")
+
+    # Get project id for linked modules
+    req = urllib.request.Request(f"{API_BASE}/projects", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        projects = json.loads(resp.read().decode("utf-8"))
+        active_project_id = projects[0]["id"]
+
+    print("13. Testing Work Breakdown Structure (WBS) Creation & Hierarchy...")
+    rand_wbs = random.randint(1000, 9999)
+    wbs_payload = json.dumps({
+        "project_id": active_project_id,
+        "parent_id": None,
+        "code": f"WBS-{rand_wbs}",
+        "name": f"E2E Structural Substructure Verification {rand_wbs}",
+        "description": "Automated E2E test milestone",
+        "is_active": True
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/wbs", data=wbs_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_wbs = json.loads(resp.read().decode("utf-8"))
+        assert created_wbs["code"] == f"WBS-{rand_wbs}"
+        print(f"   ✓ Created WBS Node: {created_wbs['code']} ({created_wbs['name']})")
+
+    print("14. Testing Standard Cost Codes (CSI MasterFormat)...")
+    req = urllib.request.Request(f"{API_BASE}/cost-codes", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        cost_codes = json.loads(resp.read().decode("utf-8"))
+        assert len(cost_codes) >= 1, "Expected at least 1 cost code"
+        print(f"   ✓ Standard Cost Codes verified: {len(cost_codes)} code(s) active in catalog")
+
+    print("15. Testing Bill of Quantities (BOQ) Domain...")
+    boq_payload = json.dumps({
+        "project_id": active_project_id,
+        "name": f"E2E Automated Tender BOQ {rand_wbs}"
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/boqs/", data=boq_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_boq = json.loads(resp.read().decode("utf-8"))
+        assert created_boq["status"] == "DRAFT"
+        print(f"   ✓ Created BOQ Document: {created_boq['name']} (Status: {created_boq['status']})")
+
+    print("16. Testing Cost Estimating Domain...")
+    est_payload = json.dumps({
+        "project_id": active_project_id,
+        "name": f"E2E Detailed Cost Estimate {rand_wbs}"
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/estimates/", data=est_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_est = json.loads(resp.read().decode("utf-8"))
+        assert created_est["status"] == "DRAFT"
+        print(f"   ✓ Created Cost Estimate: {created_est['name']} (Status: {created_est['status']})")
+
+    print("17. Testing Project Budgets Domain...")
+    budget_payload = json.dumps({
+        "project_id": active_project_id,
+        "name": f"E2E Baseline Budget {rand_wbs}"
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/budgets/", data=budget_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_budget = json.loads(resp.read().decode("utf-8"))
+        print(f"   ✓ Created Project Budget: {created_budget['name']}")
+
+    print("18. Testing Multi-Page Web Portal Health (All 9 Engineering Routes)...")
+    routes = [
+        "/en",
+        "/en/projects",
+        "/en/contracts",
+        "/en/clients",
+        "/en/wbs",
+        "/en/cost-codes",
+        "/en/boq",
+        "/en/estimates",
+        "/en/budgets",
+    ]
+    for route in routes:
+        req = urllib.request.Request(f"{WEB_BASE}{route}")
+        with urllib.request.urlopen(req) as resp:
+            assert resp.status == 200
+    print(f"   ✓ All {len(routes)} construction engineering portal routes responded with HTTP 200 (OK)")
+
 def main():
     print("=" * 70)
     print("🚀 MODERN CONSTRUCTION ERP — FULL APPLICATION STACK VERIFICATION")
@@ -164,7 +251,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 11 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 18 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:
