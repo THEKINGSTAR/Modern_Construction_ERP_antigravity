@@ -27,6 +27,7 @@ This file records verified recovery points.
 | 20 | COMPLETED | a7e05ef | stage-20-complete | YES | YES |
 | 21 | COMPLETED | 44efbf6 | stage-21-complete | YES | YES |
 | 22 | COMPLETED | 208be8d | stage-22-complete | YES | YES |
+| 23 | COMPLETED | 7d2b610 | stage-23-complete | YES | YES |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -37,6 +38,7 @@ This file records verified recovery points.
 | Multi-Page Engineering Portal | a7e05ef | portal-complete | Complete multi-page portal with dedicated routes for Projects, Contracts, Clients, WBS, Cost Codes, BOQ, Estimates, Budgets |
 | Commercial Management & Subcontracts | 44efbf6 | commercial-complete | Dedicated commercial management portal with Subcontracts, Variation Orders (CCO/SCO), Progress Billings (IPC/Claim), and live metrics |
 | Procurement & Supply Chain Workspace | 208be8d | procurement-complete | Comprehensive procurement portal with Suppliers, Purchase Requisitions (PR), RFQs & Tenders, Purchase Orders (PO), and live KPI engine |
+| Inventory & Site Logistics | 7d2b610 | inventory-complete | Complete materials catalog, warehouses, goods receipts (GRN), and site material issues |
 
 ## Recovery Rule
 

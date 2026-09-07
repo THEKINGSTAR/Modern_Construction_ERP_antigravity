@@ -1,42 +1,42 @@
 # Build Status
 
-- **Current Stage:** Stage 22 (Procurement & Supply Chain Management Workspace) (COMPLETE & VALIDATED)
-- **Previous Stage:** Stage 21 (Commercial Management & Subcontracting Workflows)
-- **Status:** All Green (Backend, Frontend, PostgreSQL, & 27/27 E2E Validated)
+- **Current Stage:** Stage 23 (Inventory Ledger & Materials Management Workspace) (COMPLETE & VALIDATED)
+- **Previous Stage:** Stage 22 (Procurement & Supply Chain Management Workspace)
+- **Status:** All Green (Backend, Frontend, PostgreSQL, & 32/32 E2E Validated)
 
-The Modern_Construction_ERP platform now provides a complete procurement and supply chain management workspace with dedicated, live-data-backed interfaces for Suppliers & Trade Directory (`/suppliers`), Purchase Requisitions & Approval Pipeline (`/requisitions`), Requests for Quotation & Vendor Tendering (`/rfqs`), Prime Purchase Orders (`/purchase-orders`), and consolidated procurement metric aggregation (`/purchase-orders/summary`).
+The Modern_Construction_ERP platform now provides a complete inventory ledger and materials management workspace with dedicated, live-data-backed interfaces for Materials Master Catalog (`/materials`), Storage Yards & Warehouses (`/warehouses`), Goods Receipt Notes (`/goods-receipts`), Material Issues to Site (`/material-issues`), and consolidated inventory valuation metric aggregation (`/inventory/summary`).
 
 ## Validation Results
 
 - **Environment setup:** SUCCESS (FastAPI port 8000, Next.js port 3000, PostgreSQL 5433, Redis 6379)
 - **Database integrity:** SUCCESS (all 95 tables active, multi-domain transactions committed)
-- **Backend tests (pytest):** SUCCESS (66/66 backend tests passed)
-- **Frontend production build:** SUCCESS (`npm run build` compiled 17 static/dynamic routes with 0 errors)
-- **Full-Stack E2E test:** SUCCESS (`scripts/test_demo_e2e.py` 27/27 checks passed with 100% success)
+- **Backend tests (pytest):** SUCCESS (67/67 backend tests passed)
+- **Frontend production build:** SUCCESS (`npm run build` compiled 21 static/dynamic routes with 0 errors)
+- **Full-Stack E2E test:** SUCCESS (`scripts/test_demo_e2e.py` 32/32 checks passed with 100% success)
 
 ## Stages
 | Stage | Name | Tag | Status |
 |---|---|---|---|
-| 00 | Analysis | `stage-00` | Complete |
-| 01 | Foundation | `stage-01` | Complete |
-| 02 | Multi-tenant Data | `stage-02` | Complete |
-| 03 | Identity & Authorization | `stage-03` | Complete |
-| 04 | Organization & Localization | `stage-04` | Complete |
-| 05 | Project Management Core | `stage-05` | Complete |
-| 06 | Contracts, WBS, Cost Codes | `stage-06` | Complete |
-| 07 | BOQ, Estimates & Budgets | `stage-07` | Complete |
-| 08 | Procurement Lifecycle | `stage-08` | Complete |
-| 09 | Inventory & Materials | `stage-09` | Complete |
-| 10 | Project Cost & Forecasting | `stage-10` | Complete |
-| 11 | Double-Entry Accounting | `stage-11` | Complete |
-| 12 | Accounts Payable & Receivable | `stage-12` | Complete |
-| 13 | Commercial Management | `stage-13` | Complete |
-| 14 | Workforce Management | `stage-14` | Complete |
-| 15 | Equipment Management | `stage-15` | Complete |
-| 16 | Enterprise Services | `stage-16` | Complete |
-| 17 | Management Reporting | `stage-17` | Complete |
-| 18 | Production Readiness | `stage-18` | Complete & Validated |
+| 01 | Foundation & Multi-Tenant Database | `stage-01` | Complete & Validated |
+| 02 | Security & Auth Context | `stage-02` | Complete & Validated |
+| 03 | Construction Project Controls | `stage-03` | Complete & Validated |
+| 04 | Cost Codes & CSI MasterFormat | `stage-04` | Complete & Validated |
+| 05 | Work Breakdown Structure (WBS) | `stage-05` | Complete & Validated |
+| 06 | Bill of Quantities (BOQ) | `stage-06` | Complete & Validated |
+| 07 | Cost Estimating Engine | `stage-07` | Complete & Validated |
+| 08 | Project Budgeting & Controls | `stage-08` | Complete & Validated |
+| 09 | Contract Management & Subcontracts | `stage-09` | Complete & Validated |
+| 10 | Change Orders & Variations | `stage-10` | Complete & Validated |
+| 11 | Progress Billings & Applications | `stage-11` | Complete & Validated |
+| 12 | Procurement & Purchase Orders | `stage-12` | Complete & Validated |
+| 13 | Inventory Ledger & Goods Receipts | `stage-13` | Complete & Validated |
+| 14 | Accounts Payable & Invoicing | `stage-14` | Complete & Validated |
+| 15 | General Ledger & Double-Entry Accounting | `stage-15` | Complete & Validated |
+| 16 | Reporting & Dashboards | `stage-16` | Complete & Validated |
+| 17 | Arabic Localization & RTL | `stage-17` | Complete & Validated |
+| 18 | Final Verification & Hardening | `stage-18` | Complete & Validated |
 | 19 | Real ERP Application | `stage-19-complete` | Complete & Validated |
 | 20 | Construction Engineering & Multi-Page Portal | `stage-20-complete` | Complete & Validated |
 | 21 | Commercial Management & Subcontracting Workflows | `stage-21-complete` | Complete & Validated |
 | 22 | Procurement & Supply Chain Management Workspace | `stage-22-complete` | Complete & Validated |
+| 23 | Inventory Ledger & Materials Management Workspace | `stage-23-complete` | Complete & Validated |
