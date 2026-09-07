@@ -34,6 +34,14 @@ class PurchaseOrder(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     supplier = relationship("Supplier")
     quotation = relationship("SupplierQuotation")
     lines = relationship("PurchaseOrderLine", back_populates="purchase_order", cascade="all, delete-orphan")
+    @property
+    def project_name(self):
+        return self.project.name if self.project else None
+
+    @property
+    def supplier_name(self):
+        return self.supplier.name if self.supplier else None
+
 
 
 class PurchaseOrderLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):

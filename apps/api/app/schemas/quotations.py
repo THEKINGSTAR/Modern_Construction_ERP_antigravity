@@ -35,5 +35,8 @@ class SupplierQuotationCreate(SupplierQuotationBase):
 
 class SupplierQuotationResponse(SupplierQuotationBase):
     id: UUID
+    supplier_name: Optional[str] = None
+    rfq_title: Optional[str] = None
+    total_amount: Optional[Decimal] = None
     lines: List[SupplierQuotationLineResponse] = []
     model_config = ConfigDict(from_attributes=True)

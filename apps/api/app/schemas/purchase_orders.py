@@ -38,5 +38,15 @@ class PurchaseOrderCreate(PurchaseOrderBase):
 
 class PurchaseOrderResponse(PurchaseOrderBase):
     id: UUID
+    supplier_name: Optional[str] = None
+    project_name: Optional[str] = None
     lines: List[PurchaseOrderLineResponse] = []
     model_config = ConfigDict(from_attributes=True)
+
+class ProcurementSummaryResponse(BaseModel):
+    total_po_value: Decimal = Decimal('0.0000')
+    active_pos_count: int = 0
+    pending_requisitions_count: int = 0
+    approved_suppliers_count: int = 0
+    total_suppliers_count: int = 0
+    recent_pos: List[PurchaseOrderResponse] = []

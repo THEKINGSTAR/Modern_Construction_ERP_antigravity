@@ -1,3 +1,4 @@
+from app.core.context import get_current_tenant_id
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import jwt
@@ -56,6 +57,12 @@ def get_current_user(
     return user
 
 def get_current_tenant(current_user: User = Depends(get_current_user)) -> UUID:
+    ctx_tenant = get_current_tenant_id()
+    if ctx_tenant:
+        try:
+            return UUID(str(ctx_tenant))
+        except Exception:
+            pass
     return current_user.tenant_id
 
 def require_permissions(required_permissions: list[str]):

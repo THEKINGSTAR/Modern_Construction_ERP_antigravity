@@ -330,7 +330,135 @@ def test_erp_workflows(token: str):
         assert int(summary["subcontracts_count"]) >= 4
         print(f"   ✓ Live Commercial Metrics: Prime Contracts=${float(summary['total_prime_contract_value']):,.2f}, Subcontracts=${float(summary['total_subcontracts_value']):,.2f}, Retention Held=${float(summary['total_client_retention']):,.2f}")
 
-    print("22. Testing Multi-Page Web Portal Health (All 15 Construction Engineering & Commercial Routes)...")
+    print("22. Testing Purchase Requisitions Lifecycle (Draft -> Submitted -> Approved)...")
+    rand_pr = random.randint(1000, 9999)
+    pr_payload = json.dumps({
+        "pr_number": f"PR-E2E-{rand_pr}",
+        "project_id": active_project_id,
+        "requester_id": "44444444-4444-4444-8444-444444444444",
+        "description": f"E2E High-Tensile Rebar Demand {rand_pr}",
+        "status": "DRAFT",
+        "lines": [
+            {
+                "item_description": "16mm High-Tensile Deformed Rebar Grade 60",
+                "unit": "TON",
+                "quantity": 50.0
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/requisitions/", data=pr_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_pr = json.loads(resp.read().decode("utf-8"))
+        pr_id = created_pr["id"]
+        assert created_pr["status"] == "DRAFT"
+
+    # Submit PR
+    req = urllib.request.Request(f"{API_BASE}/requisitions/{pr_id}/submit", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+
+    # Approve PR
+    req = urllib.request.Request(f"{API_BASE}/requisitions/{pr_id}/approve", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        print(f"   ✓ Approved Purchase Requisition: PR-E2E-{rand_pr} (50 TON Grade 60 Rebar)")
+
+    print("23. Testing Requests for Quotations (RFQs) & Tender Publishing...")
+    rfq_payload = json.dumps({
+        "rfq_number": f"RFQ-E2E-{rand_pr}",
+        "project_id": active_project_id,
+        "requisition_id": pr_id,
+        "title": f"Supply of Grade 60 Rebar {rand_pr}",
+        "lines": [
+            {
+                "item_description": "16mm High-Tensile Deformed Rebar Grade 60",
+                "unit": "TON",
+                "quantity": 50.0
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/rfqs/", data=rfq_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_rfq = json.loads(resp.read().decode("utf-8"))
+        rfq_id = created_rfq["id"]
+        rfq_line_id = created_rfq["lines"][0]["id"]
+
+    # Publish RFQ
+    req = urllib.request.Request(f"{API_BASE}/rfqs/{rfq_id}/publish", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        print(f"   ✓ Published RFQ Tender Package: RFQ-E2E-{rand_pr}")
+
+    print("24. Testing Supplier Quotation Submission & Evaluation...")
+    quote_payload = json.dumps({
+        "rfq_id": rfq_id,
+        "supplier_id": supplier_id,
+        "quotation_reference": f"Q-E2E-{rand_pr}",
+        "currency": "USD",
+        "lines": [
+            {
+                "rfq_line_id": rfq_line_id,
+                "unit_price": 850.0,
+                "quoted_quantity": 50.0,
+                "amount": 42500.0,
+                "lead_time_days": 7
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/quotations/", data=quote_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_quote = json.loads(resp.read().decode("utf-8"))
+        quote_id = created_quote["id"]
+
+    # Submit and Accept Quotation
+    req = urllib.request.Request(f"{API_BASE}/quotations/{quote_id}/submit", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+
+    req = urllib.request.Request(f"{API_BASE}/quotations/{quote_id}/accept", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        print(f"   ✓ Accepted Supplier Quotation: Q-E2E-{rand_pr} ($42,500.00)")
+
+    print("25. Testing Purchase Order Lifecycle & Order Issuance...")
+    po_payload = json.dumps({
+        "po_number": f"PO-E2E-{rand_pr}",
+        "project_id": active_project_id,
+        "supplier_id": supplier_id,
+        "quotation_id": quote_id,
+        "currency": "USD",
+        "total_amount": 42500.0,
+        "lines": [
+            {
+                "item_description": "16mm High-Tensile Deformed Rebar Grade 60",
+                "unit": "TON",
+                "quantity": 50.0,
+                "unit_price": 850.0,
+                "amount": 42500.0
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/purchase-orders/", data=po_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        created_po = json.loads(resp.read().decode("utf-8"))
+        po_id = created_po["id"]
+
+    # Issue PO
+    req = urllib.request.Request(f"{API_BASE}/purchase-orders/{po_id}/issue", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        print(f"   ✓ Issued Purchase Order: PO-E2E-{rand_pr} ($42,500.00, Status: ISSUED)")
+
+    print("26. Testing Consolidated Procurement Summary Aggregation Engine...")
+    req = urllib.request.Request(f"{API_BASE}/purchase-orders/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        summary_proc = json.loads(resp.read().decode("utf-8"))
+        assert float(summary_proc["total_po_value"]) > 0
+        assert int(summary_proc["active_pos_count"]) >= 1
+        assert int(summary_proc["approved_suppliers_count"]) >= 1
+        print(f"   ✓ Live Procurement Metrics: Total PO Committed=${float(summary_proc['total_po_value']):,.2f}, Active Orders={summary_proc['active_pos_count']}, Suppliers={summary_proc['approved_suppliers_count']}")
+
+    print("27. Testing Multi-Page Web Portal Health (All 19 Construction Engineering, Commercial & Procurement Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -344,15 +472,19 @@ def test_erp_workflows(token: str):
         "/en/subcontracts",
         "/en/change-orders",
         "/en/payment-applications",
+        "/en/suppliers",
+        "/en/requisitions",
+        "/en/rfqs",
+        "/en/purchase-orders",
         "/ar/subcontracts",
-        "/ar/change-orders",
-        "/ar/payment-applications",
+        "/ar/suppliers",
+        "/ar/purchase-orders",
     ]
     for route in routes:
         req = urllib.request.Request(f"{WEB_BASE}{route}")
         with urllib.request.urlopen(req) as resp:
             assert resp.status == 200
-    print(f"   ✓ All {len(routes)} construction engineering and commercial portal routes responded with HTTP 200 (OK)")
+    print(f"   ✓ All {len(routes)} construction engineering, commercial and procurement portal routes responded with HTTP 200 (OK)")
 
 def main():
     print("=" * 70)
@@ -364,7 +496,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 22 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 27 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:

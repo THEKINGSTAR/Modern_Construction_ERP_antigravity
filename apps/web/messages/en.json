@@ -55,5 +55,25 @@
     "title": "Progress Billings & Claims",
     "description": "Client interim payment certificates (IPC), subcontractor payment claims, and GL postings.",
     "coming_soon": "Payment Applications module active."
+  },
+  "Suppliers": {
+    "title": "Suppliers & Vendors Directory",
+    "description": "Vendor directory, TRN tax identifiers, contacts, and qualification status.",
+    "coming_soon": "Suppliers directory active."
+  },
+  "Requisitions": {
+    "title": "Purchase Requisitions",
+    "description": "Site material demands, cost code validation, and multi-tier approval workflow.",
+    "coming_soon": "Purchase requisitions module active."
+  },
+  "RFQs": {
+    "title": "Requests for Quotation",
+    "description": "Vendor tender publishing, competitive bid solicitation, and quotation evaluation.",
+    "coming_soon": "RFQs & tenders module active."
+  },
+  "PurchaseOrders": {
+    "title": "Purchase Orders",
+    "description": "Procurement commitments, supplier order issuance, and delivery schedule control.",
+    "coming_soon": "Purchase orders module active."
   }
 }

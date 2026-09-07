@@ -81,6 +81,8 @@ export interface PurchaseOrder {
   po_number: string;
   project_id: string;
   supplier_id: string;
+  supplier_name?: string;
+  project_name?: string;
   status: string;
   total_amount: string;
   currency: string;
@@ -411,6 +413,12 @@ export async function createPurchaseOrder(data: any): Promise<PurchaseOrder> {
 
 export async function issuePurchaseOrder(poId: string): Promise<{ status: string }> {
   return request<{ status: string }>(`/purchase-orders/${poId}/issue`, {
+    method: 'POST',
+  });
+}
+
+export async function cancelPurchaseOrder(poId: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/purchase-orders/${poId}/cancel`, {
     method: 'POST',
   });
 }
@@ -871,4 +879,232 @@ export interface AccountingPeriod {
 
 export async function getAccountingPeriods(): Promise<AccountingPeriod[]> {
   return request<AccountingPeriod[]>("/settings/accounting-periods");
+}
+
+// ----------------- Procurement & Supply Chain Extensions -----------------
+
+export interface CreateSupplierInput {
+  name: string;
+  legal_name?: string;
+  tax_identifier?: string;
+  address?: string;
+  status?: string;
+  contacts?: Array<{
+    name: string;
+    email?: string;
+    phone?: string;
+    role?: string;
+  }>;
+}
+
+export async function createSupplier(data: CreateSupplierInput): Promise<Supplier> {
+  return request<Supplier>("/suppliers/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export interface PurchaseRequisitionLine {
+  id?: string;
+  requisition_id?: string;
+  cost_code_id?: string;
+  item_description: string;
+  unit: string;
+  quantity: number | string;
+}
+
+export interface PurchaseRequisition {
+  id: string;
+  pr_number: string;
+  project_id: string;
+  project_name?: string;
+  requester_id: string;
+  requester_name?: string;
+  description?: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED" | "CANCELLED";
+  required_date?: string;
+  lines_count?: number;
+  lines?: PurchaseRequisitionLine[];
+  created_at?: string;
+}
+
+export interface CreatePurchaseRequisitionInput {
+  pr_number: string;
+  project_id: string;
+  requester_id: string;
+  description?: string;
+  status?: string;
+  required_date?: string;
+  lines: Array<{
+    cost_code_id?: string;
+    item_description: string;
+    unit: string;
+    quantity: number;
+  }>;
+}
+
+export async function getRequisitions(): Promise<PurchaseRequisition[]> {
+  return request<PurchaseRequisition[]>("/requisitions/");
+}
+
+export async function createRequisition(data: CreatePurchaseRequisitionInput): Promise<PurchaseRequisition> {
+  return request<PurchaseRequisition>("/requisitions/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function submitRequisition(id: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/requisitions/${id}/submit`, {
+    method: "POST",
+  });
+}
+
+export async function approveRequisition(id: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/requisitions/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export interface RFQLine {
+  id?: string;
+  rfq_id?: string;
+  pr_line_id?: string;
+  item_description: string;
+  unit: string;
+  quantity: number | string;
+}
+
+export interface RFQ {
+  id: string;
+  rfq_number: string;
+  project_id: string;
+  project_name?: string;
+  requisition_id?: string;
+  requisition_number?: string;
+  title: string;
+  description?: string;
+  status: "DRAFT" | "PUBLISHED" | "CLOSED" | "CANCELLED";
+  due_date?: string;
+  lines_count?: number;
+  lines?: RFQLine[];
+  created_at?: string;
+}
+
+export interface CreateRFQInput {
+  rfq_number: string;
+  project_id: string;
+  requisition_id?: string;
+  title: string;
+  description?: string;
+  status?: string;
+  due_date?: string;
+  lines: Array<{
+    pr_line_id?: string;
+    item_description: string;
+    unit: string;
+    quantity: number;
+  }>;
+}
+
+export async function getRFQs(): Promise<RFQ[]> {
+  return request<RFQ[]>("/rfqs/");
+}
+
+export async function createRFQ(data: CreateRFQInput): Promise<RFQ> {
+  return request<RFQ>("/rfqs/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function publishRFQ(id: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/rfqs/${id}/publish`, {
+    method: "POST",
+  });
+}
+
+export async function closeRFQ(id: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/rfqs/${id}/close`, {
+    method: "POST",
+  });
+}
+
+export interface SupplierQuotationLine {
+  id?: string;
+  quotation_id?: string;
+  rfq_line_id: string;
+  unit_price: number | string;
+  quoted_quantity: number | string;
+  amount: number | string;
+  lead_time_days?: number;
+  is_selected?: boolean;
+}
+
+export interface SupplierQuotation {
+  id: string;
+  rfq_id: string;
+  rfq_title?: string;
+  supplier_id: string;
+  supplier_name?: string;
+  quotation_reference?: string;
+  status: "DRAFT" | "SUBMITTED" | "EVALUATED" | "ACCEPTED" | "REJECTED";
+  valid_until?: string;
+  currency?: string;
+  notes?: string;
+  total_amount?: number | string;
+  lines?: SupplierQuotationLine[];
+  created_at?: string;
+}
+
+export interface CreateSupplierQuotationInput {
+  rfq_id: string;
+  supplier_id: string;
+  quotation_reference?: string;
+  currency?: string;
+  valid_until?: string;
+  notes?: string;
+  lines: Array<{
+    rfq_line_id: string;
+    unit_price: number;
+    quoted_quantity: number;
+    amount: number;
+    lead_time_days?: number;
+  }>;
+}
+
+export async function getQuotations(): Promise<SupplierQuotation[]> {
+  return request<SupplierQuotation[]>("/quotations/");
+}
+
+export async function createQuotation(data: CreateSupplierQuotationInput): Promise<SupplierQuotation> {
+  return request<SupplierQuotation>("/quotations/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function submitQuotation(id: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/quotations/${id}/submit`, {
+    method: "POST",
+  });
+}
+
+export async function acceptQuotation(id: string): Promise<{ status: string }> {
+  return request<{ status: string }>(`/quotations/${id}/accept`, {
+    method: "POST",
+  });
+}
+
+export interface ProcurementSummary {
+  total_po_value: number;
+  active_pos_count: number;
+  pending_requisitions_count: number;
+  approved_suppliers_count: number;
+  total_suppliers_count: number;
+  recent_pos: PurchaseOrder[];
+}
+
+export async function getProcurementSummary(): Promise<ProcurementSummary> {
+  return request<ProcurementSummary>("/purchase-orders/summary");
 }

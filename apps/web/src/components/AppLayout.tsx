@@ -9,6 +9,7 @@ interface AppLayoutProps {
   title?: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  locale?: string;
 }
 
 export default function AppLayout({ children, title, subtitle, actions }: AppLayoutProps) {
@@ -31,6 +32,15 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
         { label: "Trade Subcontracts", path: `/${locale}/subcontracts`, icon: "🤝" },
         { label: "Variation / Change Orders", path: `/${locale}/change-orders`, icon: "🔄" },
         { label: "Progress Billings & Claims", path: `/${locale}/payment-applications`, icon: "📑" },
+      ],
+    },
+    {
+      title: "Procurement & Supply Chain",
+      items: [
+        { label: "Suppliers & Vendors", path: `/${locale}/suppliers`, icon: "🏭" },
+        { label: "Purchase Requisitions", path: `/${locale}/requisitions`, icon: "📋" },
+        { label: "RFQs & Tenders", path: `/${locale}/rfqs`, icon: "📬" },
+        { label: "Purchase Orders", path: `/${locale}/purchase-orders`, icon: "📦" },
       ],
     },
     {

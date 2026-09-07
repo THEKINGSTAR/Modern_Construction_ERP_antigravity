@@ -25,6 +25,7 @@ def create_quotation(
         raise HTTPException(status_code=400, detail="Can only quote against PUBLISHED RFQs")
 
     quote = SupplierQuotation(
+        tenant_id=tenant_id,
         rfq_id=quote_in.rfq_id,
         supplier_id=quote_in.supplier_id,
         quotation_reference=quote_in.quotation_reference,
@@ -38,6 +39,7 @@ def create_quotation(
 
     for line_in in quote_in.lines:
         line = SupplierQuotationLine(
+            tenant_id=tenant_id,
             quotation_id=quote.id,
             rfq_line_id=line_in.rfq_line_id,
             unit_price=line_in.unit_price,
@@ -96,3 +98,11 @@ def accept_quotation(
     quote.status = QuotationStatus.ACCEPTED
     db.commit()
     return {"status": "success"}
+
+@router.get("/", response_model=List[SupplierQuotationResponse])
+def get_quotations(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    return db.query(SupplierQuotation).filter(SupplierQuotation.tenant_id == tenant_id).order_by(SupplierQuotation.created_at.desc()).all()

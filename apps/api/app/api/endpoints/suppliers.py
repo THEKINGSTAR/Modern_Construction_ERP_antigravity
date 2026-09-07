@@ -19,6 +19,7 @@ def create_supplier(
     tenant_id: UUID = Depends(get_current_tenant)
 ):
     supplier = Supplier(
+        tenant_id=tenant_id,
         name=supplier_in.name,
         legal_name=supplier_in.legal_name,
         tax_identifier=supplier_in.tax_identifier,
@@ -30,6 +31,7 @@ def create_supplier(
 
     for contact_in in supplier_in.contacts:
         contact = SupplierContact(
+            tenant_id=tenant_id,
             supplier_id=supplier.id,
             name=contact_in.name,
             email=contact_in.email,
@@ -42,24 +44,22 @@ def create_supplier(
     db.refresh(supplier)
     return supplier
 
-from app.core.repository import BaseRepository
-
 @router.get("/", response_model=List[SupplierResponse])
 def get_suppliers(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
 ):
-    repo = BaseRepository(Supplier, db)
-    return repo.get_all()
+    return db.query(Supplier).filter(Supplier.tenant_id == tenant_id).order_by(Supplier.name.asc()).all()
 
 @router.get("/{supplier_id}", response_model=SupplierResponse)
 def get_supplier(
     supplier_id: UUID,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
 ):
-    repo = BaseRepository(Supplier, db)
-    supplier = repo.get(supplier_id)
+    supplier = db.query(Supplier).filter(Supplier.id == supplier_id, Supplier.tenant_id == tenant_id).first()
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
     return supplier

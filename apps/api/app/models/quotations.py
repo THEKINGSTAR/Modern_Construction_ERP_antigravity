@@ -28,6 +28,20 @@ class SupplierQuotation(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     rfq = relationship("RFQ")
     supplier = relationship("Supplier")
     lines = relationship("SupplierQuotationLine", back_populates="quotation", cascade="all, delete-orphan")
+    @property
+    def supplier_name(self):
+        return self.supplier.name if self.supplier else None
+
+    @property
+    def rfq_title(self):
+        return self.rfq.title if self.rfq else None
+
+    @property
+    def total_amount(self):
+        if not self.lines:
+            return 0
+        return sum(l.amount for l in self.lines)
+
 
 
 class SupplierQuotationLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):

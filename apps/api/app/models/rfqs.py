@@ -27,6 +27,18 @@ class RFQ(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     project = relationship("Project")
     requisition = relationship("PurchaseRequisition")
     lines = relationship("RFQLine", back_populates="rfq", cascade="all, delete-orphan")
+    @property
+    def project_name(self):
+        return self.project.name if self.project else None
+
+    @property
+    def requisition_number(self):
+        return self.requisition.pr_number if self.requisition else None
+
+    @property
+    def lines_count(self):
+        return len(self.lines) if self.lines else 0
+
 
 
 class RFQLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):

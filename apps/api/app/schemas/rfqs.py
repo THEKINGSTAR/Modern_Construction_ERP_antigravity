@@ -33,5 +33,8 @@ class RFQCreate(RFQBase):
 
 class RFQResponse(RFQBase):
     id: UUID
+    project_name: Optional[str] = None
+    requisition_number: Optional[str] = None
+    lines_count: Optional[int] = None
     lines: List[RFQLineResponse] = []
     model_config = ConfigDict(from_attributes=True)

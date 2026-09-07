@@ -27,6 +27,18 @@ class PurchaseRequisition(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     project = relationship("Project")
     requester = relationship("User")
     lines = relationship("PurchaseRequisitionLine", back_populates="requisition", cascade="all, delete-orphan")
+    @property
+    def project_name(self):
+        return self.project.name if self.project else None
+
+    @property
+    def requester_name(self):
+        return self.requester.full_name if self.requester and hasattr(self.requester, 'full_name') else (self.requester.email if self.requester else None)
+
+    @property
+    def lines_count(self):
+        return len(self.lines) if self.lines else 0
+
 
 
 class PurchaseRequisitionLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):

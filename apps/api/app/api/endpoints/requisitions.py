@@ -20,6 +20,7 @@ def create_requisition(
     tenant_id: UUID = Depends(get_current_tenant)
 ):
     pr = PurchaseRequisition(
+        tenant_id=tenant_id,
         pr_number=req_in.pr_number,
         project_id=req_in.project_id,
         requester_id=req_in.requester_id,
@@ -32,6 +33,7 @@ def create_requisition(
 
     for line_in in req_in.lines:
         line = PurchaseRequisitionLine(
+            tenant_id=tenant_id,
             requisition_id=pr.id,
             cost_code_id=line_in.cost_code_id,
             item_description=line_in.item_description,
@@ -89,3 +91,11 @@ def approve_requisition(
     pr.status = PRStatus.APPROVED
     db.commit()
     return {"status": "success", "message": "Requisition approved"}
+
+@router.get("/", response_model=List[PurchaseRequisitionResponse])
+def get_requisitions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    return db.query(PurchaseRequisition).filter(PurchaseRequisition.tenant_id == tenant_id).order_by(PurchaseRequisition.created_at.desc()).all()

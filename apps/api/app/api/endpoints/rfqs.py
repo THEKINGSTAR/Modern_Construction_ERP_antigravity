@@ -26,6 +26,7 @@ def create_rfq(
             raise HTTPException(status_code=400, detail="Linked PR must be APPROVED")
 
     rfq = RFQ(
+        tenant_id=tenant_id,
         rfq_number=rfq_in.rfq_number,
         project_id=rfq_in.project_id,
         requisition_id=rfq_in.requisition_id,
@@ -39,6 +40,7 @@ def create_rfq(
 
     for line_in in rfq_in.lines:
         line = RFQLine(
+            tenant_id=tenant_id,
             rfq_id=rfq.id,
             pr_line_id=line_in.pr_line_id,
             item_description=line_in.item_description,
@@ -96,3 +98,11 @@ def close_rfq(
     rfq.status = RFQStatus.CLOSED
     db.commit()
     return {"status": "success"}
+
+@router.get("/", response_model=List[RFQResponse])
+def get_rfqs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    return db.query(RFQ).filter(RFQ.tenant_id == tenant_id).order_by(RFQ.created_at.desc()).all()
