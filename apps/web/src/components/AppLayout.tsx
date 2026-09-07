@@ -44,6 +44,15 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
       ],
     },
     {
+      title: "Inventory & Site Logistics",
+      items: [
+        { label: "Materials Master", path: `/${locale}/materials`, icon: "🧱" },
+        { label: "Warehouses & Yards", path: `/${locale}/warehouses`, icon: "🏢" },
+        { label: "Goods Receipts (GRN)", path: `/${locale}/goods-receipts`, icon: "📥" },
+        { label: "Material Issues", path: `/${locale}/material-issues`, icon: "📤" },
+      ],
+    },
+    {
       title: "Project Controls & Estimating",
       items: [
         { label: "Work Breakdown (WBS)", path: `/${locale}/wbs`, icon: "🌲" },

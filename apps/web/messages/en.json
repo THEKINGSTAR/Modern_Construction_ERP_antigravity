@@ -75,5 +75,25 @@
     "title": "Purchase Orders",
     "description": "Procurement commitments, supplier order issuance, and delivery schedule control.",
     "coming_soon": "Purchase orders module active."
+  },
+  "Materials": {
+    "title": "Materials Master Catalog",
+    "description": "Standardized item catalog, technical specifications, units of measure, and active inventory valuations.",
+    "coming_soon": "Materials catalog active."
+  },
+  "Warehouses": {
+    "title": "Storage Yards & Site Warehouses",
+    "description": "Central logistics bases, on-site staging yards, laydown areas, and inter-site transit buffers.",
+    "coming_soon": "Warehouses module active."
+  },
+  "GoodsReceipts": {
+    "title": "Goods Receipt Notes (GRN)",
+    "description": "Material delivery intake inspection, purchase order matching, warehouse laydown intake, and WAC stock ledger posting.",
+    "coming_soon": "Goods receipt notes active."
+  },
+  "MaterialIssues": {
+    "title": "Material Issues to Project Sites",
+    "description": "Store requisition slips, site material dispatches, work package allocation, and project cost code charging.",
+    "coming_soon": "Material issues module active."
   }
 }

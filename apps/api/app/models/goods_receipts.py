@@ -22,7 +22,32 @@ class GoodsReceipt(Base, TenantAwareMixin):
     notes = Column(Text, nullable=True)
     status = Column(Enum(GoodsReceiptStatus), nullable=False, default=GoodsReceiptStatus.DRAFT, index=True)
     
-    lines = relationship("GoodsReceiptLine", back_populates="goods_receipt", cascade="all, delete-orphan")
+    lines = relationship("GoodsReceiptLine", back_populates="goods_receipt", cascade="all, delete-orphan", lazy="selectin")
+    purchase_order = relationship("PurchaseOrder", foreign_keys=[purchase_order_id], lazy="selectin")
+    supplier = relationship("Supplier", foreign_keys=[supplier_id], lazy="selectin")
+    warehouse = relationship("Warehouse", foreign_keys=[warehouse_id], lazy="selectin")
+
+    @property
+    def po_number(self) -> str:
+        return self.purchase_order.po_number if self.purchase_order else ""
+
+    @property
+    def supplier_name(self) -> str:
+        return self.supplier.name if self.supplier else ""
+
+    @property
+    def warehouse_name(self) -> str:
+        return self.warehouse.name if self.warehouse else ""
+
+    @property
+    def lines_count(self) -> int:
+        return len(self.lines) if self.lines else 0
+
+    @property
+    def total_received_amount(self) -> float:
+        if not self.lines:
+            return 0.0
+        return float(sum((line.accepted_quantity or 0) * (line.unit_cost or 0) for line in self.lines))
 
 
 class GoodsReceiptLine(Base, TenantAwareMixin):
@@ -40,3 +65,16 @@ class GoodsReceiptLine(Base, TenantAwareMixin):
     notes = Column(Text, nullable=True)
     
     goods_receipt = relationship("GoodsReceipt", back_populates="lines")
+    material = relationship("Material", foreign_keys=[material_id], lazy="selectin")
+
+    @property
+    def material_name(self) -> str:
+        return self.material.name if self.material else ""
+
+    @property
+    def material_code(self) -> str:
+        return self.material.material_code if self.material else ""
+
+    @property
+    def total_cost(self) -> float:
+        return float((self.accepted_quantity or 0) * (self.unit_cost or 0))

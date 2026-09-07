@@ -47,7 +47,170 @@ export interface Warehouse {
   code: string;
   name: string;
   location?: string | null;
-  type: string;
+  type?: string;
+  project_id?: string | null;
+  project_name?: string | null;
+}
+
+export interface GoodsReceiptLine {
+  id: string;
+  material_id: string;
+  material_code?: string;
+  material_name?: string;
+  received_quantity: string | number;
+  accepted_quantity: string | number;
+  rejected_quantity: string | number;
+  unit_cost: string | number;
+  total_cost?: string | number;
+  notes?: string | null;
+}
+
+export interface GoodsReceipt {
+  id: string;
+  receipt_number: string;
+  purchase_order_id: string;
+  po_number?: string;
+  supplier_id: string;
+  supplier_name?: string;
+  warehouse_id: string;
+  warehouse_name?: string;
+  date: string;
+  notes?: string | null;
+  status: string;
+  lines_count?: number;
+  total_received_amount?: string | number;
+  lines?: GoodsReceiptLine[];
+}
+
+export interface MaterialIssueLine {
+  id: string;
+  material_id: string;
+  material_code?: string;
+  material_name?: string;
+  quantity: string | number;
+  unit_cost?: string | number;
+  total_cost?: string | number;
+  notes?: string | null;
+}
+
+export interface MaterialIssue {
+  id: string;
+  issue_number: string;
+  warehouse_id: string;
+  warehouse_name?: string;
+  project_id: string;
+  project_name?: string;
+  cost_code_id: string;
+  cost_code_code?: string;
+  cost_code_name?: string;
+  date: string;
+  purpose?: string | null;
+  requested_by_id?: string | null;
+  requested_by_name?: string | null;
+  status: string;
+  lines_count?: number;
+  total_quantity?: string | number;
+  total_amount?: string | number;
+  lines?: MaterialIssueLine[];
+}
+
+export interface InventoryTransferLine {
+  id: string;
+  material_id: string;
+  material_code?: string;
+  material_name?: string;
+  quantity: string | number;
+  unit_cost?: string | number;
+  notes?: string | null;
+}
+
+export interface InventoryTransfer {
+  id: string;
+  transfer_number: string;
+  source_warehouse_id: string;
+  source_warehouse_name?: string;
+  destination_warehouse_id: string;
+  destination_warehouse_name?: string;
+  date: string;
+  notes?: string | null;
+  status: string;
+  lines_count?: number;
+  total_amount?: string | number;
+  lines?: InventoryTransferLine[];
+}
+
+export interface InventorySummary {
+  total_valuation: string | number;
+  total_stock_quantity: string | number;
+  total_items_count: number;
+  total_warehouses_count: number;
+  total_receipts_count: number;
+  total_issues_count: number;
+  total_transfers_count: number;
+  recent_transactions: InventoryTransaction[];
+  top_materials: InventoryBalanceDetail[];
+}
+
+export interface CreateMaterialInput {
+  material_code: string;
+  name: string;
+  description?: string;
+  category?: string;
+  base_unit: string;
+}
+
+export interface CreateWarehouseInput {
+  code: string;
+  name: string;
+  location?: string;
+  type?: string;
+  project_id?: string;
+}
+
+export interface CreateGoodsReceiptInput {
+  receipt_number: string;
+  purchase_order_id: string;
+  supplier_id: string;
+  warehouse_id: string;
+  date: string;
+  notes?: string;
+  lines: Array<{
+    purchase_order_line_id?: string;
+    material_id: string;
+    received_quantity: number;
+    accepted_quantity: number;
+    rejected_quantity?: number;
+    unit_cost: number;
+    notes?: string;
+  }>;
+}
+
+export interface CreateMaterialIssueInput {
+  issue_number: string;
+  warehouse_id: string;
+  project_id: string;
+  cost_code_id: string;
+  date: string;
+  purpose?: string;
+  requested_by_id?: string;
+  lines: Array<{
+    material_id: string;
+    quantity: number;
+    notes?: string;
+  }>;
+}
+
+export interface CreateInventoryTransferInput {
+  transfer_number: string;
+  source_warehouse_id: string;
+  destination_warehouse_id: string;
+  date: string;
+  notes?: string;
+  lines: Array<{
+    material_id: string;
+    quantity: number;
+    notes?: string;
+  }>;
 }
 
 export interface InventoryBalanceDetail {
@@ -103,7 +266,7 @@ export interface Account {
   id: string;
   name: string;
   account_code: string;
-  account_type: string;
+  account_type?: string;
   is_control_account: boolean;
   chart_of_accounts_id: string;
 }
@@ -133,7 +296,7 @@ export interface APInvoice {
   date: string;
   due_date: string;
   status: string;
-  invoice_type: string;
+  invoice_type?: string;
   total_amount: string;
   currency: string;
   description?: string | null;
@@ -334,12 +497,12 @@ export async function deleteClient(id: string): Promise<void> {
   });
 }
 
-// ----------------- Inventory -----------------
+// ----------------- Inventory & Logistics -----------------
 export async function getMaterials(): Promise<Material[]> {
   return request<Material[]>('/inventory/materials');
 }
 
-export async function createMaterial(data: Partial<Material>): Promise<Material> {
+export async function createMaterial(data: CreateMaterialInput): Promise<Material> {
   return request<Material>('/inventory/materials', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -350,7 +513,7 @@ export async function getWarehouses(): Promise<Warehouse[]> {
   return request<Warehouse[]>('/inventory/warehouses');
 }
 
-export async function createWarehouse(data: Partial<Warehouse>): Promise<Warehouse> {
+export async function createWarehouse(data: CreateWarehouseInput): Promise<Warehouse> {
   return request<Warehouse>('/inventory/warehouses', {
     method: 'POST',
     body: JSON.stringify(data),
@@ -365,25 +528,60 @@ export async function getInventoryTransactions(): Promise<InventoryTransaction[]
   return request<InventoryTransaction[]>('/inventory/transactions');
 }
 
-export async function createGoodsReceipt(data: any): Promise<any> {
-  return request<any>('/inventory/goods-receipts', {
+export async function getGoodsReceipts(): Promise<GoodsReceipt[]> {
+  return request<GoodsReceipt[]>('/inventory/goods-receipts');
+}
+
+export async function getGoodsReceipt(id: string): Promise<GoodsReceipt> {
+  return request<GoodsReceipt>(`/inventory/goods-receipts/${id}`);
+}
+
+export async function createGoodsReceipt(data: CreateGoodsReceiptInput): Promise<GoodsReceipt> {
+  return request<GoodsReceipt>('/inventory/goods-receipts', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getMaterialIssues(): Promise<MaterialIssue[]> {
+  return request<MaterialIssue[]>('/inventory/material-issues');
+}
+
+export async function getMaterialIssue(id: string): Promise<MaterialIssue> {
+  return request<MaterialIssue>(`/inventory/material-issues/${id}`);
+}
+
+export async function createMaterialIssue(data: CreateMaterialIssueInput): Promise<MaterialIssue> {
+  return request<MaterialIssue>('/inventory/material-issues', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getInventoryTransfers(): Promise<InventoryTransfer[]> {
+  return request<InventoryTransfer[]>('/inventory/transfers');
+}
+
+export async function getInventoryTransfer(id: string): Promise<InventoryTransfer> {
+  return request<InventoryTransfer>(`/inventory/transfers/${id}`);
+}
+
+export async function createInventoryTransfer(data: CreateInventoryTransferInput): Promise<InventoryTransfer> {
+  return request<InventoryTransfer>('/inventory/transfers', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
 export async function createInventoryAdjustment(data: any): Promise<any> {
-  return request<any>("/inventory/adjustments", {
-    method: "POST",
+  return request<any>('/inventory/adjustments', {
+    method: 'POST',
     body: JSON.stringify(data),
   });
 }
 
-export async function createMaterialIssue(data: any): Promise<any> {
-  return request<any>('/inventory/material-issues', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
+export async function getInventorySummary(): Promise<InventorySummary> {
+  return request<InventorySummary>('/inventory/summary');
 }
 
 // ----------------- Procurement -----------------

@@ -7,6 +7,7 @@ Validates the complete stack:
 """
 
 import sys
+import uuid
 import os
 import json
 import urllib.request
@@ -442,6 +443,7 @@ def test_erp_workflows(token: str):
     with urllib.request.urlopen(req) as resp:
         created_po = json.loads(resp.read().decode("utf-8"))
         po_id = created_po["id"]
+        po_line_id = created_po["lines"][0]["id"] if created_po.get("lines") else None
 
     # Issue PO
     req = urllib.request.Request(f"{API_BASE}/purchase-orders/{po_id}/issue", headers=headers, method="POST")
@@ -458,7 +460,100 @@ def test_erp_workflows(token: str):
         assert int(summary_proc["approved_suppliers_count"]) >= 1
         print(f"   ✓ Live Procurement Metrics: Total PO Committed=${float(summary_proc['total_po_value']):,.2f}, Active Orders={summary_proc['active_pos_count']}, Suppliers={summary_proc['approved_suppliers_count']}")
 
-    print("27. Testing Multi-Page Web Portal Health (All 19 Construction Engineering, Commercial & Procurement Routes)...")
+    print("27. Testing Materials Master Catalog (Creation & Catalog Verification)...")
+    rand_mat = uuid.uuid4().hex[:4].upper()
+    mat_payload = json.dumps({
+        "material_code": f"MAT-E2E-{rand_mat}",
+        "name": f"High-Tensile Rebar E2E {rand_mat}",
+        "description": "Grade 60 structural deformed bar",
+        "category": "Metals & Rebar",
+        "base_unit": "TON"
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/inventory/materials", data=mat_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        e2e_mat = json.loads(resp.read().decode("utf-8"))
+        e2e_mat_id = e2e_mat["id"]
+        print(f"   ✓ Created Material: {e2e_mat['material_code']} - {e2e_mat['name']}")
+
+    print("28. Testing Storage Facilities & Warehouses (Facility Creation & Listing)...")
+    rand_wh = uuid.uuid4().hex[:4].upper()
+    wh_payload = json.dumps({
+        "code": f"WH-E2E-{rand_wh}",
+        "name": f"E2E Staging Yard {rand_wh}",
+        "location": "North Staging Bay 7",
+        "type": "PROJECT",
+        "project_id": active_project_id
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/inventory/warehouses", data=wh_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        e2e_wh = json.loads(resp.read().decode("utf-8"))
+        e2e_wh_id = e2e_wh["id"]
+        print(f"   ✓ Registered Storage Facility: {e2e_wh['code']} ({e2e_wh['name']})")
+
+    print("29. Testing Goods Receipt Notes (GRN Intake & WAC Ledger Posting)...")
+    grn_payload = json.dumps({
+        "receipt_number": f"GRN-E2E-{rand_mat}",
+        "purchase_order_id": po_id,
+        "supplier_id": supplier_id,
+        "warehouse_id": e2e_wh_id,
+        "date": "2026-09-07",
+        "notes": "Verified against mill certificate MTC-E2E",
+        "lines": [
+            {
+                "purchase_order_line_id": po_line_id,
+                "material_id": e2e_mat_id,
+                "received_quantity": 25.0,
+                "accepted_quantity": 25.0,
+                "rejected_quantity": 0.0,
+                "unit_cost": 850.0,
+                "notes": "E2E accepted intake"
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/inventory/goods-receipts", data=grn_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        e2e_grn = json.loads(resp.read().decode("utf-8"))
+        assert e2e_grn["status"] == "POSTED"
+        print(f"   ✓ Posted Goods Receipt: {e2e_grn['receipt_number']} (25 TON @ $850 = $21,250.00, Status: POSTED)")
+
+    print("30. Testing Material Issue to Project Site (Cost Code Allocation & Stock Depletion)...")
+    iss_payload = json.dumps({
+        "issue_number": f"ISS-E2E-{rand_mat}",
+        "warehouse_id": e2e_wh_id,
+        "project_id": active_project_id,
+        "cost_code_id": cost_codes[0]["id"],
+        "date": "2026-09-07",
+        "purpose": "E2E core wall reinforcement installation",
+        "lines": [
+            {
+                "material_id": e2e_mat_id,
+                "quantity": 10.0,
+                "notes": "E2E issued to site"
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/inventory/material-issues", data=iss_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        e2e_iss = json.loads(resp.read().decode("utf-8"))
+        assert e2e_iss["status"] == "POSTED"
+        print(f"   ✓ Posted Material Issue: {e2e_iss['issue_number']} (10 TON dispatched to site, Status: POSTED)")
+
+    print("31. Testing Consolidated Inventory Valuation & Stock Summary Engine...")
+    req = urllib.request.Request(f"{API_BASE}/inventory/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        summary_inv = json.loads(resp.read().decode("utf-8"))
+        assert float(summary_inv["total_valuation"]) > 0
+        assert int(summary_inv["total_items_count"]) >= 1
+        assert int(summary_inv["total_warehouses_count"]) >= 2
+        assert int(summary_inv["total_receipts_count"]) >= 1
+        assert int(summary_inv["total_issues_count"]) >= 1
+        print(f"   ✓ Live Inventory Valuation: ${float(summary_inv['total_valuation']):,.2f} across {summary_inv['total_warehouses_count']} facilities ({summary_inv['total_items_count']} materials)")
+
+    print("32. Testing Multi-Page Web Portal Health (All 27 Engineering, Commercial, Procurement & Logistics Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -476,15 +571,23 @@ def test_erp_workflows(token: str):
         "/en/requisitions",
         "/en/rfqs",
         "/en/purchase-orders",
+        "/en/materials",
+        "/en/warehouses",
+        "/en/goods-receipts",
+        "/en/material-issues",
         "/ar/subcontracts",
         "/ar/suppliers",
         "/ar/purchase-orders",
+        "/ar/materials",
+        "/ar/warehouses",
+        "/ar/goods-receipts",
+        "/ar/material-issues",
     ]
     for route in routes:
         req = urllib.request.Request(f"{WEB_BASE}{route}")
         with urllib.request.urlopen(req) as resp:
             assert resp.status == 200
-    print(f"   ✓ All {len(routes)} construction engineering, commercial and procurement portal routes responded with HTTP 200 (OK)")
+    print(f"   ✓ All {len(routes)} enterprise portal routes responded with HTTP 200 (OK)")
 
 def main():
     print("=" * 70)
@@ -496,7 +599,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 27 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 32 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:
