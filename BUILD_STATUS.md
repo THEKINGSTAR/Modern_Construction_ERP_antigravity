@@ -1,18 +1,18 @@
 # Build Status
 
-- **Current Stage:** Stage 24 (Accounts Payable & Invoicing 3-Way Match Workspace) (COMPLETE & VALIDATED)
-- **Previous Stage:** Stage 23 (Inventory Ledger & Materials Management Workspace)
-- **Status:** All Green (Backend, Frontend, PostgreSQL, & 42/42 E2E Validated)
+- **Current Stage:** Stage 25 (General Ledger & Financial Accounting Workspace) (COMPLETE & VALIDATED)
+- **Previous Stage:** Stage 24 (Accounts Payable & Invoicing 3-Way Match Workspace)
+- **Status:** All Green (Backend, Frontend, PostgreSQL, & 50/50 E2E Validated)
 
-The Modern_Construction_ERP platform now provides a complete Accounts Payable & Invoicing 3-Way Match Workspace with dedicated, live-data-backed interfaces for AP Invoices & 3-Way Match Studio (`/ap/invoices`), Vendor Payment Vouchers & Treasury Disbursements (`/ap/payments`), and consolidated AP executive summary metric aggregation (`/ap/summary`).
+The Modern_Construction_ERP platform now provides a complete General Ledger & Financial Accounting Workspace with dedicated, live-data-backed interfaces for Chart of Accounts (`/accounting/accounts`), Journal Vouchers Studio (`/accounting/journals`), Financial Periods & Month-End Closing (`/accounting/periods`), and Financial Statements Studio (`/accounting/reports`), with consolidated GL executive summary metric aggregation (`/accounting/summary`).
 
 ## Validation Results
 
 - **Environment setup:** SUCCESS (FastAPI port 8000, Next.js port 3000, PostgreSQL 5433, Redis 6379)
 - **Database integrity:** SUCCESS (all 95 tables active, multi-domain transactions committed)
-- **Backend tests (pytest):** SUCCESS (71/71 backend tests passed)
-- **Frontend production build:** SUCCESS (`npm run build` compiled 23 static/dynamic routes with 0 errors)
-- **Full-Stack E2E test:** SUCCESS (`scripts/test_demo_e2e.py` 42/42 checks passed with 100% success)
+- **Backend tests (pytest):** SUCCESS (76/76 backend tests passed)
+- **Frontend production build:** SUCCESS (`npm run build` compiled 27 static/dynamic routes with 0 errors)
+- **Full-Stack E2E test:** SUCCESS (`scripts/test_demo_e2e.py` 50/50 checks passed with 100% success)
 
 ## Stages
 | Stage | Name | Tag | Status |
@@ -41,3 +41,4 @@ The Modern_Construction_ERP platform now provides a complete Accounts Payable & 
 | 22 | Procurement & Supply Chain Management Workspace | `stage-22-complete` | Complete & Validated |
 | 23 | Inventory Ledger & Materials Management Workspace | `stage-23-complete` | Complete & Validated |
 | 24 | Accounts Payable & Invoicing 3-Way Match Workspace | `stage-24-complete` | Complete & Validated |
+| 25 | General Ledger & Financial Accounting Workspace | `stage-25-complete` | Complete & Validated |

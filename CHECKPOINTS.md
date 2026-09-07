@@ -29,6 +29,7 @@ This file records verified recovery points.
 | 22 | COMPLETED | 208be8d | stage-22-complete | YES | YES |
 | 23 | COMPLETED | 7d2b610 | stage-23-complete | YES | YES |
 | 24 | COMPLETED | fa6756c | stage-24-complete | YES | YES |
+| 25 | COMPLETED | e2aff29 | stage-25-complete | YES | YES |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -41,6 +42,7 @@ This file records verified recovery points.
 | Procurement & Supply Chain Workspace | 208be8d | procurement-complete | Comprehensive procurement portal with Suppliers, Purchase Requisitions (PR), RFQs & Tenders, Purchase Orders (PO), and live KPI engine |
 | Inventory & Site Logistics | 7d2b610 | inventory-complete | Complete materials catalog, warehouses, goods receipts (GRN), and site material issues |
 | Accounts Payable & 3-Way Match | fa6756c | ap-complete | Complete AP invoice register, 3-way matching studio, payment vouchers, and balanced GL posting |
+| General Ledger & Financial Accounting | e2aff29 | gl-complete | Complete Chart of Accounts, Journal Vouchers with real-time balancing, Month-End Closing Controls, Balance Sheet & Income Statement (P&L) |
 
 ## Recovery Rule
 
