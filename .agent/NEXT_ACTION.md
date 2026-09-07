@@ -1,4 +1,4 @@
 # Next Action
 
-- **Action:** Awaiting human review and sign-off for Stage 20 Construction Engineering & Multi-Page Portal completion
-- **Reason:** Stage 20 implementation and verification complete with 18/18 E2E tests passing and 0 build errors.
+- **Action:** Proceed to next development milestone (Stage 22: Procurement & Supply Chain Workspace)
+- **Reason:** Stage 21 implementation and verification complete with 22/22 E2E tests passing and 0 build errors.
