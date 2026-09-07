@@ -1,22 +1,20 @@
 # Current State
 
-- **Active Session:** session-013
-- **Current Stage:** Stage 23 (Inventory Ledger & Materials Management Workspace) (COMPLETE & VALIDATED)
+- **Active Session:** session-014
+- **Current Stage:** Stage 24 (Accounts Payable & Invoicing 3-Way Match Workspace) (COMPLETE & VALIDATED)
 - **Status:** BASELINE_VALIDATED_ALL_GREEN
 - **Baseline Classification:** GREEN
 - **Branch:** main
-- **Last Known Good Tag:** stage-23-complete
+- **Last Known Good Tag:** stage-24-complete
 
 ## Summary
-The Modern_Construction_ERP platform now features an end-to-end Inventory Ledger & Materials Management Workspace backed by PostgreSQL 15, FastAPI, and Next.js 14.
+The Modern_Construction_ERP platform now features an end-to-end Accounts Payable & Invoicing 3-Way Match Workspace backed by PostgreSQL 15, FastAPI, and Next.js 14.
 Dedicated portal pages are active for:
-1. **Materials Master Catalog (`/materials`)**: Standardized item catalog with categories, base units of measure (TON, M3, PCS, etc.), live stock quantities, and interactive material creation.
-2. **Storage Yards & Site Warehouses (`/warehouses`)**: Logistics facility register categorizing Central Depots, Project Site Laydowns, and Transit Hubs with linked project tracking, active SKU counts, and facility registration.
-3. **Goods Receipt Notes (GRN) (`/goods-receipts`)**: Delivery intake workspace matching purchase orders to incoming shipments, line-item inspection breakdown, and automatic weighted average cost (WAC) ledger posting.
-4. **Material Issues to Project Sites (`/material-issues`)**: Store requisition slip management charging site material dispatches directly to project work packages and cost codes.
-5. **Consolidated Inventory Valuation Engine (`/inventory/summary`)**: Real-time KPI aggregation computing total inventory valuation, active SKU counts, receiving warehouses, and top stock items directly from PostgreSQL.
+1. **AP Invoices & 3-Way Match Studio (`/ap/invoices`)**: Invoice register, line-item drawers, automated PO vs GRN vs Invoice 3-way matching, variance detection, invoice approval, balanced GL posting, and interactive invoice registration modal.
+2. **Vendor Payment Vouchers & Treasury Disbursements (`/ap/payments`)**: Payment voucher register, treasury bank account tracking, multi-invoice payment allocation, automated GL cash credit / AP debit journal generation, and interactive payment disbursement modal.
+3. **Consolidated AP Executive Summary (`/ap/summary`)**: Real-time KPI aggregation computing total invoiced, total outstanding payables, total disbursed, 3-way match rates, and aging buckets directly from live PostgreSQL data.
 
 ## Test Validation
-- Backend pytest: 67/67 passed
-- Frontend production build: 21 static/dynamic routes compiled cleanly (0 errors)
-- Full-stack E2E verification: 32/32 passed with 100% success rate
+- Backend pytest: 71/71 passed with 0 failures
+- Frontend production build: 23 static/dynamic routes compiled cleanly (0 errors)
+- Full-stack E2E verification: 42/42 passed with 100% success rate across 31 web portal routes

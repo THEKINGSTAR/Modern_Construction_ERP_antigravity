@@ -1,15 +1,15 @@
 # Active Task
 
-## Current Milestone: Stage 23 Complete -> Stage 24 Transition
+## Current Milestone: Stage 24 Complete -> Stage 25 Transition
 
-- **Task Name:** Inventory Ledger & Materials Management Workspace Implementation
+- **Task Name:** Accounts Payable & Invoicing 3-Way Match Workspace Implementation
 - **Status:** COMPLETED
-- **Objective:** Establish production-grade inventory and materials interfaces backed by PostgreSQL 15 and FastAPI for Materials, Warehouses, Goods Receipts, and Material Issues.
+- **Objective:** Establish production-grade accounts payable interfaces backed by PostgreSQL 15 and FastAPI for Vendor Invoices, 3-Way Matching, Payment Vouchers, and Treasury Disbursements.
 - **Deliverables Completed:**
-  - Database entity helper properties and multi-tenant isolation across inventory models.
-  - FastAPI endpoints for goods receipt listing, material issue listing, transfer listing, and inventory valuation summary aggregation.
-  - Realistic construction materials seed data across 8 materials, 4 storage yards, 4 Goods Receipt Notes ($104,250), 2 site material issues ($52,200), and 1 inter-depot stock transfer.
+  - Database schema migration adding PO/GRN foreign keys, line-item matching links, and subtotal/tax columns to `ap_invoices` and `ap_invoice_lines`.
+  - FastAPI domain services for 3-way match variance analysis, invoice approval, balanced GL journal posting, payment allocation, and live AP summary metrics.
+  - Realistic construction vendor invoices seeded against PO-2026-001 (Vulcan Steel), PO-2026-002 (Arabian Ready-Mix), PO-2026-003 (Gulf Aggregates), and PO-2026-004 (Farooq Scaffolding), with 2 posted vendor payment vouchers.
   - TypeScript API client methods and data types.
-  - 4 dedicated Next.js portal pages (`/materials`, `/warehouses`, `/goods-receipts`, `/material-issues`) integrated into enterprise application shell (`AppLayout`).
+  - 2 dedicated Next.js portal pages (`/ap/invoices`, `/ap/payments`) integrated into enterprise application shell (`AppLayout`).
   - Bilingual localization keys in `en.json` and `ar.json`.
-  - Integration and full-stack E2E tests verified (32/32 checks passed).
+  - Integration tests and 42-check full-stack E2E test suite passing with 100% success.
