@@ -95,5 +95,15 @@
     "title": "Material Issues to Project Sites",
     "description": "Store requisition slips, site material dispatches, work package allocation, and project cost code charging.",
     "coming_soon": "Material issues module active."
+  },
+  "APInvoices": {
+    "title": "Accounts Payable & Invoicing",
+    "description": "Contractor 3-way matching, variance detection, GL posting, and vendor liability management.",
+    "coming_soon": "Accounts payable invoice studio active."
+  },
+  "APPayments": {
+    "title": "Vendor Payments & Disbursements",
+    "description": "Treasury cash disbursement vouchers, general ledger settlement, and AP invoice allocation.",
+    "coming_soon": "Vendor disbursements active."
   }
 }

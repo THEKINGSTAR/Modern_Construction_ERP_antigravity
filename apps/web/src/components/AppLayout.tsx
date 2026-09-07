@@ -53,6 +53,13 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
       ],
     },
     {
+      title: "Accounts Payable & Finance",
+      items: [
+        { label: "AP Invoices & 3-Way Match", path: `/${locale}/ap/invoices`, icon: "🧾" },
+        { label: "Vendor Payments", path: `/${locale}/ap/payments`, icon: "💳" },
+      ],
+    },
+    {
       title: "Project Controls & Estimating",
       items: [
         { label: "Work Breakdown (WBS)", path: `/${locale}/wbs`, icon: "🌲" },

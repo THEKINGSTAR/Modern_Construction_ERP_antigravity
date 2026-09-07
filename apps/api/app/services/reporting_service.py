@@ -289,14 +289,9 @@ class ReportingService:
         tot_debits, tot_credits = self.db.execute(gl_q).one()
         is_balanced = (tot_debits == tot_credits)
 
-        ap_q = select(
-            func.count(APInvoice.id),
-            func.coalesce(func.sum(APInvoice.total_amount), Decimal(0))
-        ).where(
-            APInvoice.tenant_id == self.tenant_id,
-            APInvoice.status == InvoiceStatus.POSTED
-        )
-        ap_count, ap_open = self.db.execute(ap_q).one()
+        invoices = self.db.query(APInvoice).filter(APInvoice.tenant_id == self.tenant_id).all()
+        ap_count = len(invoices)
+        ap_open = sum((inv.outstanding_amount for inv in invoices if inv.status in [InvoiceStatus.POSTED, InvoiceStatus.PARTIAL]), Decimal("0.0000"))
 
         clients_count_q = select(func.count(Client.id)).where(Client.tenant_id == self.tenant_id)
         clients_count = self.db.execute(clients_count_q).scalar_one()

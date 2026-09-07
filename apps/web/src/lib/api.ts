@@ -289,17 +289,202 @@ export interface Journal {
   lines: JournalLine[];
 }
 
+export interface APInvoiceLine {
+  id: string;
+  invoice_id: string;
+  project_id?: string | null;
+  cost_code_id?: string | null;
+  purchase_order_line_id?: string | null;
+  goods_receipt_line_id?: string | null;
+  material_id?: string | null;
+  description: string;
+  quantity: number | string;
+  unit_price: number | string;
+  tax_rate?: number | string;
+  tax_amount?: number | string;
+  line_total: number | string;
+  material_code?: string | null;
+  material_name?: string | null;
+  project_name?: string | null;
+  cost_code_code?: string | null;
+}
+
 export interface APInvoice {
   id: string;
   number: string;
   supplier_id: string;
+  purchase_order_id?: string | null;
+  goods_receipt_id?: string | null;
   date: string;
   due_date: string;
   status: string;
   invoice_type?: string;
+  matching_status: string;
+  subtotal: string;
+  tax_amount: string;
   total_amount: string;
   currency: string;
+  journal_id?: string | null;
   description?: string | null;
+  lines?: APInvoiceLine[];
+  supplier_name?: string | null;
+  po_number?: string | null;
+  grn_number?: string | null;
+  lines_count?: number;
+  paid_amount?: number | string;
+  outstanding_amount?: number | string;
+  outstanding_balance?: number | string;
+}
+
+export interface ThreeWayMatchLineReport {
+  invoice_line_id: string;
+  description: string;
+  invoice_qty: number | string;
+  invoice_unit_price: number | string;
+  invoice_line_total: number | string;
+  po_qty?: number | string | null;
+  po_unit_price?: number | string | null;
+  grn_accepted_qty?: number | string | null;
+  qty_variance: number | string;
+  price_variance: number | string;
+  total_variance: number | string;
+  line_status: string;
+  notes?: string | null;
+}
+
+export interface ThreeWayMatchReport {
+  invoice_id: string;
+  invoice_number: string;
+  supplier_name?: string | null;
+  purchase_order_id?: string | null;
+  po_number?: string | null;
+  goods_receipt_id?: string | null;
+  grn_number?: string | null;
+  matching_status: string;
+  total_invoice_amount: number | string;
+  total_po_amount?: number | string | null;
+  total_grn_accepted_amount?: number | string | null;
+  variance_amount: number | string;
+  is_matched: boolean;
+  can_approve: boolean;
+  lines: ThreeWayMatchLineReport[];
+}
+
+export interface PaymentAllocation {
+  id?: string;
+  payment_id?: string;
+  ap_invoice_id?: string | null;
+  ar_invoice_id?: string | null;
+  amount: number | string;
+}
+
+export interface Payment {
+  id: string;
+  reference: string;
+  payment_type: string;
+  date: string;
+  amount: number | string;
+  currency: string;
+  status: string;
+  supplier_id?: string | null;
+  client_id?: string | null;
+  bank_account_id: string;
+  journal_id?: string | null;
+  allocations?: PaymentAllocation[];
+  supplier_name?: string | null;
+  client_name?: string | null;
+  bank_name?: string | null;
+  bank_account_name?: string | null;
+  allocations_count?: number;
+}
+
+export interface BankAccount {
+  id: string;
+  name: string;
+  account_number: string;
+  bank_name: string;
+  currency: string;
+  gl_account_id: string;
+  is_active: boolean;
+}
+
+export interface APSummary {
+  total_payables: number | string;
+  total_invoiced: number | string;
+  total_paid: number | string;
+  invoices_count: number;
+  draft_count: number;
+  approved_count: number;
+  posted_count: number;
+  paid_count: number;
+  matched_count: number;
+  variance_count: number;
+  aging_current: number | string;
+  aging_31_60: number | string;
+  aging_61_90: number | string;
+  aging_over_90: number | string;
+  recent_invoices: Array<{
+    id: string;
+    number: string;
+    supplier_name: string;
+    date: string;
+    due_date: string;
+    total_amount: number;
+    outstanding_amount: number;
+    status: string;
+    matching_status: string;
+    po_number?: string | null;
+    grn_number?: string | null;
+  }>;
+  recent_payments: Array<{
+    id: string;
+    reference: string;
+    supplier_name: string;
+    bank_name: string;
+    date: string;
+    amount: number;
+    status: string;
+  }>;
+}
+
+export interface CreateAPInvoiceInput {
+  number: string;
+  supplier_id: string;
+  purchase_order_id?: string;
+  goods_receipt_id?: string;
+  date: string;
+  due_date: string;
+  invoice_type?: string;
+  currency?: string;
+  description?: string;
+  tax_amount?: number;
+  lines: Array<{
+    project_id?: string;
+    cost_code_id?: string;
+    purchase_order_line_id?: string;
+    goods_receipt_line_id?: string;
+    material_id?: string;
+    description: string;
+    quantity: number;
+    unit_price: number;
+    tax_rate?: number;
+    tax_amount?: number;
+  }>;
+}
+
+export interface CreatePaymentInput {
+  reference: string;
+  payment_type: string;
+  date: string;
+  amount: number;
+  currency?: string;
+  supplier_id?: string;
+  bank_account_id: string;
+  allocations: Array<{
+    ap_invoice_id?: string;
+    ar_invoice_id?: string;
+    amount: number;
+  }>;
 }
 
 export interface TrialBalanceReport {
@@ -637,8 +822,79 @@ export async function createJournal(data: any): Promise<Journal> {
   });
 }
 
-export async function getAPInvoices(): Promise<APInvoice[]> {
-  return request<APInvoice[]>('/ap/invoices');
+export async function getAPInvoices(params?: {
+  supplier_id?: string;
+  status?: string;
+  matching_status?: string;
+  purchase_order_id?: string;
+}): Promise<APInvoice[]> {
+  const query = new URLSearchParams();
+  if (params?.supplier_id) query.append('supplier_id', params.supplier_id);
+  if (params?.status) query.append('status', params.status);
+  if (params?.matching_status) query.append('matching_status', params.matching_status);
+  if (params?.purchase_order_id) query.append('purchase_order_id', params.purchase_order_id);
+  const qStr = query.toString() ? `?${query.toString()}` : '';
+  return request<APInvoice[]>(`/ap/invoices${qStr}`);
+}
+
+export async function getAPInvoice(id: string): Promise<APInvoice> {
+  return request<APInvoice>(`/ap/invoices/${id}`);
+}
+
+export async function createAPInvoice(data: CreateAPInvoiceInput): Promise<APInvoice> {
+  return request<APInvoice>('/ap/invoices', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function matchAPInvoice(id: string): Promise<ThreeWayMatchReport> {
+  return request<ThreeWayMatchReport>(`/ap/invoices/${id}/match`, {
+    method: 'POST',
+  });
+}
+
+export async function approveAPInvoice(id: string): Promise<APInvoice> {
+  return request<APInvoice>(`/ap/invoices/${id}/approve`, {
+    method: 'POST',
+  });
+}
+
+export async function postAPInvoice(id: string): Promise<APInvoice> {
+  return request<APInvoice>(`/ap/invoices/${id}/post`, {
+    method: 'POST',
+  });
+}
+
+export async function getPayments(supplier_id?: string): Promise<Payment[]> {
+  const qStr = supplier_id ? `?supplier_id=${supplier_id}` : '';
+  return request<Payment[]>(`/ap/payments${qStr}`);
+}
+
+export async function getPayment(id: string): Promise<Payment> {
+  return request<Payment>(`/ap/payments/${id}`);
+}
+
+export async function createPayment(data: CreatePaymentInput): Promise<Payment> {
+  return request<Payment>('/ap/payments', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getAPSummary(): Promise<APSummary> {
+  return request<APSummary>('/ap/summary');
+}
+
+export async function getBankAccounts(): Promise<BankAccount[]> {
+  return request<BankAccount[]>('/ap/bank-accounts');
+}
+
+export async function createBankAccount(data: any): Promise<BankAccount> {
+  return request<BankAccount>('/ap/bank-accounts', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }
 
 // ----------------- Contracts -----------------
