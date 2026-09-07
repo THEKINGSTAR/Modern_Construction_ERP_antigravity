@@ -25,7 +25,8 @@ This file records verified recovery points.
 | 18 | COMPLETED | e10cea5 | stage-18 | YES | YES |
 | 19 | COMPLETED | ed0eab9 | stage-19-complete | YES | YES |
 | 20 | COMPLETED | a7e05ef | stage-20-complete | YES | YES |
-| 21 | COMPLETED | 44efbf6 | stage-21-complete | YES | pending |
+| 21 | COMPLETED | 44efbf6 | stage-21-complete | YES | YES |
+| 22 | COMPLETED | 208be8d | stage-22-complete | YES | YES |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -35,6 +36,7 @@ This file records verified recovery points.
 | Real ERP Production | ed0eab9 | real-erp-complete | Demo transformed into real ERP backed by PostgreSQL, live SQL aggregation, and full UI CRUD |
 | Multi-Page Engineering Portal | a7e05ef | portal-complete | Complete multi-page portal with dedicated routes for Projects, Contracts, Clients, WBS, Cost Codes, BOQ, Estimates, Budgets |
 | Commercial Management & Subcontracts | 44efbf6 | commercial-complete | Dedicated commercial management portal with Subcontracts, Variation Orders (CCO/SCO), Progress Billings (IPC/Claim), and live metrics |
+| Procurement & Supply Chain Workspace | 208be8d | procurement-complete | Comprehensive procurement portal with Suppliers, Purchase Requisitions (PR), RFQs & Tenders, Purchase Orders (PO), and live KPI engine |
 
 ## Recovery Rule
 
