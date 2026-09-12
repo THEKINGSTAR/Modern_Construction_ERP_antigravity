@@ -24,21 +24,26 @@ import app.models.accounting
 import app.models.bank
 import app.models.ap_ar
 
-# Use SQLite in-memory for testing
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+import os
+# Use provided TEST_DATABASE_URL or default to SQLite in-memory for testing
+SQLALCHEMY_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "sqlite:///:memory:")
 
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool
-)
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL, 
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool
+    )
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, expire_on_commit=False)
 
 @pytest.fixture(scope="session", autouse=True)
 def create_test_database():
     Base.metadata.create_all(bind=engine)
     yield
-    Base.metadata.drop_all(bind=engine)
+    if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+        Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture
 def db_session():

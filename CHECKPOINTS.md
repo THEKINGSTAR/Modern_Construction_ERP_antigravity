@@ -32,7 +32,8 @@ This file records verified recovery points.
 | 25 | COMPLETED | e2aff29 | stage-25-complete | YES | YES |
 | 27 | COMPLETED | c57ab44 | stage-27-complete | YES | YES |
 | 30 | COMPLETED | 4ee0c5a | stage-30-complete | YES | YES |
-| 31 | COMPLETED | HEAD | stage-31-complete | YES | pending |
+| 31 | COMPLETED | 60b5bdc | stage-31-complete | YES | YES |
+| 32 | COMPLETED | HEAD | workflow-01-complete | YES | pending |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -46,7 +47,8 @@ This file records verified recovery points.
 | Inventory & Site Logistics | 7d2b610 | inventory-complete | Complete materials catalog, warehouses, goods receipts (GRN), and site material issues |
 | Accounts Payable & 3-Way Match | fa6756c | ap-complete | Complete AP invoice register, 3-way matching studio, payment vouchers, and balanced GL posting |
 | General Ledger & Financial Accounting | e2aff29 | gl-complete | Complete Chart of Accounts, Journal Vouchers with real-time balancing, Month-End Closing Controls, Balance Sheet & Income Statement (P&L) |
-| Hardened ERP Integration | HEAD | erp-integration-complete | Resolved double-counting in project cost, successfully validated full E2E workflow from Procurement to GL |
+| Hardened ERP Integration | 60b5bdc | erp-integration-complete | Resolved double-counting in project cost, successfully validated full E2E workflow from Procurement to GL |
+| Workflow 1: Procure-to-Pay | HEAD | workflow-01-complete | Demonstrated independent database persistence of full P2P workflow across PO, GRN, AP, GL and Project Costs |
 
 ## Recovery Rule
 
