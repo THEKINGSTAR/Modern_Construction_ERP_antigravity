@@ -48,7 +48,8 @@ This file records verified recovery points.
 | Accounts Payable & 3-Way Match | fa6756c | ap-complete | Complete AP invoice register, 3-way matching studio, payment vouchers, and balanced GL posting |
 | General Ledger & Financial Accounting | e2aff29 | gl-complete | Complete Chart of Accounts, Journal Vouchers with real-time balancing, Month-End Closing Controls, Balance Sheet & Income Statement (P&L) |
 | Hardened ERP Integration | 60b5bdc | erp-integration-complete | Resolved double-counting in project cost, successfully validated full E2E workflow from Procurement to GL |
-| Workflow 1: Procure-to-Pay | HEAD | workflow-01-complete | Demonstrated independent database persistence of full P2P workflow across PO, GRN, AP, GL and Project Costs |
+| Workflow 1: Procure-to-Pay | 60b5bdc | workflow-01-complete | Demonstrated independent database persistence of full P2P workflow across PO, GRN, AP, GL and Project Costs |
+| Workflow 2: Site Material Issuance | HEAD | workflow-02-complete | Verified E2E Material Issue → Project Cost → Dashboard |
 
 ## Recovery Rule
 
