@@ -135,5 +135,17 @@
     "title": "Customer Collections & Receipts",
     "description": "Treasury cash receipt vouchers, general ledger settlement, and open invoice allocation.",
     "coming_soon": "Customer collections active."
+  },
+  "CostControl": {
+    "title": "Project Cost Control & EVM",
+    "description": "Real-time synchronization of budgets, committed subcontracts/POs, actual incurred costs, and Estimate-to-Complete (ETC).",
+    "budget": "Current Budget",
+    "committed": "Committed Costs",
+    "actual": "Actual Incurred",
+    "etc": "Estimate To Complete",
+    "eac": "Estimate at Completion",
+    "variance": "Variance (VAC)",
+    "cpi": "Cost Performance Index",
+    "status": "Performance Status"
   }
 }

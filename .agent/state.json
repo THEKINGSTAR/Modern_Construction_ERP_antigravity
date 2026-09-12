@@ -1,28 +1,28 @@
 {
     "project": "Modern Construction ERP",
-    "current_stage": "Stage 26 (Accounts Receivable & Client Invoicing Workspace)",
-    "stage_number": 26,
+    "current_stage": "Stage 27 (Project Cost Control, Budget Variance and EVM Workspace)",
+    "stage_number": 27,
     "status": "BASELINE_VALIDATED_ALL_GREEN",
     "baseline_classification": "GREEN",
     "current_branch": "main",
     "current_commit": "HEAD",
     "working_tree_clean": true,
-    "last_known_good_checkpoint": "stage-26-complete",
-    "active_session": "session-016",
+    "last_known_good_checkpoint": "stage-27-complete",
+    "active_session": "session-017",
     "active_task": {
-        "name": "Accounts Receivable (AR), Progress Billing Invoicing & Customer Collections",
+        "name": "Project Cost Control, Budget Variance and Earned Value Management (EVM) Workspace",
         "status": "COMPLETED",
-        "objective": "Build real enterprise AR domain with AIA G702/G703 progress billing from Client Payment Applications (IPCs), 5-10% retainage withholding, double-entry GL posting (Debit AR 1200 + Debit Retainage 1210 == Credit Revenue 4010 + Credit Tax 2040), Customer Collections with Treasury deposits (Debit Cash 1010, Credit AR 1200), invoice balance settlement, and dedicated live portals at /ar/invoices and /ar/receipts."
+        "objective": "Build unified real-time Cost Control engine integrating Budgets, Standard CSI Cost Codes, Committed Costs (POs + Subcontracts), Actual Incurred Costs (Material Issues WAC, AP Invoices, Timesheets, Equipment), and Estimate to Complete (ETC). Compute EVM KPIs (PV, EV, AC, CV, CPI, EAC, VAC). Build dedicated interactive portal at /cost-control with KPI cards, CSI matrix table, ETC adjustment modal, and transaction audit drawer."
     },
     "blockers": [],
     "next_action": {
-        "action": "Proceed to Stage 27: Project Cost Control & Budget Variance Workspace",
-        "reason": "Stage 26 complete and validated with 81/81 backend pytest tests passing, Next.js build compiling 29 production routes, and 57/57 full-stack E2E tests passing 100%."
+        "action": "Proceed to Stage 28: Equipment Fleet Lifecycle, Telematics and Maintenance Workspace",
+        "reason": "Stage 27 complete and validated with 86/86 backend pytest tests passing, Next.js build compiling 30 production routes, and 63/63 full-stack E2E tests passing 100%."
     },
     "tests_status": {
-        "last_run": "2026-09-12T01:44:33Z",
-        "backend": "PASSED (81/81)",
-        "frontend": "PASSED (29 routes)",
-        "e2e": "PASSED (57/57)"
+        "last_run": "2026-09-12T05:08:55Z",
+        "backend": "PASSED (86/86)",
+        "frontend": "PASSED (30 routes)",
+        "e2e": "PASSED (63/63)"
     }
 }

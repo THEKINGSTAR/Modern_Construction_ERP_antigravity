@@ -78,6 +78,7 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
     {
       title: "Project Controls & Estimating",
       items: [
+        { label: "Cost Control & EVM", path: `/${locale}/cost-control`, icon: "🎯" },
         { label: "Work Breakdown (WBS)", path: `/${locale}/wbs`, icon: "🌲" },
         { label: "Standard Cost Codes", path: `/${locale}/cost-codes`, icon: "🏷️" },
         { label: "Bill of Quantities (BOQ)", path: `/${locale}/boq`, icon: "📋" },

@@ -1950,3 +1950,110 @@ export async function createCustomerReceipt(data: CreateCustomerReceiptInput): P
     body: JSON.stringify(payload),
   });
 }
+
+// ==========================================
+// STAGE 27: PROJECT COST CONTROL & EVM TYPES
+// ==========================================
+
+export interface CostCodeSummary {
+  cost_code_id: string;
+  cost_code_code?: string;
+  cost_code_name?: string;
+  cost_category?: string;
+  original_budget: number | string;
+  approved_changes: number | string;
+  current_budget: number | string;
+  committed_cost: number | string;
+  actual_cost: number | string;
+  estimate_to_complete: number | string;
+  estimate_at_completion: number | string;
+  variance: number | string;
+  variance_percentage?: number | string;
+  status: "UNDER_BUDGET" | "ON_TRACK" | "AT_RISK" | "OVER_BUDGET" | string;
+}
+
+export interface ProjectCostKPISummary {
+  project_id: string;
+  project_name: string;
+  project_number?: string;
+  total_original_budget: number | string;
+  total_approved_changes: number | string;
+  total_current_budget: number | string;
+  total_committed: number | string;
+  total_actual: number | string;
+  total_estimate_to_complete: number | string;
+  total_estimate_at_completion: number | string;
+  total_variance: number | string;
+  cost_performance_index: number | string;
+  status: "UNDER_BUDGET" | "ON_TRACK" | "AT_RISK" | "OVER_BUDGET" | string;
+}
+
+export interface PortfolioCostSummary {
+  total_projects: number;
+  total_budget: number | string;
+  total_committed: number | string;
+  total_actual: number | string;
+  total_etc: number | string;
+  total_eac: number | string;
+  total_variance: number | string;
+  overall_cpi: number | string;
+  projects: ProjectCostKPISummary[];
+}
+
+export interface CostTransaction {
+  project_id: string;
+  cost_code_id?: string;
+  cost_code_code?: string;
+  cost_code_name?: string;
+  date: string;
+  amount: number | string;
+  currency: string;
+  source_type: "PURCHASE_ORDER" | "SUBCONTRACT" | "MATERIAL_ISSUE" | "AP_INVOICE" | "TIMESHEET" | "EQUIPMENT_USAGE" | "EQUIPMENT_FUEL" | "EQUIPMENT_MAINTENANCE" | string;
+  source_id: string;
+  source_reference?: string;
+  cost_type: "COMMITTED" | "ACTUAL" | string;
+}
+
+export interface CreateProjectForecastLineInput {
+  cost_code_id: string;
+  etc_amount: number | string;
+  notes?: string;
+}
+
+export interface CreateProjectForecastInput {
+  forecast_number: string;
+  date: string;
+  notes?: string;
+  lines: CreateProjectForecastLineInput[];
+}
+
+export interface ProjectForecastResponse {
+  id: string;
+  project_id: string;
+  forecast_number: string;
+  date: string;
+  status: string;
+}
+
+export async function getPortfolioCostSummary(): Promise<PortfolioCostSummary> {
+  return request<PortfolioCostSummary>("/project-cost/portfolio/summary");
+}
+
+export async function getProjectCostKPIs(projectId: string): Promise<ProjectCostKPISummary> {
+  return request<ProjectCostKPISummary>(`/project-cost/projects/${projectId}/costs/kpi`);
+}
+
+export async function getProjectCostSummary(projectId: string): Promise<CostCodeSummary[]> {
+  return request<CostCodeSummary[]>(`/project-cost/projects/${projectId}/costs/summary`);
+}
+
+export async function getProjectCostTransactions(projectId: string): Promise<CostTransaction[]> {
+  return request<CostTransaction[]>(`/project-cost/projects/${projectId}/costs/transactions`);
+}
+
+export async function createProjectForecast(projectId: string, data: CreateProjectForecastInput): Promise<ProjectForecastResponse> {
+  return request<ProjectForecastResponse>(`/project-cost/projects/${projectId}/forecasts`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}

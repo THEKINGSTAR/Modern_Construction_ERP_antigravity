@@ -1,14 +1,15 @@
-# Next Action: Stage 27 — Project Cost Control & Budget Variance Workspace
+# Next Action: Stage 28 — Equipment Fleet Lifecycle, Telematics & Maintenance Workspace
 
-1. **Inspect Existing Cost & Budget Models**:
-   - Examine `apps/api/app/models/budgets.py`, `wbs.py`, `dimensions.py`, `contracts.py`, `ap_ar.py`, `inventory.py`.
-2. **Design Real Cost Control Aggregation Engine**:
-   - Compute Committed Cost (Approved POs + Active Subcontracts).
-   - Compute Actual Incurred Cost (Posted AP Invoices + Dispatched Material Issues + Direct Journal Vouchers).
-   - Compute Earned Value Metrics (EV, AC, PV, CPI, CV, EAC, Variance at Completion).
+1. **Inspect Existing Equipment & Asset Models**:
+   - Examine `apps/api/app/models/` for existing asset/equipment definitions.
+2. **Design Enterprise Equipment Management Subsystem**:
+   - Equipment Fleet Registry (Asset Code, Make, Model, Serial, Capacity, Status, Hourly Cost Rate).
+   - Telematics & Daily Logs (Engine Hours, Fuel Invoiced/Consumed, Project Site Assignment).
+   - Preventive & Corrective Maintenance Work Orders.
+   - Equipment Cost Allocation to Project Cost Codes (01-5000 / Equipment category).
 3. **Expose Endpoints & Integration Tests**:
-   - Implement `/cost-control/summary`, `/cost-control/by-project/{id}`, `/cost-control/by-cost-code`.
+   - Endpoints under `/api/v1/equipment/` (fleet register, telematics logs, maintenance, cost chargeouts).
 4. **Build Dedicated Frontend Interfaces**:
-   - Cost Control Dashboard & Budget Variance Matrix at `/projects/cost-control`.
+   - Equipment Fleet Workspace at `/equipment`.
 5. **Run Full-Stack E2E Verification**:
-   - Verify 80+ backend tests, Next.js compilation, and 60+ E2E checks.
+   - Expand backend tests and `scripts/test_demo_e2e.py`.

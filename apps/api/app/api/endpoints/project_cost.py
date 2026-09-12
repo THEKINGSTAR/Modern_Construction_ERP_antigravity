@@ -8,12 +8,32 @@ from app.core.auth import get_current_user, get_current_tenant
 from app.models.user import User
 from app.schemas.project_cost import (
     ProjectForecastCreate, ProjectForecastResponse,
-    CostTransactionResponse, CostCodeSummaryResponse
+    CostTransactionResponse, CostCodeSummaryResponse,
+    ProjectCostKPISummary, PortfolioCostSummaryResponse
 )
 from app.models.forecasts import ProjectForecast, ProjectForecastLine, ForecastStatus
 from app.services.project_cost import ProjectCostEngine
 
 router = APIRouter(tags=["Project Cost"])
+
+@router.get("/portfolio/summary", response_model=PortfolioCostSummaryResponse)
+def get_portfolio_cost_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    engine = ProjectCostEngine(db, tenant_id)
+    return engine.get_portfolio_cost_summary()
+
+@router.get("/projects/{project_id}/costs/kpi", response_model=ProjectCostKPISummary)
+def get_project_cost_kpis(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    tenant_id: UUID = Depends(get_current_tenant)
+):
+    engine = ProjectCostEngine(db, tenant_id)
+    return engine.get_project_kpi_summary(project_id)
 
 @router.post("/projects/{project_id}/forecasts", response_model=ProjectForecastResponse, status_code=status.HTTP_201_CREATED)
 def create_project_forecast(
@@ -23,6 +43,13 @@ def create_project_forecast(
     current_user: User = Depends(get_current_user),
     tenant_id: UUID = Depends(get_current_tenant)
 ):
+    # 0. Supersede previous approved forecasts for this project
+    db.query(ProjectForecast).filter(
+        ProjectForecast.tenant_id == tenant_id,
+        ProjectForecast.project_id == project_id,
+        ProjectForecast.status == ForecastStatus.APPROVED
+    ).update({"status": ForecastStatus.SUPERSEDED})
+
     # 1. Create Forecast Document
     db_forecast = ProjectForecast(
         tenant_id=tenant_id,

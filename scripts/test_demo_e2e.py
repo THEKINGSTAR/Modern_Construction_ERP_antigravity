@@ -14,6 +14,7 @@ import urllib.request
 import urllib.parse
 from decimal import Decimal
 import time
+import datetime
 
 API_BASE = "http://localhost:8000/api/v1"
 WEB_BASE = "http://localhost:3000"
@@ -913,7 +914,99 @@ def test_erp_workflows(token: str):
         assert float(updated_ar["paid_amount"]) >= col_amount
         print(f"   ✓ Verified Client Invoice Settlement: {updated_ar['number']} (Status: {updated_ar['status']}, Paid: ${float(updated_ar['paid_amount']):,.2f}, Balance: ${float(updated_ar['outstanding_amount']):,.2f})")
 
-    print("57. Testing Multi-Page Web Portal Health (All 43 Engineering, Commercial, Procurement, Inventory, AP, AR & GL Routes)...")
+    print("57. Testing Project Cost Control Portfolio Summary Engine (Executive Rollup)...")
+    req = urllib.request.Request(f"{API_BASE}/project-cost/portfolio/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        portfolio_summary = json.loads(resp.read().decode("utf-8"))
+        assert portfolio_summary["total_projects"] >= 1
+        assert float(portfolio_summary["total_budget"]) > 0
+        assert float(portfolio_summary["total_committed"]) > 0
+        assert float(portfolio_summary["total_actual"]) > 0
+        assert float(portfolio_summary["total_eac"]) > 0
+        assert "overall_cpi" in portfolio_summary
+        print(f"   ✓ Portfolio Cost Summary: Projects={portfolio_summary['total_projects']} | Budget=${float(portfolio_summary['total_budget']):,.2f} | Committed=${float(portfolio_summary['total_committed']):,.2f} | Actual=${float(portfolio_summary['total_actual']):,.2f} | EAC=${float(portfolio_summary['total_eac']):,.2f} | Overall CPI={portfolio_summary['overall_cpi']}")
+
+    print("58. Testing Project Cost Control & Budget Variance Matrix for Skyline Commercial Tower...")
+    cost_proj_id = "88888888-8888-4888-8888-888888888888"
+    req = urllib.request.Request(f"{API_BASE}/project-cost/projects/{cost_proj_id}/costs/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        cost_matrix = json.loads(resp.read().decode("utf-8"))
+        assert len(cost_matrix) >= 8
+        rebar_line = next((line for line in cost_matrix if line.get("cost_code_code") == "03-2000"), None)
+        assert rebar_line is not None
+        assert float(rebar_line["current_budget"]) == 730000.00
+        assert float(rebar_line["committed_cost"]) > 0
+        assert float(rebar_line["actual_cost"]) > 0
+        assert float(rebar_line["estimate_to_complete"]) > 0
+        assert float(rebar_line["estimate_at_completion"]) > 0
+        print(f"   ✓ Cost Matrix Verified ({len(cost_matrix)} CSI MasterFormat cost codes loaded): Rebar Budget=${float(rebar_line['current_budget']):,.2f}, Committed=${float(rebar_line['committed_cost']):,.2f}, Actual=${float(rebar_line['actual_cost']):,.2f}, ETC=${float(rebar_line['estimate_to_complete']):,.2f}, EAC=${float(rebar_line['estimate_at_completion']):,.2f}, Status={rebar_line['status']}")
+
+    print("59. Testing Earned Value Management (EVM) Single-Project KPIs...")
+    req = urllib.request.Request(f"{API_BASE}/project-cost/projects/{cost_proj_id}/costs/kpi", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        project_kpis = json.loads(resp.read().decode("utf-8"))
+        assert project_kpis["project_id"] == cost_proj_id
+        assert float(project_kpis["total_current_budget"]) == 5200000.00
+        assert float(project_kpis["total_committed"]) > 0
+        assert float(project_kpis["total_actual"]) > 0
+        assert float(project_kpis["total_estimate_to_complete"]) > 0
+        assert float(project_kpis["total_variance"]) > 0
+        assert float(project_kpis["cost_performance_index"]) > 0
+        print(f"   ✓ Project EVM KPIs: Budget=${float(project_kpis['total_current_budget']):,.2f} | Committed=${float(project_kpis['total_committed']):,.2f} | Actual=${float(project_kpis['total_actual']):,.2f} | ETC=${float(project_kpis['total_estimate_to_complete']):,.2f} | VAC=${float(project_kpis['total_variance']):,.2f} | CPI={project_kpis['cost_performance_index']} | Status={project_kpis['status']}")
+
+    print("60. Testing Cost Transactions Audit Ledger Query (Multi-Source Provenance)...")
+    req = urllib.request.Request(f"{API_BASE}/project-cost/projects/{cost_proj_id}/costs/transactions", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        cost_txns = json.loads(resp.read().decode("utf-8"))
+        assert len(cost_txns) >= 10
+        sources = set(t["source_type"] for t in cost_txns)
+        assert "PURCHASE_ORDER" in sources or "SUBCONTRACT" in sources or "MATERIAL_ISSUE" in sources
+        print(f"   ✓ Cost Transactions Audit: {len(cost_txns)} transactions verified across sources: {', '.join(sorted(sources))}")
+
+    print("61. Testing Project Forecast Creation & Estimate to Complete (ETC) Update...")
+    fc_num = f"FC-E2E-{time.time_ns() % 100000}"
+    fc_payload = {
+        "forecast_number": fc_num,
+        "date": datetime.date.today().isoformat(),
+        "notes": "E2E Cost Review - Mid-Year ETC Adjustment",
+        "lines": [
+            {
+                "cost_code_id": l["cost_code_id"],
+                "etc_amount": 225000.00 if i == 0 else float(l["estimate_to_complete"]),
+                "notes": f"Forecast for {l.get('cost_code_code')}"
+            }
+            for i, l in enumerate(cost_matrix)
+        ]
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/project-cost/projects/{cost_proj_id}/forecasts",
+        data=json.dumps(fc_payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        created_fc = json.loads(resp.read().decode("utf-8"))
+        assert created_fc["forecast_number"] == fc_num
+        assert created_fc["status"] == "APPROVED"
+        print(f"   ✓ Submitted Project Forecast: {created_fc['forecast_number']} (Status: {created_fc['status']})")
+
+    print("62. Testing Real-time EAC & Budget Variance Recalculation after ETC Adjustment...")
+    req = urllib.request.Request(f"{API_BASE}/project-cost/projects/{cost_proj_id}/costs/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        recalculated_matrix = json.loads(resp.read().decode("utf-8"))
+        updated_line = next((l for l in recalculated_matrix if l["cost_code_id"] == cost_matrix[0]["cost_code_id"]), None)
+        assert updated_line is not None
+        assert float(updated_line["estimate_to_complete"]) == 225000.00
+        assert float(updated_line["estimate_at_completion"]) == float(updated_line["actual_cost"]) + 225000.00
+        print(f"   ✓ Real-time Rollup Verified: Code {updated_line['cost_code_code']} ETC=${float(updated_line['estimate_to_complete']):,.2f} -> EAC=${float(updated_line['estimate_at_completion']):,.2f}, Variance=${float(updated_line['variance']):,.2f}")
+
+    print("63. Testing Multi-Page Web Portal Health (All 45 Engineering, Commercial, Procurement, Inventory, AP, AR, GL & Cost Control Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -924,6 +1017,7 @@ def test_erp_workflows(token: str):
         "/en/boq",
         "/en/estimates",
         "/en/budgets",
+        "/en/cost-control",
         "/en/subcontracts",
         "/en/change-orders",
         "/en/payment-applications",
@@ -943,6 +1037,7 @@ def test_erp_workflows(token: str):
         "/en/accounting/journals",
         "/en/accounting/periods",
         "/en/accounting/reports",
+        "/ar/cost-control",
         "/ar/subcontracts",
         "/ar/suppliers",
         "/ar/purchase-orders",
@@ -965,6 +1060,7 @@ def test_erp_workflows(token: str):
             assert resp.status == 200
     print(f"   ✓ All {len(routes)} enterprise portal routes responded with HTTP 200 (OK)")
 
+
 def main():
     print("=" * 70)
     print("🚀 MODERN CONSTRUCTION ERP — FULL APPLICATION STACK VERIFICATION")
@@ -975,7 +1071,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 57 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 63 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:

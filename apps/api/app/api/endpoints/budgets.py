@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from decimal import Decimal
 
@@ -70,7 +70,7 @@ def create_budget_line(
     db.refresh(db_line)
     
     # Calculate computed fields for response
-    return enrich_budget_line(db_line, budget.project_id, tenant_id)
+    return enrich_budget_line(db_line, budget.project_id, tenant_id, db=db)
 
 @router.get("/{id}/summary", response_model=BudgetWithLinesResponse)
 def get_budget_summary(
@@ -84,7 +84,7 @@ def get_budget_summary(
         raise HTTPException(status_code=404, detail="Budget not found")
         
     lines = db.query(BudgetLine).filter(BudgetLine.budget_id == id).all()
-    enriched_lines = [enrich_budget_line(line, budget.project_id, tenant_id) for line in lines]
+    enriched_lines = [enrich_budget_line(line, budget.project_id, tenant_id, db=db) for line in lines]
     
     # We construct a dictionary matching the schema to leverage from_attributes if needed, 
     # but Pydantic parses dictionaries natively anyway.
@@ -101,11 +101,11 @@ def get_budget_summary(
     }
     return result
 
-def enrich_budget_line(db_line: BudgetLine, project_id: UUID, tenant_id: UUID) -> dict:
+def enrich_budget_line(db_line: BudgetLine, project_id: UUID, tenant_id: UUID, db: Optional[Session] = None) -> dict:
     current_budget = db_line.original_budget + db_line.approved_changes
-    committed_cost = BudgetProjectionService.get_committed_cost(project_id, db_line.cost_code_id, tenant_id)
-    actual_cost = BudgetProjectionService.get_actual_cost(project_id, db_line.cost_code_id, tenant_id)
-    forecast_cost = BudgetProjectionService.get_forecast_cost(project_id, db_line.cost_code_id, tenant_id)
+    committed_cost = BudgetProjectionService.get_committed_cost(project_id, db_line.cost_code_id, tenant_id, db=db)
+    actual_cost = BudgetProjectionService.get_actual_cost(project_id, db_line.cost_code_id, tenant_id, db=db)
+    forecast_cost = BudgetProjectionService.get_forecast_cost(project_id, db_line.cost_code_id, tenant_id, db=db)
     
     # Variance = Current Budget - (Actual Cost + Committed Cost) - or whatever variance formula we want
     # Usually: Variance = Current Budget - Forecast Cost
