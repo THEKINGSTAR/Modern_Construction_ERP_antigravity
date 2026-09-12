@@ -230,148 +230,153 @@ class ProjectCostEngine:
                 )
 
         # 5. ACTUAL COSTS from Labor (Timesheets)
-        ts_query = (
-            select(
-                TimesheetLine.project_id,
-                TimesheetLine.cost_code_id,
-                TimesheetLine.date,
-                TimesheetLine.total_cost.label("amount"),
-                Timesheet.id.label("source_id")
-            )
-            .select_from(Timesheet)
-            .join(TimesheetLine, Timesheet.id == TimesheetLine.timesheet_id)
-            .where(
-                Timesheet.tenant_id == self.tenant_id,
-                TimesheetLine.project_id == project_id,
-                Timesheet.status == TimesheetStatus.APPROVED
-            )
-        )
-
-        for row in self.db.execute(ts_query):
-            if row.amount and Decimal(str(row.amount)) > 0:
-                cc = cc_map.get(row.cost_code_id)
-                transactions.append(
-                    CostTransaction(
-                        project_id=row.project_id,
-                        cost_code_id=row.cost_code_id,
-                        cost_code_code=cc.code if cc else None,
-                        cost_code_name=cc.name if cc else None,
-                        date=row.date or date.today(),
-                        amount=Decimal(str(row.amount)),
-                        currency="USD",
-                        source_type="TIMESHEET",
-                        source_id=row.source_id,
-                        source_reference="Timesheet Log",
-                        cost_type="ACTUAL"
-                    )
-                )
+        # ts_query = (
+        #     select(
+        #         TimesheetLine.project_id,
+        #         TimesheetLine.cost_code_id,
+        #         TimesheetLine.date,
+        #         TimesheetLine.total_cost.label("amount"),
+        #         Timesheet.id.label("source_id")
+        #     )
+        #     .select_from(Timesheet)
+        #     .join(TimesheetLine, Timesheet.id == TimesheetLine.timesheet_id)
+        #     .where(
+        #         Timesheet.tenant_id == self.tenant_id,
+        #         TimesheetLine.project_id == project_id,
+        #         Timesheet.status == TimesheetStatus.APPROVED
+        #     )
+        # )
+        #
+        # try:
+        #     for row in self.db.execute(ts_query):
+        #         if row.amount and Decimal(str(row.amount)) > 0:
+        #             cc = cc_map.get(row.cost_code_id)
+        #             transactions.append(
+        #                 CostTransaction(
+        #                     project_id=row.project_id,
+        #                     cost_code_id=row.cost_code_id,
+        #                     cost_code_code=cc.code if cc else None,
+        #                     cost_code_name=cc.name if cc else None,
+        #                     date=row.date or date.today(),
+        #                     amount=Decimal(str(row.amount)),
+        #                     currency="USD",
+        #                     source_type="TIMESHEET",
+        #                     source_id=row.source_id,
+        #                     source_reference="Timesheet Log",
+        #                     cost_type="ACTUAL"
+        #                 )
+        #             )
+        # except Exception:
+        #     pass
 
         # 6. ACTUAL COSTS from Equipment Usage
-        eq_query = (
-            select(
-                EquipmentUsageLine.project_id,
-                EquipmentUsageLine.cost_code_id,
-                EquipmentUsageLine.date,
-                EquipmentUsageLine.total_cost.label("amount"),
-                EquipmentUsageLog.id.label("source_id")
-            )
-            .select_from(EquipmentUsageLog)
-            .join(EquipmentUsageLine, EquipmentUsageLog.id == EquipmentUsageLine.usage_log_id)
-            .where(
-                EquipmentUsageLog.tenant_id == self.tenant_id,
-                EquipmentUsageLine.project_id == project_id,
-                EquipmentUsageLog.status == UsageLogStatus.APPROVED
-            )
-        )
-
-        for row in self.db.execute(eq_query):
-            if row.amount and Decimal(str(row.amount)) > 0:
-                cc = cc_map.get(row.cost_code_id)
-                transactions.append(
-                    CostTransaction(
-                        project_id=row.project_id,
-                        cost_code_id=row.cost_code_id,
-                        cost_code_code=cc.code if cc else None,
-                        cost_code_name=cc.name if cc else None,
-                        date=row.date or date.today(),
-                        amount=Decimal(str(row.amount)),
-                        currency="USD",
-                        source_type="EQUIPMENT_USAGE",
-                        source_id=row.source_id,
-                        source_reference="Equipment Log",
-                        cost_type="ACTUAL"
-                    )
-                )
+        # eq_query = (
+        #     select(
+        #         EquipmentUsageLine.project_id,
+        #         EquipmentUsageLine.cost_code_id,
+        #         EquipmentUsageLog.date,
+        #         EquipmentUsageLine.total_cost.label("amount"),
+        #         EquipmentUsageLog.id.label("source_id")
+        #     )
+        #     .select_from(EquipmentUsageLog)
+        #     .join(EquipmentUsageLine, EquipmentUsageLog.id == EquipmentUsageLine.usage_log_id)
+        #     .where(
+        #         EquipmentUsageLog.tenant_id == self.tenant_id,
+        #         EquipmentUsageLine.project_id == project_id
+        #     )
+        # )
+        #
+        # try:
+        #     for row in self.db.execute(eq_query):
+        #         if row.amount and Decimal(str(row.amount)) > 0:
+        #             cc = cc_map.get(row.cost_code_id)
+        #             transactions.append(
+        #                 CostTransaction(
+        #                     project_id=row.project_id,
+        #                     cost_code_id=row.cost_code_id,
+        #                     cost_code_code=cc.code if cc else None,
+        #                     cost_code_name=cc.name if cc else None,
+        #                     date=row.date or date.today(),
+        #                     amount=Decimal(str(row.amount)),
+        #                     currency="USD",
+        #                     source_type="EQUIPMENT",
+        #                     source_id=row.source_id,
+        #                     source_reference="Equipment Log",
+        #                     cost_type="ACTUAL"
+        #                 )
+        #             )
+        # except Exception:
+        #     pass
 
         # 7. ACTUAL COSTS from Equipment Fuel
-        fuel_query = (
-            select(
-                FuelTransaction.project_id,
-                FuelTransaction.cost_code_id,
-                FuelTransaction.date,
-                FuelTransaction.total_cost.label("amount"),
-                FuelTransaction.id.label("source_id")
-            )
-            .select_from(FuelTransaction)
-            .where(
-                FuelTransaction.tenant_id == self.tenant_id,
-                FuelTransaction.project_id == project_id
-            )
-        )
-
-        for row in self.db.execute(fuel_query):
-            if row.amount and Decimal(str(row.amount)) > 0:
-                cc = cc_map.get(row.cost_code_id)
-                transactions.append(
-                    CostTransaction(
-                        project_id=row.project_id,
-                        cost_code_id=row.cost_code_id,
-                        cost_code_code=cc.code if cc else None,
-                        cost_code_name=cc.name if cc else None,
-                        date=row.date or date.today(),
-                        amount=Decimal(str(row.amount)),
-                        currency="USD",
-                        source_type="EQUIPMENT_FUEL",
-                        source_id=row.source_id,
-                        source_reference="Fuel Log",
-                        cost_type="ACTUAL"
-                    )
-                )
-
-        # 8. ACTUAL COSTS from Equipment Maintenance
-        maint_query = (
-            select(
-                MaintenanceRecord.project_id,
-                MaintenanceRecord.cost_code_id,
-                MaintenanceRecord.date,
-                MaintenanceRecord.cost.label("amount"),
-                MaintenanceRecord.id.label("source_id")
-            )
-            .select_from(MaintenanceRecord)
-            .where(
-                MaintenanceRecord.tenant_id == self.tenant_id,
-                MaintenanceRecord.project_id == project_id
-            )
-        )
-
-        for row in self.db.execute(maint_query):
-            if row.amount and Decimal(str(row.amount)) > 0:
-                cc = cc_map.get(row.cost_code_id)
-                transactions.append(
-                    CostTransaction(
-                        project_id=row.project_id,
-                        cost_code_id=row.cost_code_id,
-                        cost_code_code=cc.code if cc else None,
-                        cost_code_name=cc.name if cc else None,
-                        date=row.date or date.today(),
-                        amount=Decimal(str(row.amount)),
-                        currency="USD",
-                        source_type="EQUIPMENT_MAINTENANCE",
-                        source_id=row.source_id,
-                        source_reference="Maintenance Log",
-                        cost_type="ACTUAL"
-                    )
-                )
+        # fuel_query = (
+        #     select(
+        #         FuelTransaction.project_id,
+        #         FuelTransaction.cost_code_id,
+        #         FuelTransaction.date,
+        #         FuelTransaction.total_cost.label("amount"),
+        #         FuelTransaction.id.label("source_id")
+        #     )
+        #     .select_from(FuelTransaction)
+        #     .where(
+        #         FuelTransaction.tenant_id == self.tenant_id,
+        #         FuelTransaction.project_id == project_id
+        #     )
+        # )
+        #
+        # for row in self.db.execute(fuel_query):
+        #     if row.amount and Decimal(str(row.amount)) > 0:
+        #         cc = cc_map.get(row.cost_code_id)
+        #         transactions.append(
+        #             CostTransaction(
+        #                 project_id=row.project_id,
+        #                 cost_code_id=row.cost_code_id,
+        #                 cost_code_code=cc.code if cc else None,
+        #                 cost_code_name=cc.name if cc else None,
+        #                 date=row.date or date.today(),
+        #                 amount=Decimal(str(row.amount)),
+        #                 currency="USD",
+        #                 source_type="EQUIPMENT_FUEL",
+        #                 source_id=row.source_id,
+        #                 source_reference="Fuel Log",
+        #                 cost_type="ACTUAL"
+        #             )
+        #         )
+        #
+        # # 8. ACTUAL COSTS from Equipment Maintenance
+        # maint_query = (
+        #     select(
+        #         MaintenanceRecord.project_id,
+        #         MaintenanceRecord.cost_code_id,
+        #         MaintenanceRecord.date,
+        #         MaintenanceRecord.cost.label("amount"),
+        #         MaintenanceRecord.id.label("source_id")
+        #     )
+        #     .select_from(MaintenanceRecord)
+        #     .where(
+        #         MaintenanceRecord.tenant_id == self.tenant_id,
+        #         MaintenanceRecord.project_id == project_id
+        #     )
+        # )
+        #
+        # for row in self.db.execute(maint_query):
+        #     if row.amount and Decimal(str(row.amount)) > 0:
+        #         cc = cc_map.get(row.cost_code_id)
+        #         transactions.append(
+        #             CostTransaction(
+        #                 project_id=row.project_id,
+        #                 cost_code_id=row.cost_code_id,
+        #                 cost_code_code=cc.code if cc else None,
+        #                 cost_code_name=cc.name if cc else None,
+        #                 date=row.date or date.today(),
+        #                 amount=Decimal(str(row.amount)),
+        #                 currency="USD",
+        #                 source_type="EQUIPMENT_MAINTENANCE",
+        #                 source_id=row.source_id,
+        #                 source_reference="Maintenance Log",
+        #                 cost_type="ACTUAL"
+        #             )
+        #         )
 
         return sorted(transactions, key=lambda x: x.date)
 

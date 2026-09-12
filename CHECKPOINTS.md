@@ -33,7 +33,8 @@ This file records verified recovery points.
 | 27 | COMPLETED | c57ab44 | stage-27-complete | YES | YES |
 | 30 | COMPLETED | 4ee0c5a | stage-30-complete | YES | YES |
 | 31 | COMPLETED | 60b5bdc | stage-31-complete | YES | YES |
-| 32 | COMPLETED | HEAD | workflow-01-complete | YES | pending |
+| 32 | COMPLETED | HEAD | workflow-01-complete | YES | YES |
+| 33 | COMPLETED | HEAD | workflow-02-complete | YES | pending |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |

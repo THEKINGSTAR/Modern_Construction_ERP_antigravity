@@ -17,7 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "apps" / "api"))
 
 # Ensure required environment defaults exist before loading settings
-os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5433/erp")
+os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5434/erp")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("SECRET_KEY", "demo_secret_key_for_development_and_seeding_only")
 os.environ.setdefault("ENVIRONMENT", "development")
@@ -56,7 +56,8 @@ from app.models.legal_entity import LegalEntity
 from app.models.branch import Branch
 from app.models.user import User
 from app.models.auth import Role, Permission, UserRole, RolePermission
-from app.models.org_settings import Currency, TenantSettings
+from app.models.org_settings import Currency, TenantSettings, FiscalYear, AccountingPeriod
+from app.models.bank import BankAccount
 from app.models.clients import Client, ClientContact
 from app.models.suppliers import Supplier
 from app.models.projects import Project, ProjectStatus
@@ -69,6 +70,7 @@ from app.models.accounting import (
     ChartOfAccounts, Account, AccountType, Journal, JournalLine, JournalStatus
 )
 from app.models.ap_ar import APInvoice, APInvoiceLine, InvoiceStatus, InvoiceType
+from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine, POStatus
 
 # Deterministic Demo UUIDs
 DEMO_TENANT_ID = UUID("11111111-1111-4111-8111-111111111111")
@@ -111,6 +113,21 @@ def seed():
         for ot in old_tenants:
             print(f"   Cleaning prior DEMO tenant: {ot.name} ({ot.id})...")
             # Delete dependent records
+            from sqlalchemy import text
+            session.execute(text(f"DELETE FROM purchase_order_lines WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM purchase_orders WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM supplier_quotation_lines WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM supplier_quotations WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM rfq_lines WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM rfqs WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM purchase_requisition_lines WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM purchase_requisitions WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM goods_receipt_lines WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM goods_receipts WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM material_issue_lines WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM material_issues WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM inventory_transactions WHERE tenant_id = '{ot.id}'"))
+            session.execute(text(f"DELETE FROM inventory_balances WHERE tenant_id = '{ot.id}'"))
             session.query(User).filter(User.tenant_id == ot.id).delete(synchronize_session=False)
             session.delete(ot)
         session.query(User).filter(User.email == "demo@apexconstruction.com").delete(synchronize_session=False)
@@ -288,6 +305,32 @@ def seed():
         session.add(material)
         session.flush()
 
+        # Seed Fiscal Year and Accounting Period
+        fy = session.query(FiscalYear).filter(FiscalYear.tenant_id == DEMO_TENANT_ID).first()
+        if not fy:
+            fy = FiscalYear(
+                tenant_id=DEMO_TENANT_ID,
+                name="FY2026",
+                start_date=date(2026, 1, 1),
+                end_date=date(2026, 12, 31),
+                is_closed=False
+            )
+            session.add(fy)
+            session.flush()
+        
+        ap = session.query(AccountingPeriod).filter(AccountingPeriod.tenant_id == DEMO_TENANT_ID).first()
+        if not ap:
+            ap = AccountingPeriod(
+                tenant_id=DEMO_TENANT_ID,
+                fiscal_year_id=fy.id,
+                name="Sep 2026",
+                start_date=date(2026, 9, 1),
+                end_date=date(2026, 9, 30),
+                is_closed=False
+            )
+            session.add(ap)
+            session.flush()
+
         print("   [6/9] Recording Ledger-Based Inventory Transactions & Balance...")
         tx_receipt = InventoryTransaction(
             tenant_id=DEMO_TENANT_ID,
@@ -390,6 +433,19 @@ def seed():
         session.add_all([acc_cash, acc_ar, acc_inv, acc_ap, acc_rev, acc_exp])
         session.flush()
 
+        print("   [7.5/9] Setting Up Treasury Bank Accounts...")
+        bank_acc = BankAccount(
+            tenant_id=DEMO_TENANT_ID,
+            name="Main Operating Account",
+            account_number="CHK-123456789",
+            bank_name="Apex Global Bank",
+            currency="USD",
+            gl_account_id=acc_cash.id,
+            is_active=True
+        )
+        session.add(bank_acc)
+        session.flush()
+
         print("   [8/9] Recording Balanced Journal Entry (Golden Rule Compliance)...")
         journal = Journal(
             tenant_id=DEMO_TENANT_ID,
@@ -442,6 +498,35 @@ def seed():
         session.add_all(jlines)
         session.flush()
 
+        print("   [8.5/9] Creating Purchase Order...")
+        po = PurchaseOrder(
+            tenant_id=DEMO_TENANT_ID,
+            po_number="PO-VULCAN-001",
+            supplier_id=DEMO_SUPPLIER_ID,
+            project_id=DEMO_PROJECT_ID,
+            issue_date=date(2026, 1, 20),
+            delivery_date=date(2026, 2, 1),
+            status=POStatus.ISSUED,
+            total_amount=Decimal("85000.00"),
+            currency="USD",
+            notes="Initial steel rebar order"
+        )
+        session.add(po)
+        session.flush()
+
+        po_line = PurchaseOrderLine(
+            tenant_id=DEMO_TENANT_ID,
+            purchase_order_id=po.id,
+            cost_code_id=DEMO_COST_CODE_ID,
+            item_description="100 TON High-Tensile Rebar 16mm",
+            unit="TON",
+            quantity=Decimal("100.00"),
+            unit_price=Decimal("850.00"),
+            amount=Decimal("85000.00")
+        )
+        session.add(po_line)
+        session.flush()
+
         print("   [9/9] Creating Verified AP Invoice from Supplier...")
         ap_invoice = APInvoice(
             tenant_id=DEMO_TENANT_ID,
@@ -451,6 +536,7 @@ def seed():
             due_date=date(2026, 3, 3),
             status=InvoiceStatus.POSTED,
             invoice_type=InvoiceType.STANDARD,
+            matching_status="MATCHED",
             total_amount=Decimal("85000.00"),
             currency="USD",
             description="Steel rebar shipment for foundation stage"
