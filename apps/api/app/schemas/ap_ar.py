@@ -124,9 +124,12 @@ class APSummaryResponse(BaseModel):
 # AR Invoice
 class ARInvoiceLineBase(BaseModel):
     project_id: Optional[UUID] = None
+    cost_code_id: Optional[UUID] = None
     description: str
     quantity: Decimal = Field(default=1.0, max_digits=18, decimal_places=4)
     unit_price: Decimal = Field(..., max_digits=18, decimal_places=4)
+    tax_rate: Decimal = Field(default=Decimal("0.0"), max_digits=5, decimal_places=2)
+    tax_amount: Decimal = Field(default=Decimal("0.0"), max_digits=18, decimal_places=4)
 
 class ARInvoiceLineCreate(ARInvoiceLineBase):
     pass
@@ -135,6 +138,8 @@ class ARInvoiceLineResponse(ARInvoiceLineBase):
     id: UUID
     invoice_id: UUID
     line_total: Decimal = Field(..., max_digits=18, decimal_places=4)
+    project_name: Optional[str] = None
+    cost_code_code: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -142,9 +147,15 @@ class ARInvoiceLineResponse(ARInvoiceLineBase):
 class ARInvoiceBase(BaseModel):
     number: str = Field(..., max_length=100)
     client_id: UUID
+    contract_id: Optional[UUID] = None
+    payment_application_id: Optional[UUID] = None
     date: date
     due_date: date
     invoice_type: InvoiceType = InvoiceType.STANDARD
+    subtotal: Optional[Decimal] = Field(default=Decimal("0.0"), max_digits=18, decimal_places=4)
+    tax_amount: Optional[Decimal] = Field(default=Decimal("0.0"), max_digits=18, decimal_places=4)
+    retention_amount: Optional[Decimal] = Field(default=Decimal("0.0"), max_digits=18, decimal_places=4)
+    total_amount: Optional[Decimal] = Field(default=Decimal("0.0"), max_digits=18, decimal_places=4)
     currency: str = Field(default="USD", max_length=3)
     description: Optional[str] = None
 
@@ -154,13 +165,35 @@ class ARInvoiceCreate(ARInvoiceBase):
 class ARInvoiceResponse(ARInvoiceBase):
     id: UUID
     status: InvoiceStatus
-    total_amount: Decimal = Field(..., max_digits=18, decimal_places=4)
     journal_id: Optional[UUID] = None
     lines: List[ARInvoiceLineResponse]
-    outstanding_balance: Optional[Decimal] = None
+    client_name: Optional[str] = None
+    contract_number: Optional[str] = None
+    payment_application_number: Optional[str] = None
+    lines_count: Optional[int] = 0
+    paid_amount: Optional[Decimal] = Decimal("0.0")
+    outstanding_amount: Optional[Decimal] = Decimal("0.0")
     
     class Config:
         from_attributes = True
+
+class ARSummaryResponse(BaseModel):
+    total_invoiced: Decimal
+    total_receivables: Decimal
+    total_received: Decimal
+    total_retention_held: Decimal
+    invoices_count: int
+    draft_count: int
+    approved_count: int
+    posted_count: int
+    paid_count: int
+    collections_count: int
+    current_receivables: Decimal
+    overdue_30: Decimal
+    overdue_60: Decimal
+    overdue_90_plus: Decimal
+    recent_invoices: List[dict] = []
+    recent_receipts: List[dict] = []
 
 # Payments
 class PaymentAllocationBase(BaseModel):

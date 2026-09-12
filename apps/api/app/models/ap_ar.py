@@ -125,19 +125,58 @@ class ARInvoice(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     number = Column(String(100), nullable=False)
     client_id = Column(Uuid(as_uuid=True), ForeignKey("clients.id"), nullable=False)
+    contract_id = Column(Uuid(as_uuid=True), ForeignKey("contracts.id"), nullable=True)
+    payment_application_id = Column(Uuid(as_uuid=True), ForeignKey("client_payment_applications.id"), nullable=True)
     date = Column(Date, nullable=False)
     due_date = Column(Date, nullable=False)
     status = Column(Enum(InvoiceStatus, native_enum=False), default=InvoiceStatus.DRAFT, nullable=False)
     invoice_type = Column(Enum(InvoiceType, native_enum=False), default=InvoiceType.STANDARD, nullable=False)
+    subtotal = Column(Numeric(18, 4), default=0.0, nullable=False)
+    tax_amount = Column(Numeric(18, 4), default=0.0, nullable=False)
+    retention_amount = Column(Numeric(18, 4), default=0.0, nullable=False)
     total_amount = Column(Numeric(18, 4), default=0.0, nullable=False)
     currency = Column(String(3), default="USD")
     journal_id = Column(Uuid(as_uuid=True), ForeignKey("journals.id"), nullable=True)
     description = Column(Text, nullable=True)
 
     client = relationship("Client", foreign_keys=[client_id])
+    contract = relationship("Contract", foreign_keys=[contract_id])
+    payment_application = relationship("ClientPaymentApplication", foreign_keys=[payment_application_id])
     journal = relationship("Journal", foreign_keys=[journal_id])
     lines = relationship("ARInvoiceLine", back_populates="invoice", cascade="all, delete-orphan", lazy="selectin")
     allocations = relationship("PaymentAllocation", foreign_keys="[PaymentAllocation.ar_invoice_id]", back_populates="ar_invoice", lazy="selectin")
+
+    @property
+    def client_name(self):
+        return self.client.name if self.client else None
+
+    @property
+    def contract_number(self):
+        return self.contract.contract_number if self.contract else None
+
+    @property
+    def payment_application_number(self):
+        return self.payment_application.number if self.payment_application else None
+
+    @property
+    def lines_count(self):
+        return len(self.lines) if self.lines else 0
+
+    @property
+    def paid_amount(self):
+        if not self.allocations:
+            return Decimal("0.00")
+        return sum(
+            Decimal(str(a.amount))
+            for a in self.allocations
+            if a.payment and a.payment.status == PaymentStatus.POSTED
+        )
+
+    @property
+    def outstanding_amount(self):
+        paid = self.paid_amount
+        total = Decimal(str(self.total_amount or 0))
+        return max(Decimal("0.00"), total - paid)
 
 class ARInvoiceLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     __tablename__ = "ar_invoice_lines"
@@ -145,13 +184,25 @@ class ARInvoiceLine(Base, TenantAwareMixin, TimestampMixin, AuditMixin):
     id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     invoice_id = Column(Uuid(as_uuid=True), ForeignKey("ar_invoices.id"), nullable=False)
     project_id = Column(Uuid(as_uuid=True), ForeignKey("projects.id"), nullable=True)
+    cost_code_id = Column(Uuid(as_uuid=True), ForeignKey("cost_codes.id"), nullable=True)
     description = Column(String(255), nullable=False)
     quantity = Column(Numeric(18, 4), default=1.0)
     unit_price = Column(Numeric(18, 4), nullable=False)
     line_total = Column(Numeric(18, 4), nullable=False)
+    tax_rate = Column(Numeric(5, 2), default=0.0, nullable=False)
+    tax_amount = Column(Numeric(18, 4), default=0.0, nullable=False)
 
     invoice = relationship("ARInvoice", back_populates="lines")
     project = relationship("Project", foreign_keys=[project_id])
+    cost_code = relationship("CostCode", foreign_keys=[cost_code_id])
+
+    @property
+    def project_name(self):
+        return self.project.name if self.project else None
+
+    @property
+    def cost_code_code(self):
+        return self.cost_code.code if self.cost_code else None
 
 class PaymentType(str, enum.Enum):
     AP_PAYMENT = "AP_PAYMENT"

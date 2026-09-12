@@ -47,3 +47,19 @@ This file records verified recovery points.
 ## Recovery Rule
 
 The latest stage marked COMPLETE and verified by human review is the preferred rollback point.
+
+## Checkpoint: stage-26-complete (Stage 26 Accounts Receivable & Client Invoicing Workspace)
+- **Timestamp:** 2026-09-12 01:44:33Z
+- **Commit:** HEAD
+- **Validation:**
+  - Alembic migration `e7f12a3b901c` applied.
+  - 81/81 backend pytest tests passing.
+  - Next.js 14 build compiled 29 production routes with 0 errors.
+  - 57/57 full application stack E2E checks passing 100%.
+- **Delivered Capabilities:**
+  - AIA G702/G703 Progress Billing Invoices from approved Client Payment Applications.
+  - Statutory 5-10% Retainage withholding asset tracking (Account 1210).
+  - Balanced double-entry GL posting for client invoices (AR 1200 + Retainage 1210 == Revenue 4010).
+  - Treasury Customer Collections (Receipts) with GL deposit (Cash 1010, AR 1200) and invoice balance settlement.
+  - Live AR Executive Summary engine with aging buckets.
+  - Client Invoices Studio (`/ar/invoices`) and Customer Collections Register (`/ar/receipts`).

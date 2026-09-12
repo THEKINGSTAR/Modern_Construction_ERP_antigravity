@@ -60,6 +60,13 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
       ],
     },
     {
+      title: "Accounts Receivable & Billing",
+      items: [
+        { label: "Client Invoices (AR)", path: `/${locale}/ar/invoices`, icon: "🧾" },
+        { label: "Customer Collections", path: `/${locale}/ar/receipts`, icon: "💰" },
+      ],
+    },
+    {
       title: "General Ledger & Accounting",
       items: [
         { label: "Chart of Accounts", path: `/${locale}/accounting/accounts`, icon: "📑" },

@@ -816,7 +816,104 @@ def test_erp_workflows(token: str):
         assert abs(float(pnl["net_profit"]) - (float(pnl["total_revenue"]) - float(pnl["total_expenses"]))) < 0.01
         print(f"   ✓ Income Statement (P&L): Revenue=${float(pnl['total_revenue']):,.2f} | Expenses=${float(pnl['total_expenses']):,.2f} | Net Profit=${float(pnl['net_profit']):,.2f}")
 
-    print("50. Testing Multi-Page Web Portal Health (All 39 Engineering, Commercial, Procurement, Logistics, AP & GL Routes)...")
+    print("50. Testing Accounts Receivable Executive Summary Engine (Live SQL Aggregations)...")
+    req = urllib.request.Request(f"{API_BASE}/ar/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        ar_summary = json.loads(resp.read().decode("utf-8"))
+        assert float(ar_summary["total_invoiced"]) > 0
+        assert float(ar_summary["total_receivables"]) > 0
+        assert float(ar_summary["total_retention_held"]) > 0
+        assert float(ar_summary["total_received"]) > 0
+        print(f"   ✓ Live AR Summary: Invoiced=${float(ar_summary['total_invoiced']):,.2f} | Receivables=${float(ar_summary['total_receivables']):,.2f} | Retainage Held=${float(ar_summary['total_retention_held']):,.2f} | Collections=${float(ar_summary['total_received']):,.2f}")
+
+    print("51. Testing Accounts Receivable Invoices Register & Client Queries...")
+    req = urllib.request.Request(f"{API_BASE}/ar/invoices", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        ar_invoices = json.loads(resp.read().decode("utf-8"))
+        assert len(ar_invoices) >= 1
+        print(f"   ✓ Verified AR Client Invoices Register ({len(ar_invoices)} invoices loaded with contract & client relationships)")
+
+    print("52. Testing Progress Billing Invoice Generation from Client Payment Application (IPC)...")
+    # Fetch approved client payment application
+    req = urllib.request.Request(f"{API_BASE}/commercial/client-payment-applications", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        all_pay_apps = json.loads(resp.read().decode("utf-8"))
+        assert len(all_pay_apps) >= 1
+        e2e_pay_app = all_pay_apps[0]
+        pay_app_id = e2e_pay_app["id"]
+
+    req = urllib.request.Request(f"{API_BASE}/ar/invoices/from-payment-application/{pay_app_id}", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        ipc_invoice = json.loads(resp.read().decode("utf-8"))
+        e2e_ar_id = ipc_invoice["id"]
+        assert ipc_invoice["payment_application_id"] == pay_app_id
+        assert float(ipc_invoice["retention_amount"]) > 0
+        print(f"   ✓ Generated Progress Billing Invoice: {ipc_invoice['number']} (Gross: ${float(ipc_invoice['subtotal']):,.2f}, Retainage: ${float(ipc_invoice['retention_amount']):,.2f}, Net: ${float(ipc_invoice['total_amount']):,.2f})")
+
+    print("53. Testing Client Invoice Approval Workflow...")
+    req = urllib.request.Request(f"{API_BASE}/ar/invoices/{e2e_ar_id}/approve", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        appr_ar = json.loads(resp.read().decode("utf-8"))
+        assert appr_ar["status"] == "APPROVED"
+        print(f"   ✓ Approved Client Invoice: {appr_ar['number']} (Status: APPROVED)")
+
+    print("54. Testing AR Progress Invoice GL Posting (Balanced Double-Entry with Retainage Asset)...")
+    req = urllib.request.Request(f"{API_BASE}/ar/invoices/{e2e_ar_id}/post", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        posted_ar = json.loads(resp.read().decode("utf-8"))
+        assert posted_ar["status"] == "POSTED"
+        assert posted_ar["journal_id"] is not None
+        print(f"   ✓ Posted Client Invoice to GL: Journal {posted_ar['journal_id']} (Balanced Entry: Debit AR 1200 + Debit Retainage 1210 == Credit Revenue 4010)")
+
+    print("55. Testing Customer Collections & Cash Receipts Register...")
+    req = urllib.request.Request(f"{API_BASE}/ar/receipts", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        receipts_list = json.loads(resp.read().decode("utf-8"))
+        assert len(receipts_list) >= 1
+        print(f"   ✓ Verified Customer Receipts Register ({len(receipts_list)} collections loaded)")
+
+    print("56. Testing Customer Cash Collection Voucher & Invoice Allocation Settlement...")
+    rand_rec = uuid.uuid4().hex[:4].upper()
+    col_amount = min(50000.0, float(posted_ar["outstanding_amount"]))
+    rec_payload = json.dumps({
+        "reference": f"REC-E2E-{rand_rec}",
+        "payment_type": "AR_RECEIPT",
+        "date": "2026-09-08",
+        "amount": col_amount,
+        "currency": "USD",
+        "client_id": posted_ar["client_id"],
+        "bank_account_id": treasury_bank_id,
+        "allocations": [
+            {
+                "ar_invoice_id": e2e_ar_id,
+                "amount": col_amount
+            }
+        ]
+    }).encode("utf-8")
+    req = urllib.request.Request(f"{API_BASE}/ar/receipts", data=rec_payload, headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status in [200, 201]
+        created_rec = json.loads(resp.read().decode("utf-8"))
+        assert created_rec["status"] == "POSTED"
+        assert created_rec["journal_id"] is not None
+        print(f"   ✓ Recorded Customer Collection: {created_rec['reference']} (${col_amount:,.2f} deposited to Treasury bank, Journal: {created_rec['journal_id']})")
+
+    # Verify Invoice Allocation & Updated Outstanding Balance
+    req = urllib.request.Request(f"{API_BASE}/ar/invoices/{e2e_ar_id}", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        updated_ar = json.loads(resp.read().decode("utf-8"))
+        assert updated_ar["status"] in ["PARTIAL", "PAID"]
+        assert float(updated_ar["paid_amount"]) >= col_amount
+        print(f"   ✓ Verified Client Invoice Settlement: {updated_ar['number']} (Status: {updated_ar['status']}, Paid: ${float(updated_ar['paid_amount']):,.2f}, Balance: ${float(updated_ar['outstanding_amount']):,.2f})")
+
+    print("57. Testing Multi-Page Web Portal Health (All 43 Engineering, Commercial, Procurement, Inventory, AP, AR & GL Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -840,6 +937,8 @@ def test_erp_workflows(token: str):
         "/en/material-issues",
         "/en/ap/invoices",
         "/en/ap/payments",
+        "/en/ar/invoices",
+        "/en/ar/receipts",
         "/en/accounting/accounts",
         "/en/accounting/journals",
         "/en/accounting/periods",
@@ -853,6 +952,8 @@ def test_erp_workflows(token: str):
         "/ar/material-issues",
         "/ar/ap/invoices",
         "/ar/ap/payments",
+        "/ar/ar/invoices",
+        "/ar/ar/receipts",
         "/ar/accounting/accounts",
         "/ar/accounting/journals",
         "/ar/accounting/periods",
@@ -874,7 +975,7 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 50 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 57 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
         return 0
     except Exception as e:

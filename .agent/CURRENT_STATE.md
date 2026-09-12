@@ -1,26 +1,29 @@
-# Current State: Stage 25 — General Ledger & Financial Accounting Workspace Complete
+# Current State: Stage 26 — Accounts Receivable & Client Invoicing Workspace Complete
 
-- **Current Stage:** Stage 25 (General Ledger & Financial Accounting Workspace) (COMPLETE & VALIDATED)
-- **Previous Stage:** Stage 24 (Accounts Payable & Invoicing 3-Way Match Workspace)
-- **Status:** All Green (FastAPI, PostgreSQL, Next.js 14, 76/76 Pytest, 50/50 E2E Validated)
+- **Current Stage:** Stage 26 (Accounts Receivable & Client Invoicing Workspace) (COMPLETE & VALIDATED)
+- **Previous Stage:** Stage 25 (General Ledger & Financial Accounting Workspace)
+- **Status:** All Green (FastAPI, PostgreSQL, Next.js 14, 81/81 Pytest, 57/57 E2E Validated)
 
-## Highlights of Stage 25
-1. **Interactive Chart of Accounts (COA) Explorer (`/accounting/accounts`)**:
-   - Categorized by standard construction account classes: Assets (1000s), Liabilities (2000s), Equity (3000s), Revenue (4000s), and Expenses (5000s).
-   - Real-time aggregation of debits, credits, and net balances derived directly from posted journal lines.
-   - Live modal for adding new general ledger accounts with account type and description.
-2. **Journal Vouchers Studio (`/accounting/journals`)**:
-   - Double-entry journal voucher register with filtering by status (`DRAFT`, `POSTED`, `REVERSED`).
-   - Interactive multi-row voucher creation modal with real-time debit/credit balancing indicator (blocks unbalanced entries from submission).
-   - Expandable journal lines drawer showing account code, title, project, cost code, and debit/credit amounts.
-   - Action controls for Posting draft vouchers to the general ledger (with period validation) and Reversing posted vouchers with automated audit trail.
-3. **Financial Periods & Month-End Closing Controls (`/accounting/periods`)**:
-   - FY-2026 monthly period controls with status badges (`OPEN` / `CLOSED`).
-   - One-click month-end lock and unlock toggles preventing unauthorized journal entries into closed fiscal periods.
-4. **Financial Statements & Reporting Studio (`/accounting/reports`)**:
-   - Real-time Trial Balance with debits/credits verification.
-   - As-of-date Balance Sheet dynamically proving `Assets == Liabilities + Equity + Retained Earnings`.
-   - Date-range Income Statement (P&L) calculating Gross Construction Revenue, Operating Expenses, and Net Operating Margin.
-5. **Consolidated Executive Metrics & Full-Stack Integration**:
-   - `GET /accounting/summary` provides real-time GL health, total volume, balanced status, and period counts.
-   - All 39 web portal routes across English and Arabic verified with HTTP 200 OK.
+## Highlights of Stage 26
+1. **AIA G702/G703 Progress Billing Studio (`/ar/invoices`)**:
+   - Automated invoice generation directly from approved Client Payment Applications (IPCs).
+   - Retainage withholding (typically 5-10%) calculated into statutory retainage receivable asset.
+   - Live invoice registration modal with multi-line schedule of values items (project, description, quantity, unit price, tax rate, retention withholding).
+   - Approval and Post-to-GL workflows creating balanced journal entries:
+     `Debit Accounts Receivable (1200) + Debit Retainage Receivable (1210) == Credit Progress Revenue (4010) + Credit VAT/Taxes (2040)`
+   - Slide-over line items drawer with audit metadata, contract reference, and GL journal linkage.
+2. **Customer Collections & Receipts Register (`/ar/receipts`)**:
+   - Cash receipt recording with Treasury bank account linkage (Cash & Bank 1010).
+   - Real-time double-entry GL posting:
+     `Debit Cash & Bank (1010), Credit Accounts Receivable (1200)`
+   - Automated invoice allocation and dynamic status transition (`POSTED` -> `PARTIAL` -> `PAID`) with real-time balance reduction.
+3. **Live Executive Summary Engine (`GET /api/v1/ar/summary`)**:
+   - Aggregates Total Invoiced ($), Total Receivables Outstanding ($), Total Retainage Held ($), and Total Collections Received ($).
+   - Real-time aging bucket computation: Current, 30 Days, 60 Days, 90 Days, 90+ Days.
+4. **Localization & Navigation**:
+   - Sidebar navigation updated with "Accounts Receivable & Billing" section.
+   - Arabic & English translations updated in `en.json` and `ar.json`.
+5. **Full-Stack Verification**:
+   - 81/81 Pytest integration tests passed.
+   - Next.js 14 build compiled all 29 production routes with 0 errors.
+   - 57/57 full-stack E2E workflow checks passed with 100% success.

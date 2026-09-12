@@ -1,18 +1,14 @@
-# Next Action: Stage 26 — Accounts Receivable & Client Invoicing Workspace
+# Next Action: Stage 27 — Project Cost Control & Budget Variance Workspace
 
-## Next Milestone
-**Stage 26: Accounts Receivable (AR), Progress Billing Invoices & Customer Collections**
-
-### Planned Objectives:
-1. **Client Invoicing & Progress Billing (IPC) Integration**:
-   - Client invoice generation from approved payment applications (IPCs).
-   - Milestone and progressive retainage billing tracking.
-2. **Accounts Receivable Ledger & Aging**:
-   - Customer account statements and receivables aging buckets (Current, 30, 60, 90+ days).
-   - Collections and cash receipt vouchers with automatic invoice settlement.
-3. **Double-Entry AR Posting**:
-   - Client invoice posting to GL (Debit Accounts Receivable 1100, Credit Construction Revenue 4010, Credit Retention Receivable).
-   - Cash receipt posting (Debit Cash at Bank 1010, Credit Accounts Receivable 1100).
-4. **Interactive Next.js UI Workspaces**:
-   - `/ar/invoices`: Client invoices register, IPC billing generator, status workflow, and PDF-style statement views.
-   - `/ar/receipts`: Customer collections and cash receipt allocation studio.
+1. **Inspect Existing Cost & Budget Models**:
+   - Examine `apps/api/app/models/budgets.py`, `wbs.py`, `dimensions.py`, `contracts.py`, `ap_ar.py`, `inventory.py`.
+2. **Design Real Cost Control Aggregation Engine**:
+   - Compute Committed Cost (Approved POs + Active Subcontracts).
+   - Compute Actual Incurred Cost (Posted AP Invoices + Dispatched Material Issues + Direct Journal Vouchers).
+   - Compute Earned Value Metrics (EV, AC, PV, CPI, CV, EAC, Variance at Completion).
+3. **Expose Endpoints & Integration Tests**:
+   - Implement `/cost-control/summary`, `/cost-control/by-project/{id}`, `/cost-control/by-cost-code`.
+4. **Build Dedicated Frontend Interfaces**:
+   - Cost Control Dashboard & Budget Variance Matrix at `/projects/cost-control`.
+5. **Run Full-Stack E2E Verification**:
+   - Verify 80+ backend tests, Next.js compilation, and 60+ E2E checks.

@@ -125,5 +125,15 @@
     "title": "Financial Statements & Reporting",
     "description": "Real-time Trial Balance, Balance Sheet, and Income Statement (P&L) generated directly from posted journal lines.",
     "coming_soon": "Financial reports studio active."
+  },
+  "ARInvoices": {
+    "title": "Client Invoices & Progress Billing",
+    "description": "AIA G702/G703 style progress billing applications, retainage withholding, and double-entry GL postings.",
+    "coming_soon": "Client invoices register active."
+  },
+  "CustomerCollections": {
+    "title": "Customer Collections & Receipts",
+    "description": "Treasury cash receipt vouchers, general ledger settlement, and open invoice allocation.",
+    "coming_soon": "Customer collections active."
   }
 }

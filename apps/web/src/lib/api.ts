@@ -1758,3 +1758,195 @@ export interface ProcurementSummary {
 export async function getProcurementSummary(): Promise<ProcurementSummary> {
   return request<ProcurementSummary>("/purchase-orders/summary");
 }
+
+
+// ==========================================
+// Accounts Receivable (AR) & Progress Billing
+// ==========================================
+
+export interface ARSummary {
+  total_invoiced: number;
+  total_receivables: number;
+  total_received: number;
+  total_retention_held: number;
+  current_receivables: number;
+  aging_30_days: number;
+  aging_60_days: number;
+  aging_90_days: number;
+  aging_over_90_days: number;
+}
+
+export interface ARInvoiceLine {
+  id: string;
+  invoice_id: string;
+  project_id?: string;
+  project_name?: string;
+  cost_code_id?: string;
+  cost_code_code?: string;
+  description: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+  tax_rate?: number;
+  tax_amount?: number;
+}
+
+export interface ARInvoice {
+  id: string;
+  number: string;
+  client_id: string;
+  client_name?: string;
+  contract_id?: string;
+  contract_number?: string;
+  payment_application_id?: string;
+  payment_application_number?: string;
+  date: string;
+  due_date: string;
+  invoice_type: "STANDARD" | "PROGRESS_BILLING" | "RETAINAGE_RELEASE" | "CREDIT_NOTE";
+  subtotal: number;
+  tax_amount: number;
+  retention_amount: number;
+  total_amount: number;
+  paid_amount?: number;
+  outstanding_amount?: number;
+  currency: string;
+  description?: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "POSTED" | "PARTIAL" | "PAID" | "CANCELLED";
+  journal_id?: string;
+  lines_count?: number;
+  lines?: ARInvoiceLine[];
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface CreateARInvoiceInput {
+  number: string;
+  client_id: string;
+  contract_id?: string;
+  payment_application_id?: string;
+  date: string;
+  due_date: string;
+  invoice_type?: "STANDARD" | "PROGRESS_BILLING" | "RETAINAGE_RELEASE" | "CREDIT_NOTE";
+  retention_amount?: number;
+  currency?: string;
+  description?: string;
+  lines: Array<{
+    project_id?: string;
+    cost_code_id?: string;
+    description: string;
+    quantity: number;
+    unit_price: number;
+    tax_rate?: number;
+    tax_amount?: number;
+  }>;
+}
+
+export interface CustomerReceiptAllocation {
+  id: string;
+  payment_id: string;
+  invoice_id: string;
+  invoice_number?: string;
+  allocated_amount: number;
+}
+
+export interface CustomerReceipt {
+  id: string;
+  payment_number: string;
+  payment_type: "RECEIPT";
+  client_id: string;
+  client_name?: string;
+  bank_account_id: string;
+  bank_name?: string;
+  bank_account_name?: string;
+  payment_date: string;
+  amount: number;
+  currency: string;
+  reference?: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "POSTED" | "CLEARED" | "RECONCILED" | "VOIDED";
+  journal_id?: string;
+  allocations?: CustomerReceiptAllocation[];
+  created_at: string;
+}
+
+export interface CreateCustomerReceiptInput {
+  payment_number: string;
+  client_id: string;
+  bank_account_id: string;
+  payment_date: string;
+  amount: number;
+  currency?: string;
+  reference?: string;
+  invoice_id?: string;
+}
+
+export async function getARSummary(): Promise<ARSummary> {
+  return request<ARSummary>("/ar/summary");
+}
+
+export async function getARInvoices(params?: { client_id?: string; status?: string }): Promise<ARInvoice[]> {
+  const query = new URLSearchParams();
+  if (params?.client_id) query.append("client_id", params.client_id);
+  if (params?.status) query.append("status", params.status);
+  const qStr = query.toString() ? `?${query.toString()}` : "";
+  return request<ARInvoice[]>(`/ar/invoices${qStr}`);
+}
+
+export async function getARInvoice(id: string): Promise<ARInvoice> {
+  return request<ARInvoice>(`/ar/invoices/${id}`);
+}
+
+export async function createARInvoice(data: CreateARInvoiceInput): Promise<ARInvoice> {
+  return request<ARInvoice>("/ar/invoices", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function createARInvoiceFromPaymentApp(paymentAppId: string): Promise<ARInvoice> {
+  return request<ARInvoice>(`/ar/invoices/from-payment-application/${paymentAppId}`, {
+    method: "POST",
+  });
+}
+
+export async function approveARInvoice(id: string): Promise<ARInvoice> {
+  return request<ARInvoice>(`/ar/invoices/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export async function postARInvoice(id: string): Promise<ARInvoice> {
+  return request<ARInvoice>(`/ar/invoices/${id}/post`, {
+    method: "POST",
+  });
+}
+
+export async function getCustomerReceipts(params?: { client_id?: string; status?: string }): Promise<CustomerReceipt[]> {
+  const query = new URLSearchParams();
+  if (params?.client_id) query.append("client_id", params.client_id);
+  if (params?.status) query.append("status", params.status);
+  const qStr = query.toString() ? `?${query.toString()}` : "";
+  return request<CustomerReceipt[]>(`/ar/receipts${qStr}`);
+}
+
+export async function getCustomerReceipt(id: string): Promise<CustomerReceipt> {
+  return request<CustomerReceipt>(`/ar/receipts/${id}`);
+}
+
+export async function createCustomerReceipt(data: CreateCustomerReceiptInput): Promise<CustomerReceipt> {
+  const payload = {
+    reference: data.payment_number || data.reference || `REC-${Date.now()}`,
+    payment_type: "AR_RECEIPT",
+    date: data.payment_date,
+    amount: data.amount,
+    currency: data.currency || "USD",
+    client_id: data.client_id,
+    bank_account_id: data.bank_account_id,
+    allocations: data.invoice_id
+      ? [{ ar_invoice_id: data.invoice_id, amount: data.amount }]
+      : [],
+  };
+  return request<CustomerReceipt>("/ar/receipts", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
