@@ -30,6 +30,7 @@ This file records verified recovery points.
 | 23 | COMPLETED | 7d2b610 | stage-23-complete | YES | YES |
 | 24 | COMPLETED | fa6756c | stage-24-complete | YES | YES |
 | 25 | COMPLETED | e2aff29 | stage-25-complete | YES | YES |
+| 27 | COMPLETED | c57ab44 | stage-27-complete | YES | YES |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -48,7 +49,7 @@ This file records verified recovery points.
 
 The latest stage marked COMPLETE and verified by human review is the preferred rollback point.
 
-## Checkpoint: stage-26-complete (Stage 26 Accounts Receivable & Client Invoicing Workspace)
+## Checkpoint: stage-27-complete (Stage 27 Project Cost Control, Budget Variance and EVM Workspace)
 - **Timestamp:** 2026-09-12 01:44:33Z
 - **Commit:** HEAD
 - **Validation:**
