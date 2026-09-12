@@ -1006,7 +1006,165 @@ def test_erp_workflows(token: str):
         assert float(updated_line["estimate_at_completion"]) == float(updated_line["actual_cost"]) + 225000.00
         print(f"   ✓ Real-time Rollup Verified: Code {updated_line['cost_code_code']} ETC=${float(updated_line['estimate_to_complete']):,.2f} -> EAC=${float(updated_line['estimate_at_completion']):,.2f}, Variance=${float(updated_line['variance']):,.2f}")
 
-    print("63. Testing Multi-Page Web Portal Health (All 45 Engineering, Commercial, Procurement, Inventory, AP, AR, GL & Cost Control Routes)...")
+    print("63. Testing Equipment Fleet Executive Summary Engine (Live SQL Aggregations)...")
+    req = urllib.request.Request(f"{API_BASE}/equipment/summary", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        fleet_summary = json.loads(resp.read().decode("utf-8"))
+        assert fleet_summary["total_units"] >= 8
+        assert fleet_summary["available_units"] >= 1
+        assert fleet_summary["in_use_units"] >= 1
+        assert float(fleet_summary["total_operating_hours"]) > 0
+        assert float(fleet_summary["total_fuel_cost"]) > 0
+        assert float(fleet_summary["total_maintenance_cost"]) > 0
+        assert float(fleet_summary["total_equipment_cost"]) > 0
+        print(f"   ✓ Fleet Executive Summary: Total={fleet_summary['total_units']} Units | In-Use={fleet_summary['in_use_units']} | Available={fleet_summary['available_units']} | Hours={float(fleet_summary['total_operating_hours']):,.1f}h | Fuel=${float(fleet_summary['total_fuel_cost']):,.2f} | Maint=${float(fleet_summary['total_maintenance_cost']):,.2f} | Utilization={fleet_summary['utilization_rate']}%")
+
+    print("64. Testing Equipment Master Register Query & Telematics Overview...")
+    req = urllib.request.Request(f"{API_BASE}/equipment/", headers=headers)
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        fleet_list = json.loads(resp.read().decode("utf-8"))
+        assert len(fleet_list) >= 8
+        first_machine = fleet_list[0]
+        assert "total_operating_hours" in first_machine
+        assert "total_fuel_cost" in first_machine
+        assert "total_maintenance_cost" in first_machine
+        print(f"   ✓ Master Fleet Register: {len(fleet_list)} machines active in catalog. Lead Asset: [{first_machine.get('internal_id')}] {first_machine.get('name')} (Site: {first_machine.get('active_project_name') or 'Depot'})")
+
+    print("65. Testing Heavy Equipment Registration Workflow...")
+    eq_code = f"EQ-E2E-{time.time_ns() % 100000}"
+    new_eq_payload = {
+        "name": f"Komatsu PC210LC-11 Excavator {eq_code}",
+        "make": "Komatsu",
+        "model": "PC210LC-11",
+        "year": "2024",
+        "serial_number": f"SN-{eq_code}",
+        "internal_id": eq_code,
+        "status": "AVAILABLE",
+        "base_hourly_cost": 185.00
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/equipment/",
+        data=json.dumps(new_eq_payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        created_eq = json.loads(resp.read().decode("utf-8"))
+        assert created_eq["internal_id"] == eq_code
+        assert created_eq["status"] == "AVAILABLE"
+        eq_id = created_eq["id"]
+        print(f"   ✓ Registered Machinery Asset: [{created_eq['internal_id']}] {created_eq['name']} (Base Rate: ${float(created_eq['base_hourly_cost']):,.2f}/hr)")
+
+    print("66. Testing Project Site Dispatch & Assignment with Rate Override...")
+    dispatch_payload = {
+        "equipment_id": eq_id,
+        "project_id": cost_proj_id,
+        "start_date": datetime.date.today().isoformat(),
+        "hourly_cost_override": 195.00
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/equipment/assignments",
+        data=json.dumps(dispatch_payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        dispatch_res = json.loads(resp.read().decode("utf-8"))
+        assert dispatch_res["equipment_id"] == eq_id
+        assert float(dispatch_res["hourly_cost_override"]) == 195.00
+        print(f"   ✓ Dispatched Equipment to Project Site: Assignment {dispatch_res['id']} (Locked Override: ${float(dispatch_res['hourly_cost_override']):,.2f}/hr)")
+
+    print("67. Testing Shift Operating Timesheet Lifecycle (Draft -> Submit -> Approve)...")
+    usage_payload = {
+        "equipment_id": eq_id,
+        "period_start": datetime.date.today().isoformat(),
+        "period_end": (datetime.date.today() + datetime.timedelta(days=6)).isoformat(),
+        "lines": [
+            {
+                "project_id": cost_proj_id,
+                "cost_code_id": cost_matrix[0]["cost_code_id"],
+                "date": datetime.date.today().isoformat(),
+                "hours": 10.0
+            }
+        ]
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/equipment/usage-logs",
+        data=json.dumps(usage_payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        usage_res = json.loads(resp.read().decode("utf-8"))
+        usage_id = usage_res["id"]
+        assert usage_res["status"] == "DRAFT"
+
+    # Submit
+    req = urllib.request.Request(f"{API_BASE}/equipment/usage-logs/{usage_id}/submit", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        assert json.loads(resp.read().decode("utf-8"))["status"] == "SUBMITTED"
+
+    # Approve
+    req = urllib.request.Request(f"{API_BASE}/equipment/usage-logs/{usage_id}/approve", headers=headers, method="POST")
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 200
+        approved_log = json.loads(resp.read().decode("utf-8"))
+        assert approved_log["status"] == "APPROVED"
+        assert float(approved_log["lines"][0]["hourly_cost_rate"]) == 195.00
+        assert float(approved_log["lines"][0]["total_cost"]) == 1950.00
+        print(f"   ✓ Approved Equipment Timesheet: 10.0 hrs @ $195.00 = ${float(approved_log['lines'][0]['total_cost']):,.2f} charged to Cost Code {cost_matrix[0]['cost_code_code']}")
+
+    print("68. Testing Fuel Delivery & Consumption Ledger Logging...")
+    fuel_payload = {
+        "equipment_id": eq_id,
+        "project_id": cost_proj_id,
+        "cost_code_id": cost_matrix[0]["cost_code_id"],
+        "date": datetime.date.today().isoformat(),
+        "volume": 250.0,
+        "unit_cost": 3.85
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/equipment/fuel",
+        data=json.dumps(fuel_payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        fuel_res = json.loads(resp.read().decode("utf-8"))
+        assert float(fuel_res["total_cost"]) == 962.50
+        print(f"   ✓ Logged Site Fuel Delivery: 250.0 gal @ $3.85/gal = ${float(fuel_res['total_cost']):,.2f}")
+
+    print("69. Testing Maintenance & Corrective Service Work Order Workflow...")
+    maint_payload = {
+        "equipment_id": eq_id,
+        "project_id": cost_proj_id,
+        "cost_code_id": cost_matrix[0]["cost_code_id"],
+        "type": "CORRECTIVE",
+        "date": datetime.date.today().isoformat(),
+        "description": "Bucket tooth wear replacement & pin bushing greasing",
+        "duration_hours": 3.0,
+        "cost": 420.00
+    }
+    req = urllib.request.Request(
+        f"{API_BASE}/equipment/maintenance",
+        data=json.dumps(maint_payload).encode("utf-8"),
+        headers={**headers, "Content-Type": "application/json"},
+        method="POST"
+    )
+    with urllib.request.urlopen(req) as resp:
+        assert resp.status == 201
+        maint_res = json.loads(resp.read().decode("utf-8"))
+        assert float(maint_res["cost"]) == 420.00
+        print(f"   ✓ Created Corrective Maintenance Work Order: ${float(maint_res['cost']):,.2f} (Status transitioned to MAINTENANCE)")
+
+    print("70. Testing Multi-Page Web Portal Health (All 47 Engineering, Commercial, Procurement, Inventory, AP, AR, GL, Cost Control & Equipment Routes)...")
     routes = [
         "/en",
         "/en/projects",
@@ -1018,6 +1176,7 @@ def test_erp_workflows(token: str):
         "/en/estimates",
         "/en/budgets",
         "/en/cost-control",
+        "/en/equipment",
         "/en/subcontracts",
         "/en/change-orders",
         "/en/payment-applications",
@@ -1038,6 +1197,7 @@ def test_erp_workflows(token: str):
         "/en/accounting/periods",
         "/en/accounting/reports",
         "/ar/cost-control",
+        "/ar/equipment",
         "/ar/subcontracts",
         "/ar/suppliers",
         "/ar/purchase-orders",
@@ -1071,12 +1231,13 @@ def main():
         token = test_auth()
         test_erp_workflows(token)
         print("=" * 70)
-        print("🎉 ALL 63 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
+        print("🎉 ALL 70 REAL ERP SYSTEM VERIFICATION CHECKS PASSED WITH 100% SUCCESS!")
         print("=" * 70)
-        return 0
     except Exception as e:
-        import traceback; traceback.print_exc()
-        return 1
+        print(f"❌ Verification failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

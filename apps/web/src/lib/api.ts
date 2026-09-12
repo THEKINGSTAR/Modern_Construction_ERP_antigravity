@@ -2057,3 +2057,250 @@ export async function createProjectForecast(projectId: string, data: CreateProje
     body: JSON.stringify(data),
   });
 }
+
+
+// ============================================================================
+// Stage 28: Equipment Fleet Lifecycle & Maintenance Workspace Types & APIs
+// ============================================================================
+
+export interface EquipmentSummary {
+  total_units: number;
+  available_units: number;
+  in_use_units: number;
+  maintenance_units: number;
+  retired_units: number;
+  utilization_rate: number | string;
+  total_operating_hours: number | string;
+  total_fuel_cost: number | string;
+  total_maintenance_cost: number | string;
+  total_equipment_cost: number | string;
+}
+
+export interface Equipment {
+  id: string;
+  name: string;
+  make?: string;
+  model?: string;
+  year?: string;
+  serial_number?: string;
+  internal_id?: string;
+  status: "AVAILABLE" | "IN_USE" | "MAINTENANCE" | "RETIRED" | string;
+  base_hourly_cost: number | string;
+  active_project_id?: string;
+  active_project_name?: string;
+  total_operating_hours: number | string;
+  total_fuel_cost: number | string;
+  total_maintenance_cost: number | string;
+}
+
+export interface CreateEquipmentInput {
+  name: string;
+  make?: string;
+  model?: string;
+  year?: string;
+  serial_number?: string;
+  internal_id?: string;
+  status?: string;
+  base_hourly_cost: number | string;
+}
+
+export interface UpdateEquipmentInput {
+  name?: string;
+  make?: string;
+  model?: string;
+  year?: string;
+  serial_number?: string;
+  internal_id?: string;
+  status?: string;
+  base_hourly_cost?: number | string;
+}
+
+export interface EquipmentAssignment {
+  id: string;
+  equipment_id: string;
+  project_id: string;
+  start_date: string;
+  end_date?: string;
+  hourly_cost_override?: number | string;
+  equipment_name?: string;
+  equipment_internal_id?: string;
+  project_name?: string;
+}
+
+export interface CreateEquipmentAssignmentInput {
+  equipment_id: string;
+  project_id: string;
+  start_date: string;
+  end_date?: string;
+  hourly_cost_override?: number | string;
+}
+
+export interface EquipmentUsageLine {
+  id: string;
+  usage_log_id: string;
+  project_id: string;
+  cost_code_id: string;
+  date: string;
+  hours: number | string;
+  hourly_cost_rate?: number | string;
+  total_cost?: number | string;
+  project_name?: string;
+  cost_code_code?: string;
+  cost_code_name?: string;
+}
+
+export interface EquipmentUsageLog {
+  id: string;
+  equipment_id: string;
+  equipment_name?: string;
+  equipment_internal_id?: string;
+  period_start: string;
+  period_end: string;
+  status: "DRAFT" | "SUBMITTED" | "APPROVED" | string;
+  total_hours: number | string;
+  total_cost: number | string;
+  lines: EquipmentUsageLine[];
+}
+
+export interface CreateEquipmentUsageLineInput {
+  project_id: string;
+  cost_code_id: string;
+  date: string;
+  hours: number | string;
+}
+
+export interface CreateEquipmentUsageLogInput {
+  equipment_id: string;
+  period_start: string;
+  period_end: string;
+  lines: CreateEquipmentUsageLineInput[];
+}
+
+export interface FuelTransaction {
+  id: string;
+  equipment_id: string;
+  project_id?: string;
+  cost_code_id?: string;
+  date: string;
+  volume: number | string;
+  unit_cost: number | string;
+  total_cost: number | string;
+  equipment_name?: string;
+  equipment_internal_id?: string;
+  project_name?: string;
+  cost_code_code?: string;
+}
+
+export interface CreateFuelTransactionInput {
+  equipment_id: string;
+  project_id?: string;
+  cost_code_id?: string;
+  date: string;
+  volume: number | string;
+  unit_cost: number | string;
+}
+
+export interface MaintenanceRecord {
+  id: string;
+  equipment_id: string;
+  project_id?: string;
+  cost_code_id?: string;
+  type: "PREVENTIVE" | "CORRECTIVE" | string;
+  date: string;
+  description: string;
+  duration_hours?: number | string;
+  cost: number | string;
+  equipment_name?: string;
+  equipment_internal_id?: string;
+  project_name?: string;
+  cost_code_code?: string;
+}
+
+export interface CreateMaintenanceRecordInput {
+  equipment_id: string;
+  project_id?: string;
+  cost_code_id?: string;
+  type: string;
+  date: string;
+  description: string;
+  duration_hours?: number | string;
+  cost: number | string;
+}
+
+export async function getEquipmentSummary(): Promise<EquipmentSummary> {
+  return request<EquipmentSummary>("/equipment/summary");
+}
+
+export async function getEquipmentList(): Promise<Equipment[]> {
+  return request<Equipment[]>("/equipment/");
+}
+
+export async function createEquipment(data: CreateEquipmentInput): Promise<Equipment> {
+  return request<Equipment>("/equipment/", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateEquipment(id: string, data: UpdateEquipmentInput): Promise<Equipment> {
+  return request<Equipment>(`/equipment/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getEquipmentAssignments(): Promise<EquipmentAssignment[]> {
+  return request<EquipmentAssignment[]>("/equipment/assignments");
+}
+
+export async function createEquipmentAssignment(data: CreateEquipmentAssignmentInput): Promise<EquipmentAssignment> {
+  return request<EquipmentAssignment>("/equipment/assignments", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getEquipmentUsageLogs(): Promise<EquipmentUsageLog[]> {
+  return request<EquipmentUsageLog[]>("/equipment/usage-logs");
+}
+
+export async function createEquipmentUsageLog(data: CreateEquipmentUsageLogInput): Promise<EquipmentUsageLog> {
+  return request<EquipmentUsageLog>("/equipment/usage-logs", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function submitEquipmentUsageLog(id: string): Promise<EquipmentUsageLog> {
+  return request<EquipmentUsageLog>(`/equipment/usage-logs/${id}/submit`, {
+    method: "POST",
+  });
+}
+
+export async function approveEquipmentUsageLog(id: string): Promise<EquipmentUsageLog> {
+  return request<EquipmentUsageLog>(`/equipment/usage-logs/${id}/approve`, {
+    method: "POST",
+  });
+}
+
+export async function getFuelTransactions(): Promise<FuelTransaction[]> {
+  return request<FuelTransaction[]>("/equipment/fuel");
+}
+
+export async function createFuelTransaction(data: CreateFuelTransactionInput): Promise<FuelTransaction> {
+  return request<FuelTransaction>("/equipment/fuel", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getMaintenanceRecords(): Promise<MaintenanceRecord[]> {
+  return request<MaintenanceRecord[]>("/equipment/maintenance");
+}
+
+export async function createMaintenanceRecord(data: CreateMaintenanceRecordInput): Promise<MaintenanceRecord> {
+  return request<MaintenanceRecord>("/equipment/maintenance", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}

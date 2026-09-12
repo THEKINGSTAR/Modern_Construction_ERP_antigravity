@@ -50,6 +50,7 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
         { label: "Warehouses & Yards", path: `/${locale}/warehouses`, icon: "🏢" },
         { label: "Goods Receipts (GRN)", path: `/${locale}/goods-receipts`, icon: "📥" },
         { label: "Material Issues", path: `/${locale}/material-issues`, icon: "📤" },
+        { label: "Equipment & Fleet", path: `/${locale}/equipment`, icon: "🚜" },
       ],
     },
     {

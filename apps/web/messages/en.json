@@ -147,5 +147,17 @@
     "variance": "Variance (VAC)",
     "cpi": "Cost Performance Index",
     "status": "Performance Status"
+  },
+  "Equipment": {
+    "title": "Equipment Fleet & Telematics Management",
+    "description": "Heavy machinery master register, project site dispatch, shift operating timesheets, fuel consumption logs, and maintenance work orders.",
+    "total_units": "Total Machinery",
+    "in_use": "Active In Use",
+    "available": "Available for Dispatch",
+    "maintenance": "In Maintenance",
+    "utilization": "Fleet Utilization",
+    "operating_hours": "Operating Hours",
+    "fuel_cost": "Fuel Cost Incurred",
+    "maintenance_cost": "Maintenance Expenditure"
   }
 }

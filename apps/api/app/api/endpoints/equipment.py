@@ -11,18 +11,30 @@ from app.models.equipment import (
     FuelTransaction, MaintenanceRecord, UsageLogStatus
 )
 from app.schemas.equipment import (
-    EquipmentCreate, EquipmentResponse,
-    EquipmentAssignmentCreate, EquipmentAssignmentResponse,
-    EquipmentUsageLogCreate, EquipmentUsageLogResponse,
-    FuelTransactionCreate, FuelTransactionResponse,
-    MaintenanceRecordCreate, MaintenanceRecordResponse
+    EquipmentCreate, EquipmentResponse, EquipmentDetailResponse, EquipmentUpdate,
+    EquipmentSummaryResponse,
+    EquipmentAssignmentCreate, EquipmentAssignmentResponse, EquipmentAssignmentDetailResponse,
+    EquipmentUsageLogCreate, EquipmentUsageLogResponse, EquipmentUsageLogDetailResponse,
+    FuelTransactionCreate, FuelTransactionResponse, FuelTransactionDetailResponse,
+    MaintenanceRecordCreate, MaintenanceRecordResponse, MaintenanceRecordDetailResponse
 )
 from app.services.equipment_service import EquipmentService
 
 router = APIRouter()
 
 # -----------------------------------------------------------------------------
-# Equipment
+# Equipment Summary & Analytics
+# -----------------------------------------------------------------------------
+@router.get("/summary", response_model=EquipmentSummaryResponse)
+def get_equipment_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.get_fleet_summary()
+
+# -----------------------------------------------------------------------------
+# Equipment Master Register
 # -----------------------------------------------------------------------------
 @router.post("/", response_model=EquipmentResponse, status_code=201)
 def create_equipment(
@@ -36,12 +48,23 @@ def create_equipment(
     db.refresh(eq)
     return eq
 
-@router.get("/", response_model=List[EquipmentResponse])
+@router.get("/", response_model=List[EquipmentDetailResponse])
 def get_equipment_list(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return db.query(Equipment).filter(Equipment.tenant_id == current_user.tenant_id).all()
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.list_equipment_with_details()
+
+@router.patch("/{equipment_id}", response_model=EquipmentResponse)
+def update_equipment(
+    equipment_id: UUID,
+    data: EquipmentUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.update_equipment(equipment_id, data)
 
 # -----------------------------------------------------------------------------
 # Equipment Assignments
@@ -54,16 +77,27 @@ def create_assignment(
 ):
     assignment = EquipmentAssignment(**data.model_dump(), tenant_id=current_user.tenant_id)
     db.add(assignment)
+    db.flush()
+
+    # Automatically set equipment status to IN_USE if currently AVAILABLE
+    eq = db.query(Equipment).filter(
+        Equipment.id == data.equipment_id,
+        Equipment.tenant_id == current_user.tenant_id
+    ).first()
+    if eq and eq.status == "AVAILABLE":
+        eq.status = "IN_USE"
+
     db.commit()
     db.refresh(assignment)
     return assignment
 
-@router.get("/assignments", response_model=List[EquipmentAssignmentResponse])
+@router.get("/assignments", response_model=List[EquipmentAssignmentDetailResponse])
 def get_assignments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return db.query(EquipmentAssignment).filter(EquipmentAssignment.tenant_id == current_user.tenant_id).all()
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.list_assignments()
 
 # -----------------------------------------------------------------------------
 # Equipment Usage Logs
@@ -86,6 +120,14 @@ def create_usage_log(
     db.commit()
     db.refresh(usage_log)
     return usage_log
+
+@router.get("/usage-logs", response_model=List[EquipmentUsageLogDetailResponse])
+def get_usage_logs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.list_usage_logs()
 
 @router.get("/usage-logs/{log_id}", response_model=EquipmentUsageLogResponse)
 def get_usage_log(
@@ -135,6 +177,14 @@ def create_fuel_transaction(
     db.refresh(txn)
     return txn
 
+@router.get("/fuel", response_model=List[FuelTransactionDetailResponse])
+def get_fuel_transactions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.list_fuel_transactions()
+
 # -----------------------------------------------------------------------------
 # Maintenance Records
 # -----------------------------------------------------------------------------
@@ -146,6 +196,24 @@ def create_maintenance_record(
 ):
     record = MaintenanceRecord(**data.model_dump(), tenant_id=current_user.tenant_id)
     db.add(record)
+    
+    # If corrective maintenance, mark equipment as MAINTENANCE
+    if data.type == "CORRECTIVE":
+        eq = db.query(Equipment).filter(
+            Equipment.id == data.equipment_id,
+            Equipment.tenant_id == current_user.tenant_id
+        ).first()
+        if eq:
+            eq.status = "MAINTENANCE"
+
     db.commit()
     db.refresh(record)
     return record
+
+@router.get("/maintenance", response_model=List[MaintenanceRecordDetailResponse])
+def get_maintenance_records(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = EquipmentService(db, current_user.tenant_id, current_user.id)
+    return service.list_maintenance_records()
