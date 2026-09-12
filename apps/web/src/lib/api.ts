@@ -604,6 +604,46 @@ export interface TrialBalanceReport {
   total_credit: string;
 }
 
+export interface CostCodeDetail {
+  cost_code_id: string;
+  cost_code_name: string;
+  original_budget: string;
+  current_budget: string;
+  actual_cost: string;
+  variance: string;
+}
+
+export interface BudgetVsActualReport {
+  project_id: string;
+  project_name: string;
+  total_budget: string;
+  total_actual: string;
+  total_variance: string;
+  details: CostCodeDetail[];
+}
+
+export interface AgingBucket {
+  current: string;
+  days_1_30: string;
+  days_31_60: string;
+  days_61_90: string;
+  over_90: string;
+  total: string;
+}
+
+export interface AgingDetail {
+  party_id: string;
+  party_name: string;
+  buckets: AgingBucket;
+}
+
+export interface AgingReport {
+  as_of_date: string;
+  type: string;
+  details: AgingDetail[];
+  totals: AgingBucket;
+}
+
 export interface ExecutiveDashboard {
   total_active_contracts: number;
   total_contract_value: string;
@@ -730,6 +770,15 @@ export async function getExecutiveDashboard(): Promise<ExecutiveDashboard> {
 
 export async function getProjectDashboard(projectId: string): Promise<ProjectDashboard> {
   return request<ProjectDashboard>(`/reports/projects/${projectId}/dashboard`);
+}
+
+export async function getBudgetVsActual(projectId: string): Promise<BudgetVsActualReport> {
+  return request<BudgetVsActualReport>(`/reports/projects/${projectId}/budget-vs-actual`);
+}
+
+export async function getAPAging(asOfDate?: string): Promise<AgingReport> {
+  const query = asOfDate ? `?as_of_date=${asOfDate}` : '';
+  return request<AgingReport>(`/reports/accounting/ap-aging${query}`);
 }
 
 export async function getTrialBalance(): Promise<TrialBalanceReport> {

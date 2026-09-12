@@ -3,6 +3,14 @@
     "title": "Modern Construction ERP",
     "description": "Welcome to the Modern Construction ERP"
   },
+  "Fleet": {
+    "title": "Equipment & Fleet",
+    "description": "Equipment registry, dispatch logs, utilization, and maintenance schedules."
+  },
+  "Reports": {
+    "title": "Reports & Analytics",
+    "description": "Executive dashboard, project performance, variance, and aging reports."
+  },
   "Clients": {
     "title": "Clients",
     "description": "Manage client organizations and contacts."

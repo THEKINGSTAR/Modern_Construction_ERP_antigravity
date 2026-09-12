@@ -18,6 +18,14 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
 
   const navSections = [
     {
+      title: "Management Reporting & Analytics",
+      items: [
+        { label: "Analytics Hub", path: `/${locale}/reports`, icon: "📈" },
+        { label: "AP Aging", path: `/${locale}/reports/ap-aging`, icon: "⏳" },
+        { label: "Trial Balance", path: `/${locale}/reports/trial-balance`, icon: "⚖️" },
+      ],
+    },
+    {
       title: "Workforce Management",
       items: [
         { label: "Employees & Directory", path: `/${locale}/hr`, icon: "👥" },
