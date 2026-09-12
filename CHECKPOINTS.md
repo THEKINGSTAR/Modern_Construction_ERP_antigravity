@@ -31,7 +31,8 @@ This file records verified recovery points.
 | 24 | COMPLETED | fa6756c | stage-24-complete | YES | YES |
 | 25 | COMPLETED | e2aff29 | stage-25-complete | YES | YES |
 | 27 | COMPLETED | c57ab44 | stage-27-complete | YES | YES |
-| 30 | COMPLETED | 4ee0c5a | stage-30-complete | YES | pending |
+| 30 | COMPLETED | 4ee0c5a | stage-30-complete | YES | YES |
+| 31 | COMPLETED | HEAD | stage-31-complete | YES | pending |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -45,6 +46,7 @@ This file records verified recovery points.
 | Inventory & Site Logistics | 7d2b610 | inventory-complete | Complete materials catalog, warehouses, goods receipts (GRN), and site material issues |
 | Accounts Payable & 3-Way Match | fa6756c | ap-complete | Complete AP invoice register, 3-way matching studio, payment vouchers, and balanced GL posting |
 | General Ledger & Financial Accounting | e2aff29 | gl-complete | Complete Chart of Accounts, Journal Vouchers with real-time balancing, Month-End Closing Controls, Balance Sheet & Income Statement (P&L) |
+| Hardened ERP Integration | HEAD | erp-integration-complete | Resolved double-counting in project cost, successfully validated full E2E workflow from Procurement to GL |
 
 ## Recovery Rule
 

@@ -1,14 +1,14 @@
 {
     "project": "Modern Construction ERP",
-    "current_stage": "Stage 29 (Workforce Management Workspace)",
-    "stage_number": 27,
+    "current_stage": "Stage 30 (Management Reporting and Analytics Dashboard)",
+    "stage_number": 30,
     "status": "BASELINE_VALIDATED_ALL_GREEN",
     "baseline_classification": "GREEN",
     "current_branch": "main",
     "current_commit": "HEAD",
     "working_tree_clean": true,
-    "last_known_good_checkpoint": "stage-27-complete",
-    "active_session": "session-019",
+    "last_known_good_checkpoint": "stage-30-complete",
+    "active_session": "session-020",
     "active_task": {
         "name": "Workforce Management Workspace",
         "status": "COMPLETED",

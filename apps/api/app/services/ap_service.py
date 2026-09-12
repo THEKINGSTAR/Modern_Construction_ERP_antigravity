@@ -318,6 +318,7 @@ class APService:
 
         ap_account_id = self._get_account(AccountType.LIABILITY)
         expense_account_id = self._get_account(AccountType.EXPENSE)
+        inventory_account_id = self._get_account(AccountType.ASSET)
 
         journal_lines = []
         # Credit AP Liability (Total Invoice Amount)
@@ -327,15 +328,20 @@ class APService:
             description=f"AP Invoice {invoice.number}"
         ))
 
-        # Debit Expense for each line
+        # Debit Expense or Inventory for each line
         lines_sum = Decimal("0.0000")
         for line in invoice.lines:
             lines_sum += Decimal(str(line.line_total))
+            
+            # If the AP invoice line is for a stocked material or matched to a GRN, it hits Inventory Asset, not Project Expense
+            is_inventory = bool(line.material_id or line.goods_receipt_line_id)
+            target_account_id = inventory_account_id if is_inventory else expense_account_id
+            
             journal_lines.append(JournalLineCreate(
-                account_id=expense_account_id,
+                account_id=target_account_id,
                 debit=line.line_total,
-                project_id=line.project_id,
-                cost_code_id=line.cost_code_id,
+                project_id=line.project_id if not is_inventory else None,
+                cost_code_id=line.cost_code_id if not is_inventory else None,
                 description=line.description
             ))
 

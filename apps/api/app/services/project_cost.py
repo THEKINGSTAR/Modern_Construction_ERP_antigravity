@@ -205,7 +205,9 @@ class ProjectCostEngine:
                 APInvoice.tenant_id == self.tenant_id,
                 APInvoiceLine.project_id == project_id,
                 APInvoice.status.in_([InvoiceStatus.POSTED, InvoiceStatus.PAID]),
-                APInvoiceLine.cost_code_id.is_not(None)
+                APInvoiceLine.cost_code_id.is_not(None),
+                APInvoiceLine.material_id.is_(None),
+                APInvoiceLine.goods_receipt_line_id.is_(None)
             )
         )
         for row in self.db.execute(ap_query):

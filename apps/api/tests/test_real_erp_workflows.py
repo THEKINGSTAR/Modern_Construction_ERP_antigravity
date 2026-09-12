@@ -108,7 +108,7 @@ def test_inventory_ledger_transactions_and_balances(client, two_tenants, db_sess
         tenant_id=t_a.id,
         code=f"WH-{uuid.uuid4().hex[:4]}",
         name="Alpha Central Yard",
-        type="MAIN"
+        type="CENTRAL"
     )
     mat = Material(
         id=uuid.uuid4(),
@@ -300,3 +300,209 @@ def test_executive_dashboard_live_sql_aggregation(client, two_tenants, db_sessio
     assert float(data["total_contract_value"]) >= 4500000.0
     assert data["total_active_contracts"] >= 1
     assert data["is_ledger_balanced"] is True
+
+def test_full_business_workflow_lifecycle(client, two_tenants, db_session):
+    h_a = two_tenants["headers_a"]
+    t_a = two_tenants["tenant_a"]
+
+    from app.models.accounting import ChartOfAccounts, Account
+    from app.models.org_settings import AccountingPeriod, FiscalYear
+    from datetime import date
+    
+    # 1. Setup master data and Accounts
+    coa = ChartOfAccounts(id=uuid.uuid4(), tenant_id=t_a.id, name="E2E COA")
+    db_session.add(coa)
+    
+    fy = FiscalYear(id=uuid.uuid4(), tenant_id=t_a.id, name="FY2026", start_date=date(2026,1,1), end_date=date(2026,12,31))
+    db_session.add(fy)
+    db_session.flush()
+    
+    ap = AccountingPeriod(id=uuid.uuid4(), fiscal_year_id=fy.id, tenant_id=t_a.id, name="2026-09", start_date=date(2026,9,1), end_date=date(2026,9,30), is_closed=False)
+    db_session.add(ap)
+    
+    asset_acc = Account(id=uuid.uuid4(), chart_of_accounts_id=coa.id, tenant_id=t_a.id, account_code="1000", name="Inventory", account_type="ASSET")
+    liab_acc = Account(id=uuid.uuid4(), chart_of_accounts_id=coa.id, tenant_id=t_a.id, account_code="2000", name="AP Liability", account_type="LIABILITY")
+    exp_acc = Account(id=uuid.uuid4(), chart_of_accounts_id=coa.id, tenant_id=t_a.id, account_code="5000", name="Project Expense", account_type="EXPENSE")
+    
+    db_session.add_all([asset_acc, liab_acc, exp_acc])
+    db_session.commit()
+
+    client_res = client.post("/api/v1/clients/", headers=h_a, json={
+        "name": "E2E Lifecycle Client",
+        "legal_name": "E2E Lifecycle Client LLC",
+        "contact_information": "contact@e2e.erp",
+        "status": "ACTIVE"
+    })
+    assert client_res.status_code == 201
+    client_id = client_res.json()["id"]
+
+    proj_res = client.post("/api/v1/projects/", headers=h_a, json={
+        "project_number": f"PRJ-E2E-{uuid.uuid4().hex[:6]}",
+        "name": "E2E Mega Project",
+        "client_id": client_id,
+        "budget_amount": "10000000.00",
+        "status": "ACTIVE"
+    })
+    assert proj_res.status_code == 201
+    project_id = proj_res.json()["id"]
+
+    wh_res = client.post("/api/v1/inventory/warehouses", headers=h_a, json={
+        "code": f"WH-E2E-{uuid.uuid4().hex[:4]}",
+        "name": "E2E Main Yard",
+        "location": "Site A",
+        "type": "CENTRAL"
+    })
+    assert wh_res.status_code == 201
+    wh_id = wh_res.json()["id"]
+
+    mat_res = client.post("/api/v1/inventory/materials", headers=h_a, json={
+        "material_code": f"MAT-E2E-{uuid.uuid4().hex[:4]}",
+        "name": "E2E Premium Cement",
+        "category": "CONSTRUCTION_MATERIALS",
+        "base_unit": "BAG",
+        "description": "Premium Portland Cement"
+    })
+    assert mat_res.status_code == 201
+    mat_id = mat_res.json()["id"]
+
+    sup_res = client.post("/api/v1/suppliers/", headers=h_a, json={
+        "name": "E2E Cement Co",
+        "legal_name": "E2E Cement Company LLC",
+        "contact_information": "sales@e2ecement.com",
+        "status": "ACTIVE"
+    })
+    assert sup_res.status_code == 201
+    sup_id = sup_res.json()["id"]
+
+    cc_res = client.post("/api/v1/cost-codes", headers=h_a, json={
+        "code": f"CC-E2E-{uuid.uuid4().hex[:4]}",
+        "name": "Concrete Works",
+        "category": "MATERIAL",
+        "is_active": True
+    })
+    assert cc_res.status_code == 201
+    cc_id = cc_res.json()["id"]
+
+    # 2. Procurement (PO)
+    po_res = client.post("/api/v1/purchase-orders/", headers=h_a, json={
+        "po_number": f"PO-E2E-{uuid.uuid4().hex[:6]}",
+        "project_id": project_id,
+        "supplier_id": sup_id,
+        "issue_date": "2026-09-01",
+        "currency": "USD",
+        "lines": [{
+            "cost_code_id": cc_id,
+            "item_description": "Premium Portland Cement",
+            "unit": "BAG",
+            "quantity": 1000,
+            "unit_price": 10.00,
+            "amount": 10000.00
+        }]
+    })
+    if po_res.status_code != 201:
+        print("PO ERror:", po_res.text)
+    assert po_res.status_code == 201
+    po_id = po_res.json()["id"]
+    
+    issue_po_res = client.post(f"/api/v1/purchase-orders/{po_id}/issue", headers=h_a)
+    assert issue_po_res.status_code == 200
+    
+    # Get the PO line ID
+    po_data = client.get(f"/api/v1/purchase-orders/{po_id}", headers=h_a).json()
+    po_line_id = po_data["lines"][0]["id"]
+
+    # 3. Inventory Receipt (GRN)
+    grn_res = client.post("/api/v1/inventory/goods-receipts", headers=h_a, json={
+        "receipt_number": f"GRN-E2E-{uuid.uuid4().hex[:6]}",
+        "purchase_order_id": po_id,
+        "supplier_id": sup_id,
+        "warehouse_id": wh_id,
+        "date": "2026-09-05",
+        "lines": [{
+            "purchase_order_line_id": po_line_id,
+            "material_id": mat_id,
+            "received_quantity": 1000,
+            "accepted_quantity": 1000,
+            "rejected_quantity": 0,
+            "unit_cost": 10.00
+        }]
+    })
+    assert grn_res.status_code == 200
+    grn_id = grn_res.json()["id"]
+    grn_line_id = grn_res.json()["lines"][0]["id"]
+
+    # 4. Inventory Issue to Project
+    issue_res = client.post("/api/v1/inventory/material-issues", headers=h_a, json={
+        "issue_number": f"MI-E2E-{uuid.uuid4().hex[:6]}",
+        "warehouse_id": wh_id,
+        "project_id": project_id,
+        "cost_code_id": cc_id,
+        "date": "2026-09-06",
+        "purpose": "Slab pour",
+        "lines": [{
+            "material_id": mat_id,
+            "quantity": 500,
+            "notes": "500 bags for slab"
+        }]
+    })
+    assert issue_res.status_code == 200
+
+    # 5. Accounts Payable Vendor Invoice
+    inv_res = client.post("/api/v1/ap/invoices", headers=h_a, json={
+        "number": f"INV-E2E-{uuid.uuid4().hex[:6]}",
+        "supplier_id": sup_id,
+        "purchase_order_id": po_id,
+        "goods_receipt_id": grn_id,
+        "date": "2026-09-07",
+        "due_date": "2026-10-07",
+        "invoice_type": "STANDARD",
+        "currency": "USD",
+        "description": "Invoice for Cement",
+        "tax_amount": 0.00,
+        "lines": [{
+            "project_id": project_id,
+            "cost_code_id": cc_id,
+            "purchase_order_line_id": po_line_id,
+            "goods_receipt_line_id": grn_line_id,
+            "material_id": mat_id,
+            "description": "Premium Portland Cement",
+            "quantity": 1000,
+            "unit_price": 10.00,
+            "tax_amount": 0.00
+        }]
+    })
+    assert inv_res.status_code == 201
+    inv_id = inv_res.json()["id"]
+
+    # 6. Three-way match
+    match_res = client.post(f"/api/v1/ap/invoices/{inv_id}/match", headers=h_a)
+    assert match_res.status_code == 200
+    assert match_res.json()["is_matched"] is True
+
+    # 7. Approve & Post AP Invoice
+    approve_res = client.post(f"/api/v1/ap/invoices/{inv_id}/approve", headers=h_a)
+    assert approve_res.status_code == 200
+    post_res = client.post(f"/api/v1/ap/invoices/{inv_id}/post", headers=h_a)
+    if post_res.status_code != 200:
+        print("POST Error:", post_res.text)
+    assert post_res.status_code == 200
+
+    # 8. Check General Ledger Balance
+    tb_res = client.get("/api/v1/reports/accounting/trial-balance", headers=h_a)
+    assert tb_res.status_code == 200
+    tb_data = tb_res.json()
+    assert float(tb_data["total_debit"]) == float(tb_data["total_credit"])
+
+    # 9. Verify Project Cost KPIs (Ensuring no double counting!)
+    # We issued 500 bags @ $10 = $5,000 ACTUAL cost.
+    # The AP Invoice was for $10,000 (1000 bags) but it shouldn't hit Project Cost directly since it's an inventory material.
+    kpi_res = client.get(f"/api/v1/reports/projects/{project_id}/dashboard", headers=h_a)
+    assert kpi_res.status_code == 200
+    kpi_data = kpi_res.json()
+    
+    # We expect actual cost to be 5000 (Material Issue). 
+    assert float(kpi_data["actual_cost"]) == 5000.0
+    # We expect committed cost to be 10000 (Purchase Order).
+    assert float(kpi_data["committed_cost"]) == 10000.0
+
+    print("End-to-End Business Workflow Completed Successfully!")
