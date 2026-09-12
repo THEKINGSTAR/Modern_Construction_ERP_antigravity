@@ -159,5 +159,9 @@
     "operating_hours": "Operating Hours",
     "fuel_cost": "Fuel Cost Incurred",
     "maintenance_cost": "Maintenance Expenditure"
+  },
+  "HR": {
+    "title": "Workforce Management",
+    "description": "Manage employees, timesheets, and leave requests."
   }
 }

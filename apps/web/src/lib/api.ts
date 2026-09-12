@@ -2304,3 +2304,18 @@ export async function createMaintenanceRecord(data: CreateMaintenanceRecordInput
     body: JSON.stringify(data),
   });
 }
+
+
+// HR
+export interface Employee {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  position_id: string;
+  department_id: string;
+  base_hourly_rate: number;
+}
+export async function getEmployees(): Promise<Employee[]> {
+  return request<Employee[]>('/employees');
+}

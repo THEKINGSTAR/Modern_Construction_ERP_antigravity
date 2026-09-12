@@ -18,6 +18,12 @@ export default function AppLayout({ children, title, subtitle, actions }: AppLay
 
   const navSections = [
     {
+      title: "Workforce Management",
+      items: [
+        { label: "Employees & Directory", path: `/${locale}/hr`, icon: "👥" },
+      ],
+    },
+    {
       title: "Core Operations",
       items: [
         { label: "Executive Dashboard", path: `/${locale}`, icon: "📊" },
