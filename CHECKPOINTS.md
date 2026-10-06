@@ -100,23 +100,27 @@ The latest stage marked COMPLETE and verified by human review is the preferred r
   - Equipment usage, fuel, maintenance, and timesheet labor cost transaction rollup in Project Cost Engine.
   - Strict tenant-scoping authorization checks rejecting unauthorized cross-tenant requests before database mutation.
 
-## Checkpoint: stage-34-productized (Stage 34 ERP Productization & Integrated Workflow Hardening)
-- **Timestamp:** 2026-10-06 20:15:00Z
+| 34 | COMPLETED | f0c1723 | stage-34-productized | YES | YES |
+| Beta | COMPLETED | HEAD | beta-1.0.0 | YES | YES |
+
+## Checkpoint: beta-1.0.0 (Modern Construction ERP Final Beta)
+- **Timestamp:** 2026-10-07 00:20:00Z
 - **Commit:** HEAD
 - **Validation:**
-  - Authoritative 18-step business workflow suite (`scripts/test_user_journey_e2e.py`) passing 100%.
-  - 94/94 backend pytest tests passing (100%).
+  - 22 / 22 Beta Acceptance Gates 100% Passed.
+  - 98 / 98 backend pytest tests passing (100%).
   - Next.js 14 build compiled all 35 production routes with 0 errors.
-  - 70/70 baseline full application stack E2E checks passing 100%.
+  - Master Verification Pipeline (`scripts/verify_final_beta.sh`) executed cleanly in 66 seconds.
+  - Baseline E2E Suite (`scripts/test_demo_e2e.py`): 70 / 70 checks passing.
   - Workflow 1 (Procure-to-Pay → AP → GL) verified & persisted in PostgreSQL.
   - Workflow 2 (Material Issue → Project Cost → Reporting) verified & persisted in PostgreSQL.
-  - Independent direct PostgreSQL validation across 8 core entities.
-  - Docker container restart test verified state persistence across application lifecycle.
-  - Application-level pre-mutation tenant isolation enforced on PO, GRN, and AP invoice registration.
+  - Workflow 3 (Commercial Progress Billing → AR Invoice → GL Retainage → Cash Settlement) verified & persisted in PostgreSQL (`scripts/verify_workflow_3_ar.py`).
+  - Authoritative 18-step user journey suite (`scripts/test_user_journey_e2e.py`) passing 100%.
+  - Application-level pre-mutation multi-tenant isolation enforced across AR, AP, PO, GRN, Subcontracts, Requisitions with 7/7 negative cross-tenant automated security tests passing.
+  - Golden Rule GL double-entry invariant strictly balanced across 100% of all POSTED journals in PostgreSQL.
+  - Docker container restart persistence validated.
+  - Environment tooling operational: `scripts/dev.sh`, `scripts/seed.sh`, `scripts/lint.sh`, `scripts/test.sh`.
 - **Delivered Capabilities:**
-  - Seamless browser-driven ERP business journey connecting Projects → PO → GRN → Inventory → Material Issue → Cost Control → AP Invoice → 3-Way Match → GL Journals → Reporting.
-  - One-click navigation and query parameter state propagation bridging all transaction boundaries in the web portal.
-  - Material catalog integration in PO creation, live warehouse stock indicators on site issuance, and user-friendly over-issue validation.
-  - Full financial and operational traceability with clickable source transaction references in the Cost Transactions Audit Ledger.
-  - Pre-mutation cross-tenant security validation preventing cross-tenant data leakage or malicious referencing before any database writes.
+  - Coherent, browser-operable construction ERP Beta with multi-tenancy, real PostgreSQL persistence, and zero mock data.
+  - Integrated workflows spanning Engineering, Commercial, Procurement, Inventory, AP, AR, General Ledger, Project Cost Control, and Executive Reporting.
 

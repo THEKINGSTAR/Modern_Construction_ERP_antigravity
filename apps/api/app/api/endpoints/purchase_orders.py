@@ -10,6 +10,7 @@ from app.core.auth import get_current_user, get_current_tenant
 from app.models.user import User
 from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine, POStatus
 from app.models.suppliers import Supplier
+from app.models.projects import Project
 from app.models.requisitions import PurchaseRequisition, PRStatus
 from app.schemas.purchase_orders import (
     PurchaseOrderCreate,
@@ -71,6 +72,23 @@ def create_purchase_order(
 ):
     if not po_in.lines:
         raise HTTPException(status_code=400, detail="PO must have at least one line")
+
+    # Pre-mutation tenant-scoped authorization checks
+    if po_in.project_id:
+        proj = db.query(Project).filter(
+            Project.id == po_in.project_id,
+            Project.tenant_id == tenant_id
+        ).first()
+        if not proj:
+            raise HTTPException(status_code=400, detail="Project not found or access denied")
+
+    if po_in.supplier_id:
+        supp = db.query(Supplier).filter(
+            Supplier.id == po_in.supplier_id,
+            Supplier.tenant_id == tenant_id
+        ).first()
+        if not supp:
+            raise HTTPException(status_code=400, detail="Supplier not found or access denied")
 
     total_amount = sum(line.amount for line in po_in.lines)
     

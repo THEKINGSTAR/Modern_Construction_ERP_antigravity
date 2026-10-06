@@ -112,23 +112,46 @@ def seed():
         ).all()
         for ot in old_tenants:
             print(f"   Cleaning prior DEMO tenant: {ot.name} ({ot.id})...")
-            # Delete dependent records
             from sqlalchemy import text
-            session.execute(text(f"DELETE FROM purchase_order_lines WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM purchase_orders WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM supplier_quotation_lines WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM supplier_quotations WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM rfq_lines WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM rfqs WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM purchase_requisition_lines WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM purchase_requisitions WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM goods_receipt_lines WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM goods_receipts WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM material_issue_lines WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM material_issues WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM inventory_transactions WHERE tenant_id = '{ot.id}'"))
-            session.execute(text(f"DELETE FROM inventory_balances WHERE tenant_id = '{ot.id}'"))
-            session.query(User).filter(User.tenant_id == ot.id).delete(synchronize_session=False)
+            session.execute(text(f"UPDATE ap_invoices SET purchase_order_id = NULL, goods_receipt_id = NULL WHERE purchase_order_id IN (SELECT id FROM purchase_orders WHERE tenant_id = '{ot.id}') OR goods_receipt_id IN (SELECT id FROM goods_receipts WHERE tenant_id = '{ot.id}')"))
+            session.execute(text(f"DELETE FROM ap_invoice_lines WHERE purchase_order_line_id IN (SELECT id FROM purchase_order_lines WHERE tenant_id = '{ot.id}')"))
+            session.execute(text(f"DELETE FROM goods_receipt_lines WHERE purchase_order_line_id IN (SELECT id FROM purchase_order_lines WHERE tenant_id = '{ot.id}')"))
+            session.execute(text(f"DELETE FROM payment_allocations WHERE ap_invoice_id IN (SELECT id FROM ap_invoices WHERE supplier_id IN (SELECT id FROM suppliers WHERE tenant_id = '{ot.id}'))"))
+            session.execute(text(f"DELETE FROM payment_allocations WHERE ar_invoice_id IN (SELECT id FROM ar_invoices WHERE client_id IN (SELECT id FROM clients WHERE tenant_id = '{ot.id}'))"))
+            session.execute(text(f"DELETE FROM ap_invoice_lines WHERE invoice_id IN (SELECT id FROM ap_invoices WHERE supplier_id IN (SELECT id FROM suppliers WHERE tenant_id = '{ot.id}'))"))
+            session.execute(text(f"DELETE FROM ap_invoices WHERE supplier_id IN (SELECT id FROM suppliers WHERE tenant_id = '{ot.id}')"))
+            session.execute(text(f"DELETE FROM ar_invoice_lines WHERE invoice_id IN (SELECT id FROM ar_invoices WHERE client_id IN (SELECT id FROM clients WHERE tenant_id = '{ot.id}'))"))
+            session.execute(text(f"DELETE FROM ar_invoices WHERE client_id IN (SELECT id FROM clients WHERE tenant_id = '{ot.id}')"))
+
+            tables_to_clean = [
+                "payment_allocations", "payments", "ap_invoice_lines", "ap_invoices",
+                "ar_invoice_lines", "ar_invoices", "journal_lines", "journals",
+                "subcontract_payment_applications", "subcontract_change_orders", "subcontracts",
+                "client_payment_applications", "client_change_orders", "contracts",
+                "material_issue_lines", "material_issues", "goods_receipt_lines", "goods_receipts",
+                "purchase_order_lines", "purchase_orders", "supplier_quotation_lines", "supplier_quotations",
+                "rfq_lines", "rfqs", "purchase_requisition_lines", "purchase_requisitions",
+                "inventory_transfer_lines", "inventory_transfers", "inventory_adjustment_lines", "inventory_adjustments",
+                "inventory_transactions", "inventory_balances",
+                "timesheet_lines", "timesheets", "equipment_usage_lines", "equipment_usage_logs",
+                "equipment_assignments", "fuel_transactions", "maintenance_records", "equipment",
+                "leave_requests", "employees", "positions", "hr_departments",
+                "budget_lines", "budgets", "boq_items", "boq_revisions", "boqs",
+                "estimate_items", "estimate_revisions", "estimates",
+                "project_forecast_lines", "project_forecasts", "project_assignments", "wbs_nodes",
+                "projects", "contract_types",
+                "cost_codes", "materials", "warehouses",
+                "client_contacts", "clients", "supplier_contacts", "suppliers",
+                "bank_statement_lines", "bank_statements", "bank_transactions", "bank_accounts",
+                "accounts", "chart_of_accounts", "accounting_periods", "fiscal_years",
+                "departments", "business_units", "user_roles", "users",
+                "branches", "legal_entities", "tenant_settings"
+            ]
+            for tbl in tables_to_clean:
+                try:
+                    session.execute(text(f"DELETE FROM {tbl} WHERE tenant_id = '{ot.id}'"))
+                except Exception:
+                    pass
             session.delete(ot)
         session.query(User).filter(User.email == "demo@apexconstruction.com").delete(synchronize_session=False)
         session.commit()

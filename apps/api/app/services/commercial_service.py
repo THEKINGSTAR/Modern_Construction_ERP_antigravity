@@ -11,6 +11,8 @@ from app.models.commercial import (
     ChangeOrderStatus, PaymentAppStatus
 )
 from app.models.contracts import Contract
+from app.models.projects import Project
+from app.models.suppliers import Supplier
 from app.schemas.commercial import (
     SubcontractCreate, ClientChangeOrderCreate, SubcontractChangeOrderCreate,
     ClientPaymentApplicationCreate, SubcontractPaymentApplicationCreate
@@ -26,6 +28,21 @@ class CommercialService:
 
     # --- Subcontracts ---
     def create_subcontract(self, tenant_id: UUID, user_id: UUID, create_data: SubcontractCreate) -> Subcontract:
+        # Pre-mutation tenant-scoped authorization checks
+        proj = self.db.query(Project).filter(
+            Project.id == create_data.project_id,
+            Project.tenant_id == tenant_id
+        ).first()
+        if not proj:
+            raise BaseAPIException(code="NOT_FOUND", message="Project not found or access denied", status_code=404)
+
+        supp = self.db.query(Supplier).filter(
+            Supplier.id == create_data.supplier_id,
+            Supplier.tenant_id == tenant_id
+        ).first()
+        if not supp:
+            raise BaseAPIException(code="NOT_FOUND", message="Supplier not found or access denied", status_code=404)
+
         subcontract = Subcontract(
             tenant_id=tenant_id,
             created_by=user_id,

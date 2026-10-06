@@ -19,6 +19,7 @@ from app.models.ap_ar import (
 )
 from app.models.accounting import Account, AccountType
 from app.models.bank import BankAccount
+from app.models.clients import Client
 from app.models.commercial import ClientPaymentApplication
 from app.models.contracts import Contract
 from app.schemas.ap_ar import (
@@ -92,6 +93,31 @@ class ARService:
         return invoice
 
     def create_invoice(self, schema: ARInvoiceCreate) -> ARInvoice:
+        # Pre-mutation tenant-scoped authorization checks
+        if schema.client_id:
+            client = self.db.query(Client).filter(
+                Client.id == schema.client_id,
+                Client.tenant_id == self.tenant_id
+            ).first()
+            if not client:
+                raise HTTPException(status_code=400, detail="Client not found or access denied")
+
+        if schema.contract_id:
+            contract = self.db.query(Contract).filter(
+                Contract.id == schema.contract_id,
+                Contract.tenant_id == self.tenant_id
+            ).first()
+            if not contract:
+                raise HTTPException(status_code=400, detail="Contract not found or access denied")
+
+        if schema.payment_application_id:
+            pay_app = self.db.query(ClientPaymentApplication).filter(
+                ClientPaymentApplication.id == schema.payment_application_id,
+                ClientPaymentApplication.tenant_id == self.tenant_id
+            ).first()
+            if not pay_app:
+                raise HTTPException(status_code=400, detail="Client Payment Application not found or access denied")
+
         subtotal = Decimal("0.00")
         total_tax = Decimal("0.00")
 
@@ -354,12 +380,23 @@ class ARService:
         return receipt
 
     def create_receipt(self, schema: PaymentCreate) -> Payment:
+        # Pre-mutation tenant-scoped authorization checks
+        if schema.client_id:
+            client = self.db.query(Client).filter(
+                Client.id == schema.client_id,
+                Client.tenant_id == self.tenant_id
+            ).first()
+            if not client:
+                raise HTTPException(status_code=400, detail="Client not found or access denied")
+
         bank_account = None
         if schema.bank_account_id:
             bank_account = self.db.query(BankAccount).filter(
                 BankAccount.id == schema.bank_account_id,
                 BankAccount.tenant_id == self.tenant_id
             ).first()
+            if not bank_account:
+                raise HTTPException(status_code=400, detail="Bank account not found or access denied")
 
         cash_account_id = None
         if bank_account and bank_account.gl_account_id:
@@ -417,6 +454,15 @@ class ARService:
             alloc_amt = Decimal(str(alloc_schema.amount))
             if unapplied < alloc_amt:
                 raise HTTPException(status_code=400, detail="Allocation exceeds receipt amount")
+
+            inv = None
+            if alloc_schema.ar_invoice_id:
+                inv = self.db.query(ARInvoice).filter(
+                    ARInvoice.id == alloc_schema.ar_invoice_id,
+                    ARInvoice.tenant_id == self.tenant_id
+                ).first()
+                if not inv:
+                    raise HTTPException(status_code=400, detail="AR Invoice not found or access denied")
 
             allocation = PaymentAllocation(
                 tenant_id=self.tenant_id,

@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from app.core.database import get_db
 from app.core.auth import get_current_user, get_current_tenant
 from app.models.user import User
+from app.models.projects import Project
 from app.models.requisitions import PurchaseRequisition, PurchaseRequisitionLine, PRStatus
 from app.schemas.requisitions import PurchaseRequisitionCreate, PurchaseRequisitionResponse
 
@@ -19,6 +20,14 @@ def create_requisition(
     current_user: User = Depends(get_current_user),
     tenant_id: UUID = Depends(get_current_tenant)
 ):
+    if req_in.project_id:
+        proj = db.query(Project).filter(
+            Project.id == req_in.project_id,
+            Project.tenant_id == tenant_id
+        ).first()
+        if not proj:
+            raise HTTPException(status_code=400, detail="Project not found or access denied")
+
     pr = PurchaseRequisition(
         tenant_id=tenant_id,
         pr_number=req_in.pr_number,

@@ -100,6 +100,17 @@ def post_invoice(
     return service.post_invoice(invoice_id)
 
 
+@router.get("/invoices/{invoice_id}/balance")
+def get_invoice_balance(
+    invoice_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = ARService(db, current_user.tenant_id, current_user.id)
+    balance = service.get_outstanding_balance(invoice_id)
+    return {"invoice_id": invoice_id, "outstanding_balance": balance}
+
+
 @router.get("/receipts", response_model=List[PaymentResponse])
 def list_receipts(
     client_id: Optional[UUID] = Query(None),

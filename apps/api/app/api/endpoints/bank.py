@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from uuid import UUID
@@ -5,6 +6,7 @@ from uuid import UUID
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.user import User
+from app.models.bank import BankAccount
 from app.schemas.bank import (
     BankAccountCreate, BankAccountResponse,
     BankTransactionCreate, BankTransactionResponse,
@@ -14,6 +16,13 @@ from app.schemas.bank import (
 from app.services.bank_service import BankService
 
 router = APIRouter()
+
+@router.get("/accounts", response_model=List[BankAccountResponse])
+def list_bank_accounts(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return db.query(BankAccount).filter(BankAccount.tenant_id == current_user.tenant_id).all()
 
 @router.post("/accounts", response_model=BankAccountResponse, status_code=201)
 def create_bank_account(

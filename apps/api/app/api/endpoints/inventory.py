@@ -26,6 +26,7 @@ from app.models.inventory_transfers import InventoryTransfer, InventoryTransferL
 from app.models.inventory_adjustments import InventoryAdjustment, InventoryAdjustmentLine, InventoryAdjustmentStatus, AdjustmentType
 from app.models.materials import Material
 from app.models.warehouses import Warehouse
+from app.models.suppliers import Supplier
 from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine
 from app.models.projects import Project
 from app.models.cost_codes import CostCode
@@ -148,6 +149,10 @@ def create_goods_receipt(
         po = db.query(PurchaseOrder).filter(PurchaseOrder.id == receipt.purchase_order_id, PurchaseOrder.tenant_id == tenant_id).first()
         if not po:
             raise HTTPException(status_code=404, detail="Purchase order not found or access denied")
+    if receipt.supplier_id:
+        supplier = db.query(Supplier).filter(Supplier.id == receipt.supplier_id, Supplier.tenant_id == tenant_id).first()
+        if not supplier:
+            raise HTTPException(status_code=404, detail="Supplier not found or access denied")
     for line in receipt.lines:
         mat = db.query(Material).filter(Material.id == line.material_id, Material.tenant_id == tenant_id).first()
         if not mat:

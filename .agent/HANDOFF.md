@@ -1,22 +1,26 @@
-# Agent Handoff Document
+# Handoff — Modern Construction ERP (FINAL BETA)
 
-> [!NOTE]
-> Generated automatically after Session 022 (Stage 34 ERP Productization & Integrated Workflow Hardening).
+## Executive Summary
+The Autonomous Final Beta Development Campaign has concluded with 100% of all **22 Beta Acceptance Gates** fully satisfied. Modern Construction ERP has reached a verified **FINAL BETA** state (`beta-1.0.0`).
 
-## 1. Project Identity & Stack
-- **Project:** Modern Construction ERP
-- **Current Stage:** Stage 34 (ERP Productization & Integrated Workflow Hardening)
-- **Branch:** main
-- **Last Checkpoint:** stage-34-productized
+## What Was Hardened & Delivered in Final Beta Campaign
+1. **Multi-Tenancy Pre-Mutation Scoping (Gate 3 & Gate 17):**
+   - Eliminated cross-tenant injection vulnerabilities across Accounts Receivable (`create_invoice`, `create_receipt`, allocations), Purchase Orders (`create_purchase_order`), Requisitions (`create_requisition`), Subcontracts (`create_subcontract`), and Goods Receipts (`create_goods_receipt`).
+   - Implemented negative cross-tenant automated security tests in `test_tenancy.py`.
+2. **Developer Environment & Reproducibility Tooling (Gate 1 & Gate 21):**
+   - `scripts/dev.sh`: Starts Docker services with health check polling.
+   - `scripts/seed.sh`: Idempotent seed runner with strict dependency-ordered foreign key cascade unlinking.
+   - `scripts/lint.sh`: Python compilation check and Next.js ESLint.
+   - `scripts/verify_final_beta.sh`: Master 7-stage CI validation pipeline.
+3. **Cross-Domain Workflow 3 (Gate 5, Gate 9, Gate 10, Gate 13):**
+   - Codified and verified complete commercial lifecycle: Contract → AIA/IPC Claim → AR Progress Invoice → GL Retainage Posting (Assets 1200 + 1210 == Revenue 4010) → Treasury Cash Receipt → 100% Invoice Settlement & Zero Balance (`scripts/verify_workflow_3_ar.py`).
+4. **General Ledger & Financial Invariants (Gate 10):**
+   - Verified 100% of all POSTED journal entries strictly satisfy `TOTAL DEBITS == TOTAL CREDITS`.
 
-## 2. Verified Capabilities & Audit Results
-- **Seamless End-to-End User Experience:** A normal browser user can navigate the entire construction transaction lifecycle from Login → Project Selection → PO Creation & Issuance → GRN Physical Receipt → Warehouse Stock Verification → Material Site Issuance (with over-issue validation) → Project Cost Control Rollup → AP Invoice Registration → 3-Way Match Verification → GL Balanced Double-Entry Posting → Management Reporting.
-- **Removed Developer-Only Workarounds:** Replaced UUID copy-pasting, manual swagger calls, and script dependencies with intuitive in-app action buttons, dynamic query parameter pre-selection, and clickable provenance audit links.
-- **Material & Stock Intelligence:** Integrated Material Master picker in PO creation, live warehouse stock indicators on site dispatch, and user-friendly stock boundary validation.
-- **Pre-Mutation Cross-Tenant Isolation:** Hardened AP invoice creation against unauthorized foreign tenant PO, GRN, and supplier references, ensuring 404 rejection before any DB write.
-- **Restart Resilience:** Verified that project costs, AP invoices, and warehouse stock remain completely persistent across Docker container restarts.
-- **Test Integrity:** 18/18 authoritative user journey steps passing (`scripts/test_user_journey_e2e.py`), 70/70 baseline E2E checks passing, 94/94 backend pytest tests passing, Next.js 14 builds with 0 errors across 35 routes, Workflow 1 passing, and Workflow 2 passing.
-
-## 3. Next Recommended Action
-- Conclude Stage 34 with checkpoint commit and annotated tag `stage-34-productized`.
-- Stop and await human review.
+## Verification Artifacts
+- `pytest tests/`: 98 / 98 passing (100%)
+- Next.js 14 Build: 35 / 35 routes compiled (0 errors)
+- `scripts/test_demo_e2e.py`: 70 / 70 passing (100%)
+- `scripts/verify_workflow_3_ar.py`: 10 / 10 passing (100%)
+- `scripts/test_user_journey_e2e.py`: 18 / 18 passing (100%)
+- `scripts/verify_final_beta.sh`: 7 / 7 pipeline stages passing in 66s
