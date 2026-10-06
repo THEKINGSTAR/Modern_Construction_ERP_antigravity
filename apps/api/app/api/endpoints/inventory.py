@@ -27,6 +27,8 @@ from app.models.inventory_adjustments import InventoryAdjustment, InventoryAdjus
 from app.models.materials import Material
 from app.models.warehouses import Warehouse
 from app.models.purchase_orders import PurchaseOrder, PurchaseOrderLine
+from app.models.projects import Project
+from app.models.cost_codes import CostCode
 from app.services.inventory import InventoryService
 
 router = APIRouter(tags=["Inventory"])
@@ -138,6 +140,19 @@ def create_goods_receipt(
     current_user: User = Depends(get_current_user),
     tenant_id: UUID = Depends(get_current_tenant)
 ):
+    # Pre-mutation tenant-scoped authorization checks
+    warehouse = db.query(Warehouse).filter(Warehouse.id == receipt.warehouse_id, Warehouse.tenant_id == tenant_id).first()
+    if not warehouse:
+        raise HTTPException(status_code=404, detail="Warehouse not found or access denied")
+    if receipt.purchase_order_id:
+        po = db.query(PurchaseOrder).filter(PurchaseOrder.id == receipt.purchase_order_id, PurchaseOrder.tenant_id == tenant_id).first()
+        if not po:
+            raise HTTPException(status_code=404, detail="Purchase order not found or access denied")
+    for line in receipt.lines:
+        mat = db.query(Material).filter(Material.id == line.material_id, Material.tenant_id == tenant_id).first()
+        if not mat:
+            raise HTTPException(status_code=404, detail="Material not found or access denied")
+
     # 1. Create Receipt Document
     db_receipt = GoodsReceipt(
         tenant_id=tenant_id,
@@ -232,6 +247,24 @@ def create_material_issue(
     current_user: User = Depends(get_current_user),
     tenant_id: UUID = Depends(get_current_tenant)
 ):
+    # Pre-mutation tenant-scoped authorization checks
+    warehouse = db.query(Warehouse).filter(Warehouse.id == issue.warehouse_id, Warehouse.tenant_id == tenant_id).first()
+    if not warehouse:
+        raise HTTPException(status_code=404, detail="Warehouse not found or access denied")
+
+    project = db.query(Project).filter(Project.id == issue.project_id, Project.tenant_id == tenant_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found or access denied")
+
+    cost_code = db.query(CostCode).filter(CostCode.id == issue.cost_code_id, CostCode.tenant_id == tenant_id).first()
+    if not cost_code:
+        raise HTTPException(status_code=404, detail="Cost code not found or access denied")
+
+    for line in issue.lines:
+        mat = db.query(Material).filter(Material.id == line.material_id, Material.tenant_id == tenant_id).first()
+        if not mat:
+            raise HTTPException(status_code=404, detail="Material not found or access denied")
+
     # 1. Create Issue Document
     db_issue = MaterialIssue(
         tenant_id=tenant_id,
@@ -311,6 +344,18 @@ def create_inventory_transfer(
     current_user: User = Depends(get_current_user),
     tenant_id: UUID = Depends(get_current_tenant)
 ):
+    # Pre-mutation tenant-scoped authorization checks
+    src_wh = db.query(Warehouse).filter(Warehouse.id == transfer.source_warehouse_id, Warehouse.tenant_id == tenant_id).first()
+    if not src_wh:
+        raise HTTPException(status_code=404, detail="Source warehouse not found or access denied")
+    dst_wh = db.query(Warehouse).filter(Warehouse.id == transfer.destination_warehouse_id, Warehouse.tenant_id == tenant_id).first()
+    if not dst_wh:
+        raise HTTPException(status_code=404, detail="Destination warehouse not found or access denied")
+    for line in transfer.lines:
+        mat = db.query(Material).filter(Material.id == line.material_id, Material.tenant_id == tenant_id).first()
+        if not mat:
+            raise HTTPException(status_code=404, detail="Material not found or access denied")
+
     db_transfer = InventoryTransfer(
         tenant_id=tenant_id,
         transfer_number=transfer.transfer_number,
@@ -492,6 +537,15 @@ def create_inventory_adjustment(
     current_user: User = Depends(get_current_user),
     tenant_id: UUID = Depends(get_current_tenant)
 ):
+    # Pre-mutation tenant-scoped authorization checks
+    warehouse = db.query(Warehouse).filter(Warehouse.id == adjustment.warehouse_id, Warehouse.tenant_id == tenant_id).first()
+    if not warehouse:
+        raise HTTPException(status_code=404, detail="Warehouse not found or access denied")
+    for line in adjustment.lines:
+        mat = db.query(Material).filter(Material.id == line.material_id, Material.tenant_id == tenant_id).first()
+        if not mat:
+            raise HTTPException(status_code=404, detail="Material not found or access denied")
+
     db_adjustment = InventoryAdjustment(
         tenant_id=tenant_id,
         adjustment_number=adjustment.adjustment_number,

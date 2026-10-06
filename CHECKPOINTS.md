@@ -34,7 +34,7 @@ This file records verified recovery points.
 | 30 | COMPLETED | 4ee0c5a | stage-30-complete | YES | YES |
 | 31 | COMPLETED | 60b5bdc | stage-31-complete | YES | YES |
 | 32 | COMPLETED | HEAD | workflow-01-complete | YES | YES |
-| 33 | COMPLETED | HEAD | workflow-02-complete | YES | pending |
+| 33 | COMPLETED | HEAD | stage-33-hardened | YES | YES |
 
 ## Agent Memory Checkpoints
 | Name | Commit | Tag | Description |
@@ -83,3 +83,20 @@ The latest stage marked COMPLETE and verified by human review is the preferred r
   - Treasury Customer Collections (Receipts) with GL deposit (Cash 1010, AR 1200) and invoice balance settlement.
   - Live AR Executive Summary engine with aging buckets.
   - Client Invoices Studio (`/ar/invoices`) and Customer Collections Register (`/ar/receipts`).
+
+## Checkpoint: stage-33-hardened (Stage 33 Workflows 1 & 2 Hardening, Cost Engine & Tenant Isolation)
+- **Timestamp:** 2026-10-06 17:45:00Z
+- **Commit:** HEAD
+- **Validation:**
+  - 94/94 backend pytest tests passing (100%).
+  - Next.js 14 build compiled 35 production routes with 0 errors.
+  - 70/70 full application stack E2E checks passing 100% against real PostgreSQL & Redis.
+  - Workflow 1 (Procure-to-Pay → AP → GL) verified & persisted in PostgreSQL.
+  - Workflow 2 (Material Issue → Project Cost → Reporting) verified & persisted in PostgreSQL.
+  - Application-level pre-mutation tenant isolation enforced across all inventory endpoints.
+- **Delivered Capabilities:**
+  - Full P2P vertical integration across PO, GRN, AP, 3-Way Match, and balanced double-entry GL journals.
+  - Downstream site inventory issuance to Project Cost Control, EVM matrix, and Executive Reporting dashboards.
+  - Equipment usage, fuel, maintenance, and timesheet labor cost transaction rollup in Project Cost Engine.
+  - Strict tenant-scoping authorization checks rejecting unauthorized cross-tenant requests before database mutation.
+

@@ -8,6 +8,8 @@ from app.models.user import User
 from app.core.security import get_password_hash, create_access_token
 from app.models.warehouses import Warehouse
 from app.models.materials import Material
+from app.models.material_issues import MaterialIssue, MaterialIssueStatus
+from app.models.inventory import InventoryTransaction, TransactionType
 from app.models.accounting import ChartOfAccounts, Account
 from app.models.org_settings import AccountingPeriod, FiscalYear
 
@@ -24,7 +26,12 @@ def test_data(client, db_session):
 
     token_a = create_access_token({"sub": str(u_a.id)})
     h_a = {"Authorization": f"Bearer {token_a}", "X-Tenant-ID": str(t_a.id)}
-    h_b = {"Authorization": f"Bearer token_b_fake", "X-Tenant-ID": str(t_b.id)}
+
+    u_b = User(id=uuid.uuid4(), email=f"admin_{uuid.uuid4()}@verb.erp", hashed_password=get_password_hash("pw"), tenant_id=t_b.id, is_superuser=True)
+    db_session.add(u_b)
+    db_session.commit()
+    token_b = create_access_token({"sub": str(u_b.id)})
+    h_b = {"Authorization": f"Bearer {token_b}", "X-Tenant-ID": str(t_b.id)}
 
     # Setup basic data
     coa = ChartOfAccounts(id=uuid.uuid4(), tenant_id=t_a.id, name="Verif COA")
@@ -103,19 +110,20 @@ def test_material_issue_to_project_cost_propagation(client, test_data, db_sessio
     
     # INDEPENDENT DATABASE VERIFICATION
     # Query material_issues
-    result = db_session.execute(text("SELECT status FROM material_issues WHERE project_id = :pid"), {"pid": project_id}).fetchone()
-    assert result[0] == "POSTED"
+    result = db_session.query(MaterialIssue).filter(MaterialIssue.project_id == uuid.UUID(project_id)).first()
+    assert result is not None
+    assert result.status == MaterialIssueStatus.POSTED or result.status == "POSTED"
     
     # Query inventory_transactions (1 receipt + 1 issue)
-    txns = db_session.execute(text("SELECT transaction_type, quantity, unit_cost FROM inventory_transactions WHERE material_id = :mid"), {"mid": mat_id}).fetchall()
+    txns = db_session.query(InventoryTransaction).filter(InventoryTransaction.material_id == uuid.UUID(mat_id)).all()
     assert len(txns) == 2
-    issue_txn = next(t for t in txns if t[0] == "ISSUE")
-    assert float(issue_txn[1]) == 20.0
-    assert float(issue_txn[2]) == 500.0
-    db_cost = float(issue_txn[1]) * float(issue_txn[2])
+    issue_txn = next(t for t in txns if t.transaction_type == TransactionType.ISSUE or t.transaction_type == "ISSUE")
+    assert float(issue_txn.quantity) == 20.0
+    assert float(issue_txn.unit_cost) == 500.0
+    db_cost = float(issue_txn.quantity) * float(issue_txn.unit_cost)
     assert db_cost == 10000.0 # Matches exactly what dashboard reported
 
-def test_negative_validations(client, test_data):
+def test_negative_validations(client, test_data, db_session):
     h_a = test_data["h_a"]
     h_b = test_data["h_b"]
     
@@ -148,5 +156,17 @@ def test_negative_validations(client, test_data):
     })
     assert res_insuf.status_code == 400
     assert "insufficient" in res_insuf.text.lower() or "not enough" in res_insuf.text.lower() or "quantity" in res_insuf.text.lower()
+
+    # Negative 2: Cross-Tenant Isolation — Tenant B attempts to issue materials against Tenant A's project
+    res_cross_proj = client.post("/api/v1/inventory/material-issues", headers=h_b, json={
+        "issue_number": "MI-NEG-CROSS", "warehouse_id": wh_id, "project_id": project_id, "cost_code_id": cc_id, "date": "2026-09-08", "purpose": "Cross Tenant Exploit",
+        "lines": [{"material_id": mat_id, "quantity": 2, "notes": "Unauthorized"}]
+    })
+    # MUST reject with 404/403 BEFORE attempting database mutation
+    assert res_cross_proj.status_code in [403, 404]
+
+    # Verify no material issue was created in DB
+    cross_db = db_session.query(MaterialIssue).filter(MaterialIssue.issue_number == "MI-NEG-CROSS").first()
+    assert cross_db is None
 
 
