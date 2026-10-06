@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import AppLayout from '@/components/AppLayout';
 import {
   getJournals,
@@ -77,6 +78,22 @@ export default function JournalVouchersPage({ params }: { params: { locale: stri
       setProjects(pData);
       setCostCodes(cData);
       setSummary(sData);
+
+      if (typeof window !== 'undefined') {
+        const sp = new URLSearchParams(window.location.search);
+        const qSearch = sp.get('search') || sp.get('ref');
+        if (qSearch) {
+          setSearchTerm(qSearch);
+          const matchJ = jData.find(
+            (j) =>
+              (j.reference && j.reference.toLowerCase().includes(qSearch.toLowerCase())) ||
+              j.description.toLowerCase().includes(qSearch.toLowerCase())
+          );
+          if (matchJ) {
+            setExpandedJournalId(matchJ.id);
+          }
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to load journals');
     } finally {
@@ -217,13 +234,21 @@ export default function JournalVouchersPage({ params }: { params: { locale: stri
                 : 'Double-entry balanced accounting journal vouchers with real-time posting and reversal workflows'}
             </p>
           </div>
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
-          >
-            <span className="mr-2">+</span>
-            {isAr ? 'سند قيد جديد' : 'New Journal Voucher'}
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/${locale}/accounting/reports`}
+              className="inline-flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg transition-colors border border-slate-300 dark:border-slate-600"
+            >
+              {isAr ? '⚖️ ميزان المراجعة' : '⚖️ Trial Balance Report'}
+            </Link>
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+            >
+              <span className="mr-2">+</span>
+              {isAr ? 'سند قيد جديد' : 'New Journal Voucher'}
+            </button>
+          </div>
         </div>
 
         {/* KPI Cards */}

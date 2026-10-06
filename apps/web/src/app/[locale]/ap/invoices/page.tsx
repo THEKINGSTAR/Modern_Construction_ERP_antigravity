@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import AppLayout from "@/components/AppLayout";
 import {
   getAPInvoices,
@@ -78,6 +79,51 @@ export default function APInvoicesPage({ params }: { params: { locale: string } 
       setSuppliers(supData);
       setPurchaseOrders(poData);
       setGoodsReceipts(grnData);
+
+      if (typeof window !== "undefined") {
+        const sp = new URLSearchParams(window.location.search);
+        const qPo = sp.get("po_id");
+        const qGrn = sp.get("grn_id");
+        const qSearch = sp.get("search");
+
+        if (qSearch) {
+          setSearch(qSearch);
+        }
+
+        if (qPo) {
+          const matchPo = poData.find((p) => p.id === qPo);
+          if (matchPo) {
+            const linkedGrn = grnData.find((g) => g.purchase_order_id === qPo || g.id === qGrn);
+            setForm({
+              number: `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
+              supplier_id: matchPo.supplier_id || supData[0]?.id || "",
+              purchase_order_id: matchPo.id,
+              goods_receipt_id: linkedGrn ? linkedGrn.id : qGrn || "",
+              date: new Date().toISOString().split("T")[0],
+              due_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
+              description: `Invoice for PO ${matchPo.po_number}`,
+              tax_amount: 0,
+              lines:
+                matchPo.lines && matchPo.lines.length > 0
+                  ? matchPo.lines.map((l: any) => ({
+                      description: l.item_description || "PO Line Item",
+                      quantity: Number(l.quantity) || 1,
+                      unit_price: Number(l.unit_price) || 0,
+                      tax_rate: 0,
+                    }))
+                  : [
+                      {
+                        description: `Materials delivery against PO ${matchPo.po_number}`,
+                        quantity: 1,
+                        unit_price: Number(matchPo.total_amount) || 0,
+                        tax_rate: 0,
+                      },
+                    ],
+            });
+            setShowModal(true);
+          }
+        }
+      }
     } catch (err: any) {
       setError(err.message || "Failed to load accounts payable invoices");
     } finally {
@@ -490,6 +536,24 @@ export default function APInvoicesPage({ params }: { params: { locale: string } 
                               Post GL
                             </button>
                           )}
+                          {inv.status === "POSTED" && (
+                            <>
+                              <Link
+                                href={`/${params.locale}/accounting/journals?search=${inv.number}`}
+                                className="px-2 py-1 text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded transition-colors inline-flex items-center gap-1 border border-emerald-500/20"
+                                title="View Posted Balanced GL Journal Entry"
+                              >
+                                📒 GL Journal
+                              </Link>
+                              <Link
+                                href={`/${params.locale}/reports/trial-balance`}
+                                className="px-2 py-1 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-700/40 rounded transition-colors inline-flex items-center gap-1"
+                                title="View Trial Balance Impact"
+                              >
+                                ⚖️ Trial Balance
+                              </Link>
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -625,14 +689,31 @@ export default function APInvoicesPage({ params }: { params: { locale: string } 
                 >
                   Close Studio
                 </button>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                   {selectedInvoice && selectedInvoice.status === "DRAFT" && (
                     <button
                       onClick={() => handleApprove(selectedInvoice.id)}
-                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
                     >
                       {matchReport.is_matched ? "Approve Verified Invoice" : "Override Variance & Approve"}
                     </button>
+                  )}
+                  {selectedInvoice && selectedInvoice.status === "APPROVED" && (
+                    <button
+                      onClick={() => handlePostGL(selectedInvoice.id)}
+                      disabled={actionLoadingId === selectedInvoice.id}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                    >
+                      Post to General Ledger (GL)
+                    </button>
+                  )}
+                  {selectedInvoice && selectedInvoice.status === "POSTED" && (
+                    <Link
+                      href={`/${params.locale}/accounting/journals?search=${selectedInvoice.number}`}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-medium transition-colors shadow-sm inline-flex items-center gap-1.5"
+                    >
+                      📒 View Balanced GL Journal Entry
+                    </Link>
                   )}
                 </div>
               </div>

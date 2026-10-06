@@ -44,6 +44,31 @@ class APService:
         return account.id
 
     def create_invoice(self, schema: APInvoiceCreate) -> APInvoice:
+        # Pre-mutation multi-tenant isolation validation
+        if schema.supplier_id:
+            supplier = self.db.query(Supplier).filter(
+                Supplier.id == schema.supplier_id,
+                Supplier.tenant_id == self.tenant_id
+            ).first()
+            if not supplier:
+                raise HTTPException(status_code=404, detail="Supplier not found for this tenant")
+
+        if schema.purchase_order_id:
+            po = self.db.query(PurchaseOrder).filter(
+                PurchaseOrder.id == schema.purchase_order_id,
+                PurchaseOrder.tenant_id == self.tenant_id
+            ).first()
+            if not po:
+                raise HTTPException(status_code=404, detail="Purchase order not found for this tenant")
+
+        if schema.goods_receipt_id:
+            grn = self.db.query(GoodsReceipt).filter(
+                GoodsReceipt.id == schema.goods_receipt_id,
+                GoodsReceipt.tenant_id == self.tenant_id
+            ).first()
+            if not grn:
+                raise HTTPException(status_code=404, detail="Goods receipt not found for this tenant")
+
         subtotal = sum((line.quantity * line.unit_price) for line in schema.lines)
         tax_total = Decimal("0.0000")
         for line in schema.lines:

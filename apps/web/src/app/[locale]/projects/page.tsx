@@ -5,7 +5,8 @@ import Link from "next/link";
 import AppLayout from "@/components/AppLayout";
 import { getProjects, createProject, updateProject, deleteProject, Project } from "@/lib/api";
 
-export default function ProjectsPage() {
+export default function ProjectsPage({ params }: { params: { locale: string } }) {
+  const locale = params?.locale || "en";
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -232,28 +233,56 @@ export default function ProjectsPage() {
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <Link
-                          href={`/en/wbs?project_id=${p.id}`}
+                          href={`/${locale}/purchase-orders?project_id=${p.id}`}
+                          className="px-2 py-0.5 rounded bg-blue-950/60 hover:bg-blue-900/80 text-blue-300 border border-blue-800/40 text-[10px] font-medium"
+                          title="Procure Materials for Project"
+                        >
+                          📦 PO
+                        </Link>
+                        <Link
+                          href={`/${locale}/material-issues?project_id=${p.id}`}
+                          className="px-2 py-0.5 rounded bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-800/40 text-[10px] font-medium"
+                          title="Issue Materials to Site"
+                        >
+                          📤 Issues
+                        </Link>
+                        <Link
+                          href={`/${locale}/cost-control?project_id=${p.id}`}
+                          className="px-2 py-0.5 rounded bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-800/40 text-[10px] font-medium"
+                          title="Project Cost Control & EVM"
+                        >
+                          🎯 Cost Control
+                        </Link>
+                        <Link
+                          href={`/${locale}/reports/projects/${p.id}`}
+                          className="px-2 py-0.5 rounded bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-800/40 text-[10px] font-medium"
+                          title="Project Analytics Dashboard"
+                        >
+                          📊 Analytics
+                        </Link>
+                        <Link
+                          href={`/${locale}/wbs?project_id=${p.id}`}
                           className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium"
                         >
                           WBS
                         </Link>
                         <Link
-                          href={`/en/boq?project_id=${p.id}`}
-                          className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium"
-                        >
-                          BOQ
-                        </Link>
-                        <Link
-                          href={`/en/budgets?project_id=${p.id}`}
+                          href={`/${locale}/budgets?project_id=${p.id}`}
                           className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] text-slate-300 font-medium"
                         >
                           Budget
                         </Link>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 text-right space-x-2">
+                    <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                      <Link
+                        href={`/${locale}/purchase-orders?project_id=${p.id}`}
+                        className="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-medium text-[11px] inline-block shadow-sm"
+                      >
+                        Procure →
+                      </Link>
                       <button
                         onClick={() => handleOpenEdit(p)}
                         className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-[11px]"

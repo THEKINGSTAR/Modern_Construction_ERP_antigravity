@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import AppLayout from "@/components/AppLayout";
 import {
   getPurchaseOrders,
@@ -14,6 +15,8 @@ import {
   Project,
   getCostCodes,
   CostCode,
+  getMaterials,
+  Material,
 } from "@/lib/api";
 
 export default function PurchaseOrdersPage({ params }: { params: { locale: string } }) {
@@ -21,6 +24,7 @@ export default function PurchaseOrdersPage({ params }: { params: { locale: strin
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [costCodes, setCostCodes] = useState<CostCode[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("ALL");
@@ -45,25 +49,37 @@ export default function PurchaseOrdersPage({ params }: { params: { locale: strin
   const loadData = async () => {
     try {
       setLoading(true);
-      const [poData, supData, projData, ccData] = await Promise.all([
+      const [poData, supData, projData, ccData, matData] = await Promise.all([
         getPurchaseOrders(),
         getSuppliers(),
         getProjects(),
         getCostCodes(),
+        getMaterials().catch(() => []),
       ]);
       setPurchaseOrders(poData);
       setSuppliers(supData);
       setProjects(projData);
       setCostCodes(ccData);
+      setMaterials(matData);
 
-      if (projData.length > 0 && supData.length > 0 && !form.project_id) {
-        setForm((prev) => ({
-          ...prev,
-          project_id: projData[0].id,
-          supplier_id: supData[0].id,
-          cost_code_id: ccData.length > 0 ? ccData[0].id : "",
-        }));
+      let targetProjId = projData.length > 0 ? projData[0].id : "";
+      if (typeof window !== "undefined") {
+        const sp = new URLSearchParams(window.location.search);
+        const qProj = sp.get("project_id");
+        if (qProj && projData.some((p) => p.id === qProj)) {
+          targetProjId = qProj;
+          // Also set search filter to project number if present
+          const pMatch = projData.find((p) => p.id === qProj);
+          if (pMatch) setSearch(pMatch.project_number);
+        }
       }
+
+      setForm((prev) => ({
+        ...prev,
+        project_id: targetProjId,
+        supplier_id: supData.length > 0 ? supData[0].id : "",
+        cost_code_id: ccData.length > 0 ? ccData[0].id : "",
+      }));
       setError(null);
     } catch (err: any) {
       setError(err.message || "Failed to load purchase orders");
@@ -276,7 +292,13 @@ export default function PurchaseOrdersPage({ params }: { params: { locale: strin
                           {po.notes && <div className="text-xs text-slate-400 line-clamp-1">{po.notes}</div>}
                         </td>
                         <td className="px-6 py-4 text-xs text-slate-300">
-                          {po.project_name || "Skyline Commercial Tower"}
+                          <Link
+                            href={`/${params.locale}/cost-control?project_id=${po.project_id}`}
+                            className="text-blue-400 hover:text-blue-300 hover:underline font-medium"
+                            title="View Project Cost Control & EVM"
+                          >
+                            {po.project_name || "Project Site"}
+                          </Link>
                         </td>
                         <td className="px-6 py-4 text-xs font-semibold text-slate-200">
                           {po.supplier_name || "Vulcan Steel & Materials"}
@@ -300,19 +322,37 @@ export default function PurchaseOrdersPage({ params }: { params: { locale: strin
                             {po.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-right space-x-2">
+                        <td className="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
                           {po.status === "DRAFT" && (
                             <button
                               onClick={() => handleIssue(po.id)}
-                              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold transition shadow-sm"
+                              className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold transition shadow-sm"
                             >
                               Issue PO
                             </button>
                           )}
+                          {po.status === "ISSUED" && (
+                            <>
+                              <Link
+                                href={`/${params.locale}/goods-receipts?po_id=${po.id}`}
+                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-semibold transition shadow-sm inline-flex items-center gap-1"
+                                title="Receive Goods into Warehouse"
+                              >
+                                📥 Receive Goods
+                              </Link>
+                              <Link
+                                href={`/${params.locale}/ap/invoices?po_id=${po.id}`}
+                                className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-semibold transition shadow-sm inline-flex items-center gap-1"
+                                title="Create Vendor Invoice for 3-Way Match"
+                              >
+                                🧾 Invoice
+                              </Link>
+                            </>
+                          )}
                           {po.status !== "CANCELLED" && (
                             <button
                               onClick={() => handleCancel(po.id)}
-                              className="px-2.5 py-1 bg-slate-800 hover:bg-red-950/60 hover:text-red-400 text-slate-400 rounded text-xs transition"
+                              className="px-2 py-1 bg-slate-800 hover:bg-red-950/60 hover:text-red-400 text-slate-400 rounded text-xs transition"
                             >
                               Cancel
                             </button>
@@ -407,8 +447,37 @@ export default function PurchaseOrdersPage({ params }: { params: { locale: strin
                 </div>
 
                 <div className="border-t border-slate-800 pt-3 space-y-3">
-                  <span className="text-xs font-semibold text-blue-400 block">Purchase Order Line Item</span>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-blue-400">Purchase Order Line Item</span>
+                    <span className="text-[11px] text-slate-500">Procure from master catalog or custom</span>
+                  </div>
+
                   <div>
+                    <label className="block text-xs font-medium text-slate-400 mb-1">Standard Material (Auto-fills details)</label>
+                    <select
+                      onChange={(e) => {
+                        const m = materials.find((mat) => mat.id === e.target.value);
+                        if (m) {
+                          setForm((prev) => ({
+                            ...prev,
+                            item_description: `${m.material_code} — ${m.name}`,
+                            unit: m.base_unit || prev.unit,
+                          }));
+                        }
+                      }}
+                      className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">-- Choose from Master Catalog (Optional) --</option>
+                      {materials.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.material_code} — {m.name} ({m.base_unit})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-400 mb-1">Item Description *</label>
                     <input
                       type="text"
                       required

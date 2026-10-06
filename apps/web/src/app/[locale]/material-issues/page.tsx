@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import AppLayout from "@/components/AppLayout";
 import {
   getMaterialIssues,
@@ -63,15 +64,41 @@ export default function MaterialIssuesPage({ params }: { params: { locale: strin
       setMaterials(matData);
       setBalances(balData);
 
-      if (!form.warehouse_id && whData.length > 0) {
-        setForm((prev) => ({
-          ...prev,
-          warehouse_id: whData[0].id,
-          project_id: prjData[0]?.id ?? "",
-          cost_code_id: ccData[0]?.id ?? "",
-          material_id: matData[0]?.id ?? "",
-          issue_number: `ISS-2026-${String(issData.length + 1).padStart(3, "0")}`,
-        }));
+      let targetWhId = whData[0]?.id ?? "";
+      let targetPrjId = prjData[0]?.id ?? "";
+      let targetMatId = matData[0]?.id ?? "";
+      let autoOpen = false;
+
+      if (typeof window !== "undefined") {
+        const sp = new URLSearchParams(window.location.search);
+        const qWh = sp.get("warehouse_id");
+        const qPrj = sp.get("project_id");
+        const qMat = sp.get("material_id");
+        if (qWh && whData.some((w) => w.id === qWh)) {
+          targetWhId = qWh;
+          autoOpen = true;
+        }
+        if (qPrj && prjData.some((p) => p.id === qPrj)) {
+          targetPrjId = qPrj;
+          autoOpen = true;
+        }
+        if (qMat && matData.some((m) => m.id === qMat)) {
+          targetMatId = qMat;
+          autoOpen = true;
+        }
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        warehouse_id: targetWhId,
+        project_id: targetPrjId,
+        cost_code_id: ccData[0]?.id ?? "",
+        material_id: targetMatId,
+        issue_number: `ISS-2026-${String(issData.length + 1).padStart(3, "0")}`,
+      }));
+
+      if (autoOpen) {
+        setShowModal(true);
       }
       setError(null);
     } catch (err: any) {
@@ -92,6 +119,22 @@ export default function MaterialIssuesPage({ params }: { params: { locale: strin
       return;
     }
 
+    // Check available quantity in selected warehouse
+    const matchBal = balances.find(
+      (b) => b.warehouse_id === form.warehouse_id && b.material_id === form.material_id
+    );
+    const available = matchBal ? parseFloat(matchBal.quantity as any) || 0 : 0;
+    const requested = Number(form.quantity);
+
+    if (available <= 0) {
+      alert("No stock available for this material in the selected warehouse. Please record a Goods Receipt (GRN) first.");
+      return;
+    }
+    if (requested > available) {
+      alert(`Insufficient stock: Only ${available.toFixed(2)} is currently available in the selected warehouse.`);
+      return;
+    }
+
     try {
       setSubmitting(true);
       await createMaterialIssue({
@@ -104,7 +147,7 @@ export default function MaterialIssuesPage({ params }: { params: { locale: strin
         lines: [
           {
             material_id: form.material_id,
-            quantity: Number(form.quantity),
+            quantity: requested,
             notes: form.line_notes || undefined,
           },
         ],
@@ -249,13 +292,20 @@ export default function MaterialIssuesPage({ params }: { params: { locale: strin
                           {iss.status}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={() => setSelectedIssue(iss)}
                           className="px-2.5 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
                         >
                           View Lines
                         </button>
+                        <Link
+                          href={`/${params.locale}/cost-control?project_id=${iss.project_id}`}
+                          className="px-2 py-1 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors inline-block"
+                          title="View Cost Impact in Cost Control & EVM"
+                        >
+                          🎯 Cost Control
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -330,10 +380,24 @@ export default function MaterialIssuesPage({ params }: { params: { locale: strin
                 </div>
               )}
 
-              <div className="mt-5 flex justify-end">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    href={`/${params.locale}/cost-control?project_id=${selectedIssue.project_id}`}
+                    className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
+                  >
+                    🎯 View in Cost Control
+                  </Link>
+                  <Link
+                    href={`/${params.locale}/reports/projects/${selectedIssue.project_id}`}
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
+                  >
+                    📊 Project Analytics
+                  </Link>
+                </div>
                 <button
                   onClick={() => setSelectedIssue(null)}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-semibold"
+                  className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-semibold"
                 >
                   Close Breakdown
                 </button>
@@ -456,6 +520,39 @@ export default function MaterialIssuesPage({ params }: { params: { locale: strin
                       />
                     </div>
                   </div>
+
+                  {(() => {
+                    const matchBal = balances.find(
+                      (b) => b.warehouse_id === form.warehouse_id && b.material_id === form.material_id
+                    );
+                    const currentAvailable = matchBal ? parseFloat(matchBal.quantity as any) || 0 : 0;
+                    const matObj = materials.find((m) => m.id === form.material_id);
+                    const uom = matObj?.base_unit || "Units";
+                    const isOver = Number(form.quantity) > currentAvailable;
+
+                    return (
+                      <div
+                        className={`p-2.5 rounded-lg text-xs flex items-center justify-between border ${
+                          currentAvailable <= 0
+                            ? "bg-rose-50 border-rose-200 text-rose-800"
+                            : isOver
+                            ? "bg-amber-50 border-amber-200 text-amber-800"
+                            : "bg-emerald-50 border-emerald-200 text-emerald-800"
+                        }`}
+                      >
+                        <span className="font-medium">
+                          {currentAvailable <= 0
+                            ? "⚠️ Zero Stock Available in Selected Warehouse (Intake with GRN first)"
+                            : isOver
+                            ? `⚠️ Insufficient Stock: Request exceeds available yard balance`
+                            : "✓ Available Warehouse Inventory:"}
+                        </span>
+                        <span className="font-mono font-bold">
+                          {currentAvailable.toFixed(2)} {uom} available
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div>

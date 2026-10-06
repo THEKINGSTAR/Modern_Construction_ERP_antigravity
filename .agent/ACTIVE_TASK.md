@@ -1,11 +1,12 @@
 # Active Task
 
-- **Task:** 24-Day Resume Verification & State Hardening
+- **Task:** Stage 34 ERP Productization & Integrated Workflow Hardening
 - **Status:** COMPLETED
 - **Completed Work:**
-  1. Complete environment bootstrap & stack smoke verification (PostgreSQL, Redis, FastAPI, Next.js).
-  2. Verified Workflow 1 (Procure-to-Pay → AP → GL) and Workflow 2 (Material Issue → Project Cost → Reporting).
-  3. Audited database reset behavior (verified DROP SCHEMA CASCADE was isolated to disposable test database).
-  4. Repaired broken Timesheet & Equipment actual cost rollups in `project_cost.py`.
-  5. Hardened application-level tenant isolation in inventory endpoints prior to database mutations.
-  6. Added negative cross-tenant test rejecting cross-tenant operations before DB mutation.
+  1. Audited user journey across all frontend views and eliminated points where workflows left the UI.
+  2. Implemented seamless UI linking across Projects → POs → GRNs → Inventory → Material Issues → Cost Control → AP Invoices → GL Journals → Reporting.
+  3. Integrated Material Master selection and auto-filling in PO creation; added live warehouse balance indicators and friendly over-issue prevention validation on Material Issue.
+  4. Added clickable provenance links in Cost Transactions Audit Ledger to trace costs back to source transactions.
+  5. Hardened application-level pre-mutation tenant isolation in AP invoice creation (validating PO, GRN, and supplier tenant scope).
+  6. Created authoritative 18-step E2E business journey suite (`scripts/test_user_journey_e2e.py`) verifying the complete lifecycle, independent PostgreSQL state across 8 entities, Docker container restart persistence, and cross-tenant security negative tests.
+  7. Validated all existing suites: baseline E2E (70/70), backend pytest (94/94), Next.js production build (35/35 routes), Workflow 1, and Workflow 2.

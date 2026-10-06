@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import AppLayout from "@/components/AppLayout";
 import {
   getProjects,
@@ -60,8 +61,19 @@ export default function CostControlPage({ params }: { params: { locale: string }
       setProjects(projs);
 
       let targetId = selectedProjectId;
-      if (selectedProjectId !== "PORTFOLIO") {
-        const found = projs.find((p) => p.id === selectedProjectId);
+      if (typeof window !== "undefined") {
+        const sp = new URLSearchParams(window.location.search);
+        const qProj = sp.get("project_id");
+        if (qProj && projs.some((p) => p.id === qProj)) {
+          targetId = qProj;
+          if (selectedProjectId !== qProj) {
+            setSelectedProjectId(qProj);
+          }
+        }
+      }
+
+      if (targetId !== "PORTFOLIO") {
+        const found = projs.find((p) => p.id === targetId);
         if (!found && projs.length > 0) {
           targetId = projs[0].id;
           setSelectedProjectId(targetId);
@@ -341,6 +353,26 @@ export default function CostControlPage({ params }: { params: { locale: string }
                 </svg>
                 Audit Transactions ({transactions.length})
               </button>
+            )}
+
+            {selectedProjectId !== "PORTFOLIO" && (
+              <Link
+                href={`/${params.locale}/reports/projects/${selectedProjectId}`}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-xl border border-emerald-200 transition-all"
+                title="View Project Financial Analytics & Budget vs Actual"
+              >
+                📊 Analytics
+              </Link>
+            )}
+
+            {selectedProjectId !== "PORTFOLIO" && (
+              <Link
+                href={`/${params.locale}/material-issues?project_id=${selectedProjectId}`}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 text-sm font-semibold rounded-xl border border-amber-200 transition-all"
+                title="Issue Materials to this Project"
+              >
+                📤 Material Issues
+              </Link>
             )}
 
             <button
@@ -961,7 +993,33 @@ export default function CostControlPage({ params }: { params: { locale: string }
                             {t.source_type.replace("_", " ")}
                           </td>
                           <td className="py-3 px-4 font-mono font-semibold text-gray-900">
-                            {t.source_reference || "N/A"}
+                            {t.source_type === "MATERIAL_ISSUE" && t.source_reference ? (
+                              <Link
+                                href={`/${params.locale}/material-issues?search=${t.source_reference}`}
+                                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                                title="View Source Material Issue Slip"
+                              >
+                                {t.source_reference} <span className="text-[10px]">↗</span>
+                              </Link>
+                            ) : t.source_type === "PURCHASE_ORDER" && t.source_reference ? (
+                              <Link
+                                href={`/${params.locale}/purchase-orders?search=${t.source_reference}`}
+                                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                                title="View Source Purchase Order"
+                              >
+                                {t.source_reference} <span className="text-[10px]">↗</span>
+                              </Link>
+                            ) : t.source_type === "AP_INVOICE" && t.source_reference ? (
+                              <Link
+                                href={`/${params.locale}/ap/invoices?search=${t.source_reference}`}
+                                className="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1"
+                                title="View Source AP Invoice & 3-Way Match"
+                              >
+                                {t.source_reference} <span className="text-[10px]">↗</span>
+                              </Link>
+                            ) : (
+                              t.source_reference || "N/A"
+                            )}
                           </td>
                           <td className="py-3 px-4">
                             <span className="font-mono font-bold text-gray-900">{t.cost_code_code || "General"}</span>

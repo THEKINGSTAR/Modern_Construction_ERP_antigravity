@@ -1,4 +1,4 @@
 # Next Action
 
-- **Action:** Await human review for Stage 33 verification or continue with next prioritized ERP domain enhancements.
-- **Reason:** Stage 33 integrated workflows, cost propagation, and tenant isolation fully hardened, verified, and passing 100%.
+- **Action:** Stop and await human review for Stage 34 checkpoint (`stage-34-productized`).
+- **Reason:** Stage 34 ERP Productization & Integrated Workflow Hardening is complete, with all 18 authoritative workflow steps, independent DB checks, restart resilience, and security checks passing.

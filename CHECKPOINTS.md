@@ -100,3 +100,23 @@ The latest stage marked COMPLETE and verified by human review is the preferred r
   - Equipment usage, fuel, maintenance, and timesheet labor cost transaction rollup in Project Cost Engine.
   - Strict tenant-scoping authorization checks rejecting unauthorized cross-tenant requests before database mutation.
 
+## Checkpoint: stage-34-productized (Stage 34 ERP Productization & Integrated Workflow Hardening)
+- **Timestamp:** 2026-10-06 20:15:00Z
+- **Commit:** HEAD
+- **Validation:**
+  - Authoritative 18-step business workflow suite (`scripts/test_user_journey_e2e.py`) passing 100%.
+  - 94/94 backend pytest tests passing (100%).
+  - Next.js 14 build compiled all 35 production routes with 0 errors.
+  - 70/70 baseline full application stack E2E checks passing 100%.
+  - Workflow 1 (Procure-to-Pay → AP → GL) verified & persisted in PostgreSQL.
+  - Workflow 2 (Material Issue → Project Cost → Reporting) verified & persisted in PostgreSQL.
+  - Independent direct PostgreSQL validation across 8 core entities.
+  - Docker container restart test verified state persistence across application lifecycle.
+  - Application-level pre-mutation tenant isolation enforced on PO, GRN, and AP invoice registration.
+- **Delivered Capabilities:**
+  - Seamless browser-driven ERP business journey connecting Projects → PO → GRN → Inventory → Material Issue → Cost Control → AP Invoice → 3-Way Match → GL Journals → Reporting.
+  - One-click navigation and query parameter state propagation bridging all transaction boundaries in the web portal.
+  - Material catalog integration in PO creation, live warehouse stock indicators on site issuance, and user-friendly over-issue validation.
+  - Full financial and operational traceability with clickable source transaction references in the Cost Transactions Audit Ledger.
+  - Pre-mutation cross-tenant security validation preventing cross-tenant data leakage or malicious referencing before any database writes.
+

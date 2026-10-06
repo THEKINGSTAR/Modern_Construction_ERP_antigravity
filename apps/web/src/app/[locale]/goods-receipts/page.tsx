@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import AppLayout from "@/components/AppLayout";
 import {
   getGoodsReceipts,
@@ -61,17 +62,35 @@ export default function GoodsReceiptsPage({ params }: { params: { locale: string
       setWarehouses(whData);
       setMaterials(matData);
 
-      // Default form selections if available
-      if (poData.length > 0 && !form.purchase_order_id) {
-        const p0 = poData[0];
+      // Default form selections if available or URL preselection
+      let targetPo = poData.length > 0 ? poData[0] : null;
+      let autoOpen = false;
+
+      if (typeof window !== "undefined") {
+        const sp = new URLSearchParams(window.location.search);
+        const qPo = sp.get("po_id");
+        if (qPo) {
+          const matchPo = poData.find((p) => p.id === qPo);
+          if (matchPo) {
+            targetPo = matchPo;
+            autoOpen = true;
+            setSearch(matchPo.po_number);
+          }
+        }
+      }
+
+      if (targetPo) {
         setForm((prev) => ({
           ...prev,
-          purchase_order_id: p0.id,
-          supplier_id: p0.supplier_id || (supData[0]?.id ?? ""),
+          purchase_order_id: targetPo.id,
+          supplier_id: targetPo.supplier_id || (supData[0]?.id ?? ""),
           warehouse_id: whData[0]?.id ?? "",
           material_id: matData[0]?.id ?? "",
           receipt_number: `GRN-2026-${String(rcptData.length + 1).padStart(3, "0")}`,
         }));
+        if (autoOpen) {
+          setShowModal(true);
+        }
       }
       setError(null);
     } catch (err: any) {
@@ -267,13 +286,27 @@ export default function GoodsReceiptsPage({ params }: { params: { locale: string
                           {rcpt.status}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={() => setSelectedReceipt(rcpt)}
                           className="px-2.5 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors"
                         >
                           View Lines
                         </button>
+                        <Link
+                          href={`/${params.locale}/material-issues?warehouse_id=${rcpt.warehouse_id}&po_id=${rcpt.purchase_order_id}`}
+                          className="px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-md transition-colors inline-block"
+                          title="Issue Received Material to Project Site"
+                        >
+                          📤 Issue
+                        </Link>
+                        <Link
+                          href={`/${params.locale}/ap/invoices?po_id=${rcpt.purchase_order_id}&grn_id=${rcpt.id}`}
+                          className="px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors inline-block"
+                          title="Register Vendor Invoice for 3-Way Match"
+                        >
+                          🧾 Invoice
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -350,10 +383,30 @@ export default function GoodsReceiptsPage({ params }: { params: { locale: string
                 </div>
               )}
 
-              <div className="mt-5 flex justify-end">
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Link
+                    href={`/${params.locale}/material-issues?warehouse_id=${selectedReceipt.warehouse_id}&po_id=${selectedReceipt.purchase_order_id}`}
+                    className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
+                  >
+                    📤 Issue to Site
+                  </Link>
+                  <Link
+                    href={`/${params.locale}/ap/invoices?po_id=${selectedReceipt.purchase_order_id}&grn_id=${selectedReceipt.id}`}
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm"
+                  >
+                    🧾 Match Invoice
+                  </Link>
+                  <Link
+                    href={`/${params.locale}/warehouses`}
+                    className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold inline-flex items-center gap-1"
+                  >
+                    🏢 View Yard Stock
+                  </Link>
+                </div>
                 <button
                   onClick={() => setSelectedReceipt(null)}
-                  className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-semibold"
+                  className="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-xs font-semibold"
                 >
                   Close Breakdown
                 </button>
